@@ -42,9 +42,10 @@ namespace MNS
             Settings CurrentSettings = Settings.GetCurrentSettings(Settings.SettingsFilePath); // получаем текущие настройки подключения
             SerialPort serialPort = new SerialPort(CurrentSettings.PortName, Settings.BaudRate, Settings.Parity, Settings.DataBits, Settings.StopBits); // конфигурируем COM-порт
 
-            ModbusRTU modbusMeasuring = new ModbusRTU();
-            byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(0x09, 0x03, 200, 1);
-            modbusMeasuring.SendModbusMessage(MeasuringMessage, serialPort);
+            //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
+            TimerCallback tm = new TimerCallback(Measure); // функция обратного вызова метода Measure()
+            Timer timer = new Timer(tm, null, 0, 2000); // 
+            
         }
         
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -53,6 +54,16 @@ namespace MNS
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.ShowDialog();
             VisualEffects.ClearBlurEffect(this);
+        }
+
+        private void Measure(object state)
+        {
+            
+
+            //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
+            ModbusRTU modbusMeasuring = new ModbusRTU();
+            byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(0x09, 0x03, 200, 1);
+            modbusMeasuring.SendModbusMessage(MeasuringMessage, serialPort);
         }
     }
 }

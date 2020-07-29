@@ -22,6 +22,8 @@ namespace MNS
     /// </summary>
     public partial class SettingsWindow : Window
     {
+
+
         public SettingsWindow()
         {
             InitializeComponent();
