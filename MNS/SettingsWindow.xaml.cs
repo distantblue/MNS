@@ -22,7 +22,7 @@ namespace MNS
     /// </summary>
     public partial class SettingsWindow : Window
     {
-
+        ModbusRTUSettings CurrentSettings;
 
         public SettingsWindow()
         {
@@ -32,11 +32,11 @@ namespace MNS
 
         private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            //
             //ТЕКУЩИЕ НАСТРОЙКИ
-            Settings CurrentSettings = null;
             try
             {
-                CurrentSettings = Settings.GetCurrentSettings(Settings.SettingsFilePath); // получаем текущие настройки подключения
+                CurrentSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
             }
             catch (FileNotFoundException exception)
             {
@@ -47,7 +47,7 @@ namespace MNS
                 MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы!" + "\n\n" + "Exception message: " + exception.Message);
             }
             currentSerialPort_label.Content = CurrentSettings.PortName; // отображаем текущий порт в окне настроек
-            currentDeviceAddress_label.Content = "0x"+Settings.ModbusSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
+            currentDeviceAddress_label.Content = "0x"+ModbusRTUSettings.ModbusSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
             currentPollingInterval_label.Content = CurrentSettings.PollingInterval; // отображаем текущий интервал опроса
 
             //ЗАПОЛНЕНИЕ НАСТРОЕК ДЛЯ ВОЗМОЖНОСТИ ИЗМЕНЕНИЯ
@@ -77,10 +77,10 @@ namespace MNS
             }
             if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "")
             {
-                Settings newSettings = new Settings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text));
+                ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text));
                 try
                 {
-                    Settings.SaveSettings(newSettings, Settings.SettingsFilePath);
+                    ModbusRTUSettings.SaveSettings(newSettings, ModbusRTUSettings.ModbusRTUSettingsFilePath);
                 }
                 catch (Exception exception)
                 {

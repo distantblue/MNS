@@ -10,11 +10,11 @@ using System.IO.Ports;
 namespace MNS
 {
     [Serializable]
-    public class Settings
+    public class ModbusRTUSettings
     {
         //ПУТЬ к ФАЙЛУ НАСТРОЕК
         [NonSerialized]
-        public static string SettingsFilePath = @"Settings.dat";
+        public static string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
 
         //НАСТРОЙКИ Modbus
         [NonSerialized]
@@ -35,25 +35,25 @@ namespace MNS
         public int PollingInterval { get; set; }
 
 
-        public Settings(string portName, int pollingInterval)
+        public ModbusRTUSettings(string portName, int pollingInterval)
         {
             PortName = portName;
             PollingInterval = pollingInterval;
         }
 
-        public static Settings GetCurrentSettings(string settingsFilePath)
+        public static ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
         {
-            Settings currentSettings = null;
+            ModbusRTUSettings currentSettings = null;
             BinaryFormatter binaryFormatter = new BinaryFormatter();
 
             using (FileStream fileStream = new FileStream(settingsFilePath, FileMode.Open)) // десериализация объекта
             {
-                currentSettings = (Settings)binaryFormatter.Deserialize(fileStream);
+                currentSettings = (ModbusRTUSettings)binaryFormatter.Deserialize(fileStream);
             }
             return currentSettings;
         }
 
-        public static void SaveSettings(Settings settings, string settingsFilePath)
+        public static void SaveSettings(ModbusRTUSettings settings, string settingsFilePath)
         {
             BinaryFormatter binaryFormatter = new BinaryFormatter();
 
