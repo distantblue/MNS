@@ -32,7 +32,6 @@ namespace MNS
 
         private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //
             //ТЕКУЩИЕ НАСТРОЙКИ
             try
             {
@@ -84,7 +83,7 @@ namespace MNS
                 }
                 catch (Exception exception)
                 {
-                    MessageBox.Show("Возникла ошибка при попытке сохранения настроек подключения устройства!" + "\n\n" + "Exception message: " + exception.Message);
+                    MessageBox.Show("Возникла ошибка при попытке сохранения настроек подключения устройства" + "\n\n" + "Exception message: " + exception.Message);
                 }
                 ;
                 MessageBox.Show("Настройки успешно сохранены!");
