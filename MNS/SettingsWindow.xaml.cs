@@ -40,7 +40,7 @@ namespace MNS
             }
             catch (FileNotFoundException exception)
             {
-                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек Settings.dat!" + "\n\n" + "Exception message: " + exception.Message);
+                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat!" + "\n\n" + "Exception message: " + exception.Message);
             }
             catch (Exception exception)
             {

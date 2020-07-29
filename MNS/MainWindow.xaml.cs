@@ -24,6 +24,8 @@ namespace MNS
     {
         //public static string SettingsFilePath = @"Settings.dat";
         //public static ushort DeviceAddress = 0x9;
+        ModbusRTUSettings CurrentModbusRTUSettings;
+        SerialPort SerialPort;
 
         public MainWindow()
         {
@@ -38,9 +40,8 @@ namespace MNS
 
         private void StartMeasuring_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            //ТЕКУЩИЕ НАСТРОЙКИ COM порта
-            ModbusRTUSettings CurrentSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.SettingsFilePath); // получаем текущие настройки подключения
-            SerialPort serialPort = new SerialPort(CurrentSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
+            //Получаем ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
+            GetCurrentModbusRTUSettings();
 
             //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
             TimerCallback tm = new TimerCallback(Measure); // функция обратного вызова метода Measure()
@@ -61,7 +62,16 @@ namespace MNS
             //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
             ModbusRTU modbusMeasuring = new ModbusRTU();
             byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(0x09, 0x03, 200, 1);
-            modbusMeasuring.SendModbusMessage(MeasuringMessage, serialPort);
+            modbusMeasuring.SendModbusMessage(MeasuringMessage, SerialPort);
+        }
+
+        private void GetCurrentModbusRTUSettings()
+        {
+            //ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
+            CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
+            SerialPort = new SerialPort(CurrentModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
+
+            
         }
     }
 }
