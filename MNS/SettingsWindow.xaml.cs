@@ -61,11 +61,15 @@ namespace MNS
 
         private void SettingsButtonSave_Click(object sender, RoutedEventArgs e)
         {
-            if (portName_ComboBox.Text == "")
+            if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text == "")
+            {
+                MessageBox.Show("Вы не выбрали COM-порт и интервал опроса устройства");
+            }
+            if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text != "")
             {
                 MessageBox.Show("Вы не выбрали COM-порт");
             }
-            if (pollingInterval_ComboBox.Text == "")
+            if (pollingInterval_ComboBox.Text == "" && portName_ComboBox.Text != "")
             {
                 MessageBox.Show("Вы не выбрали интервал опроса устройства");
             }
