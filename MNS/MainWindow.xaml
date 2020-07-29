@@ -1,0 +1,32 @@
+﻿<Window x:Class="MNS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MNS"
+        mc:Ignorable="d"
+        Title="МНС 1100 - Измерительная система для ПК" MinHeight="600" MinWidth="900" Height="800" Width="1200" Background="LightSlateGray" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Top">
+                <Border BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
+                    <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White">
+                        <MenuItem Header="Управление">
+                            <MenuItem Header="Начать измерение" Click="StartMeasuring_MenuItem_Click"/>
+                            <MenuItem Header="Стоп"/>
+                            <MenuItem Header="Сохранить данные"/>
+                            <MenuItem Header="Выход"/>
+                        </MenuItem>
+                        <MenuItem Header="Настройки">
+                            <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="О программе">
+                            <MenuItem Header="Информация о ПО"/>
+                            <MenuItem Header="Техническая поддержка"/>
+                        </MenuItem>
+                    </Menu>
+                </Border>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

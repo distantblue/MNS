@@ -1,0 +1,51 @@
+﻿<Window x:Class="MNS.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MNS"
+        mc:Ignorable="d"
+        Title="Настройки подключения МНС 1100" Width="800" Height="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="DarkKhaki">
+    <Grid>
+        <DockPanel>
+            <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
+                <StackPanel DockPanel.Dock="Left" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label FontWeight="DemiBold" Margin="0,0,0,20">ТЕКУЩИЕ НАСТРОЙКИ:</Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Порт:</Label>
+                        <Label x:Name="currentSerialPort_label" HorizontalAlignment="Center" FontWeight="DemiBold"></Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>MODBUS адрес устройства (HEX):</Label>
+                        <Label x:Name="currentDeviceAddress_label" FontWeight="DemiBold"></Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Интервал опроса:</Label>
+                        <Label x:Name="currentPollingInterval_label" HorizontalAlignment="Center" FontWeight="DemiBold"></Label>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="2" Margin="4,8,8,8" CornerRadius="12">
+                <StackPanel DockPanel.Dock="Right" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label FontWeight="DemiBold" Margin="0,0,0,20">ИЗМЕНИТЬ НАСТРОЙКИ:</Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,1">
+                        <Label>Последовательный порт RS232 для связи с прибором, [имя порта]:</Label>
+                        <ComboBox x:Name="portName_ComboBox"  Width="100" HorizontalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,1">
+                        <Label>Интервал опроса прибора, [c]:</Label>
+                        <ComboBox x:Name="pollingInterval_ComboBox"  Width="100" HorizontalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="SettingsButtonSave" Margin="5,40,100,5" Padding="4" Click="SettingsButtonSave_Click">Сохранить</Button>
+                        <Button x:Name="SettingsButtonCancel" Margin="100,40,5,5" Padding="4" Click="SettingsButtonCancel_Click">Отмена</Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DockPanel>
+    </Grid>
+</Window>
