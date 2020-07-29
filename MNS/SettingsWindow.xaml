@@ -22,7 +22,7 @@
                         <Label x:Name="currentDeviceAddress_label" FontWeight="DemiBold"></Label>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label>Интервал опроса:</Label>
+                        <Label>Интервал опроса, [с]:</Label>
                         <Label x:Name="currentPollingInterval_label" HorizontalAlignment="Center" FontWeight="DemiBold"></Label>
                     </StackPanel>
                 </StackPanel>

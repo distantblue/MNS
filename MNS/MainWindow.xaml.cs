@@ -22,8 +22,6 @@ namespace MNS
     /// </summary>
     public partial class MainWindow : Window
     {
-        //public static string SettingsFilePath = @"Settings.dat";
-        //public static ushort DeviceAddress = 0x9;
         ModbusRTUSettings CurrentModbusRTUSettings;
         SerialPort SerialPort;
 
@@ -44,8 +42,8 @@ namespace MNS
             GetCurrentModbusRTUSettings();
 
             //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
-            TimerCallback tm = new TimerCallback(Measure); // функция обратного вызова метода Measure()
-            Timer timer = new Timer(tm, null, 0, 2000); // 
+            TimerCallback timerCallback = new TimerCallback(Measure); // функция обратного вызова метода Measure()
+            Timer timer = new Timer(timerCallback, null, 0, ModbusRTUSettings.PollingInterval); // 
             
         }
         
@@ -70,8 +68,6 @@ namespace MNS
             //ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
             CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
             SerialPort = new SerialPort(CurrentModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
-
-            
         }
     }
 }

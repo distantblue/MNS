@@ -39,11 +39,11 @@ namespace MNS
             }
             catch (FileNotFoundException exception)
             {
-                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat!" + "\n\n" + "Exception message: " + exception.Message);
+                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message);
             }
             catch (Exception exception)
             {
-                MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы!" + "\n\n" + "Exception message: " + exception.Message);
+                MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message);
             }
             currentSerialPort_label.Content = CurrentSettings.PortName; // отображаем текущий порт в окне настроек
             currentDeviceAddress_label.Content = "0x"+ModbusRTUSettings.ModbusSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
@@ -86,7 +86,7 @@ namespace MNS
                     MessageBox.Show("Возникла ошибка при попытке сохранения настроек подключения устройства" + "\n\n" + "Exception message: " + exception.Message);
                 }
                 ;
-                MessageBox.Show("Настройки успешно сохранены!");
+                MessageBox.Show("Настройки успешно сохранены");
                 this.Close();
             }
         }
