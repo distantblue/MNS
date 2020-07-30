@@ -43,7 +43,7 @@ namespace MNS
             for (int i = 0; i < data.Length; i++) // для каждого байта в Modbus сообщении
             {
                 CRC ^= data[i]; // исключающее ИЛИ (XOR) с каждым байтом данных в сообщении
-                for(int j = 0; j < 8; j++) // для каждого бита в байте
+                for (int j = 0; j < 8; j++) // для каждого бита в байте
                 {
                     bool LSB_flag = false;
                     if ((CRC & 0x0001) == 0x0001) // если младший бит 1
@@ -74,7 +74,7 @@ namespace MNS
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка открытия порта или записи данных в него: " + ex.Message, "Ошибка!");
+                MessageBox.Show("Ошибка открытия порта или записи данных в него: " + "\n\n" + ex.Message, "Ошибка!");
             }
             serialPort.Close();
         }

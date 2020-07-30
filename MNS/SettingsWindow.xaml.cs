@@ -22,7 +22,7 @@ namespace MNS
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        ModbusRTUSettings CurrentSettings;
+        ModbusRTUSettings CurrentModbusRTUSettings;
 
         public SettingsWindow()
         {
@@ -32,10 +32,10 @@ namespace MNS
 
         private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //ТЕКУЩИЕ НАСТРОЙКИ
+            //ПРОВЕРКА ФАЙЛА НАСТРОЕК
             try
             {
-                CurrentSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
+                CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
             }
             catch (FileNotFoundException exception)
             {
@@ -45,9 +45,11 @@ namespace MNS
             {
                 MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message);
             }
-            currentSerialPort_label.Content = CurrentSettings.PortName; // отображаем текущий порт в окне настроек
+
+            //ТЕКУЩИЕ НАСТРОЙКИ
+            currentSerialPort_label.Content = CurrentModbusRTUSettings.PortName; // отображаем текущий порт в окне настроек
             currentDeviceAddress_label.Content = "0x"+ModbusRTUSettings.ModbusSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
-            currentPollingInterval_label.Content = CurrentSettings.PollingInterval; // отображаем текущий интервал опроса
+            currentPollingInterval_label.Content = CurrentModbusRTUSettings.PollingInterval; // отображаем текущий интервал опроса
 
             //ЗАПОЛНЕНИЕ НАСТРОЕК ДЛЯ ВОЗМОЖНОСТИ ИЗМЕНЕНИЯ
             string[] serialPortNames = SerialPort.GetPortNames(); // получаем массив доступных COM-портов на ПК
@@ -62,6 +64,7 @@ namespace MNS
 
         private void SettingsButtonSave_Click(object sender, RoutedEventArgs e)
         {
+            //ПРОВЕРКА НА ПУСТЫЕ ПОЛЯ НАСТРОЕК
             if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text == "")
             {
                 MessageBox.Show("Вы не выбрали COM-порт и интервал опроса устройства");
@@ -74,6 +77,8 @@ namespace MNS
             {
                 MessageBox.Show("Вы не выбрали интервал опроса устройства");
             }
+
+            //СОХРАНЕНИЕ НАСТРОЕК
             if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "")
             {
                 ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text));

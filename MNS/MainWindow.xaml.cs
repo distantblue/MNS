@@ -38,13 +38,12 @@ namespace MNS
 
         private void StartMeasuring_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            //Получаем ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
+            //ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
             GetCurrentModbusRTUSettings();
 
             //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
             TimerCallback timerCallback = new TimerCallback(Measure); // функция обратного вызова метода Measure()
-            Timer timer = new Timer(timerCallback, null, 0, ModbusRTUSettings.PollingInterval); // 
-            
+            Timer timer = new Timer(timerCallback, null, 0, CurrentModbusRTUSettings.PollingInterval*1000); 
         }
         
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -55,11 +54,11 @@ namespace MNS
             VisualEffects.ClearBlurEffect(this);
         }
 
-        private void Measure(object state)
+        private void Measure(object obj)
         {
             //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
             ModbusRTU modbusMeasuring = new ModbusRTU();
-            byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(0x09, 0x03, 200, 1);
+            byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
             modbusMeasuring.SendModbusMessage(MeasuringMessage, SerialPort);
         }
 

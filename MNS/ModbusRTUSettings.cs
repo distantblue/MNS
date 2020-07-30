@@ -32,7 +32,7 @@ namespace MNS
         public static int DataBits = 8;
 
         //ИНТЕРВАЛ ОПРОСА
-        public static int PollingInterval { get; set; }
+        public int PollingInterval { get; set; }
 
 
         public ModbusRTUSettings(string portName, int pollingInterval)
