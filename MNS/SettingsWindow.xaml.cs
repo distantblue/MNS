@@ -39,11 +39,11 @@ namespace MNS
             }
             catch (FileNotFoundException exception)
             {
-                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message);
+                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
             }
             catch (Exception exception)
             {
-                MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message);
+                MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
             }
 
             //ТЕКУЩИЕ НАСТРОЙКИ
@@ -88,7 +88,7 @@ namespace MNS
                 }
                 catch (Exception exception)
                 {
-                    MessageBox.Show("Возникла ошибка при попытке сохранения настроек подключения устройства" + "\n\n" + "Exception message: " + exception.Message);
+                    MessageBox.Show("Возникла ошибка при попытке сохранения настроек подключения устройства" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
                 }
                 ;
                 MessageBox.Show("Настройки успешно сохранены");

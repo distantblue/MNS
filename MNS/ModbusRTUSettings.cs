@@ -25,20 +25,30 @@ namespace MNS
         [NonSerialized]
         public static int BaudRate = 19200;
         [NonSerialized]
-        public static Parity Parity = Parity.None;
+        public static Parity Parity = Parity.Even;
         [NonSerialized]
         public static StopBits StopBits = StopBits.One;
         [NonSerialized]
         public static int DataBits = 8;
+        [NonSerialized]
+        public static Handshake Handshake = Handshake.None;
 
         //ИНТЕРВАЛ ОПРОСА
         public int PollingInterval { get; set; }
 
+        //ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
+        [NonSerialized]
+        public static int SilentInterval = GetSilentInterval();
+
+        //ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от SLAVE-устройства [мс]
+        [NonSerialized]
+        public static int ReponseTimeout = 150;
 
         public ModbusRTUSettings(string portName, int pollingInterval)
         {
             PortName = portName;
             PollingInterval = pollingInterval;
+            SilentInterval = GetSilentInterval();
         }
 
         public static ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
@@ -61,6 +71,20 @@ namespace MNS
             {
                 binaryFormatter.Serialize(fileStream, settings);
             }
+        }
+
+        private static int GetSilentInterval()
+        {
+            int delay = 1; // задержка в [мс]
+            if (BaudRate == 19200) 
+            {
+                return delay;
+            }
+            if (BaudRate == 9600 | BaudRate > 19200)
+            {
+                return delay = 2;
+            }
+            return delay;
         }
     }
 }

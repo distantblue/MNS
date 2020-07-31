@@ -60,6 +60,7 @@ namespace MNS
             ModbusRTU modbusMeasuring = new ModbusRTU();
             byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
             modbusMeasuring.SendModbusMessage(MeasuringMessage, SerialPort);
+            
         }
 
         private void GetCurrentModbusRTUSettings()
@@ -67,6 +68,6 @@ namespace MNS
             //ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
             CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
             SerialPort = new SerialPort(CurrentModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
-        }
+        }   
     }
 }

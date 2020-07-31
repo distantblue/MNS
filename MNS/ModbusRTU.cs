@@ -12,6 +12,8 @@ namespace MNS
     {
         private List<byte> Modbus_Message;
         public byte[] ModbusMessage;
+        public delegate void ModbusResponseHandler();
+        event ModbusResponseHandler ResponseReceived;
 
         public ModbusRTU()
         {
@@ -62,10 +64,9 @@ namespace MNS
 
         public void SendModbusMessage(byte[] modbusMessage, SerialPort serialPort)
         {
-            serialPort.Handshake = Handshake.None;
-            serialPort.ReadTimeout = 500;
-            serialPort.WriteTimeout = 500;
-
+            serialPort.Handshake = ModbusRTUSettings.Handshake;
+            serialPort.WriteTimeout = ModbusRTUSettings.SilentInterval;
+            serialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout;
             try
             {
                 if (!(serialPort.IsOpen))
@@ -76,7 +77,13 @@ namespace MNS
             {
                 MessageBox.Show("Ошибка открытия порта или записи данных в него: " + "\n\n" + ex.Message, "Ошибка!");
             }
+
             serialPort.Close();
+        }
+
+        public void ReceiveModbusMessage()
+        {
+
         }
     }
 }
