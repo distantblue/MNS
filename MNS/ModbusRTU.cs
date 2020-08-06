@@ -10,10 +10,12 @@ namespace MNS
 {
     class ModbusRTU
     {
+        //переменная которая будет хранить сообщние-команду Modbus в виде List
         private List<byte> Modbus_Message;
+        //переменная которая будет хранить сообщние-команду Modbus в виде byte[]
         public byte[] ModbusMessage;
-        public delegate void ModbusResponseHandler();
-        event ModbusResponseHandler ResponseReceived;
+        //объявляем событие при 
+        public event ModbusResponseHandler ResponseReceived;
 
         public ModbusRTU()
         {
