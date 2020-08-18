@@ -12,6 +12,12 @@ namespace MNS
     [Serializable]
     public class ModbusRTUSettings
     {
+        //НАСТРОЙКИ COM-порта
+        public static string PortName { get; set; }
+
+        //ИНТЕРВАЛ ОПРОСА
+        public int PollingInterval { get; set; }
+
         //ПУТЬ к ФАЙЛУ НАСТРОЕК
         [NonSerialized]
         public static string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
@@ -19,9 +25,6 @@ namespace MNS
         //НАСТРОЙКИ Modbus
         [NonSerialized]
         public static byte ModbusSlaveAddress = 0x9;
-
-        //НАСТРОЙКИ COM-порта
-        public string PortName { get; set; }
         [NonSerialized]
         public static int BaudRate = 19200;
         [NonSerialized]
@@ -32,9 +35,6 @@ namespace MNS
         public static int DataBits = 8;
         [NonSerialized]
         public static Handshake Handshake = Handshake.None;
-
-        //ИНТЕРВАЛ ОПРОСА
-        public int PollingInterval { get; set; }
 
         //ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
         [NonSerialized]
@@ -76,7 +76,7 @@ namespace MNS
         private static int GetSilentInterval()
         {
             int delay = 1; // задержка в [мс]
-            if (BaudRate == 19200) 
+            if (BaudRate == 19200)
             {
                 return delay;
             }

@@ -22,13 +22,16 @@ namespace MNS
     /// </summary>
     public partial class MainWindow : Window
     {
-        ModbusRTUSettings CurrentModbusRTUSettings;
-        SerialPort SerialPort;
-        ushort SlaveState; //ПЕРЕМЕННАЯ котора будет хранить СТАТУС ПРИБОРА
-        ModbusRTU.ModbusHandler += Method(); //; //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ
+        //ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
+        ModbusRTUSettings CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
         
+        //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
+        ModbusRTU modbus = new ModbusRTU();
 
-
+        //ПЕРЕМЕННАЯ котора будет хранить СТАТУС ПРИБОРА
+        ushort SlaveState; 
+        
+        //ModbusRTU.ModbusHandler += Method(); //; //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ
 
         public MainWindow()
         {
@@ -43,9 +46,6 @@ namespace MNS
 
         private void StartMeasuring_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            //ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
-            GetCurrentModbusRTUSettings();
-
             //ПОЛУЧАЕМ СТАТУС ПРИБОРА если он подключен
             GetSlaveState();
 
@@ -64,9 +64,8 @@ namespace MNS
 
         public void SendCommand(byte functionCode, ushort register, ushort quantityOfRegisters)
         {
-            ModbusRTU modbus = new ModbusRTU(); //СОЗДАНИЕ ОБЪЕКТА
             byte[] slaveStateMessage = modbus.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, functionCode, register, quantityOfRegisters); //ФОРМИРОВАНИЕ СООБЩЕНИЯ
-            modbus.SendModbusMessage(slaveStateMessage, SerialPort); //ОТПРАВКА ЗАПРОСА
+            modbus.SendModbusMessage(slaveStateMessage); //ОТПРАВКА ЗАПРОСА
         }
 
         private void GetSlaveState()
@@ -81,15 +80,8 @@ namespace MNS
             //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
             ModbusRTU modbusMeasuring = new ModbusRTU();
             byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
-            modbusMeasuring.SendModbusMessage(MeasuringMessage, SerialPort);
+            modbusMeasuring.SendModbusMessage(MeasuringMessage);
 
-        }
-
-        private void GetCurrentModbusRTUSettings()
-        {
-            //ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
-            CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); //получаем текущие настройки подключения
-            SerialPort = new SerialPort(CurrentModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
         }
     }
 }

@@ -10,20 +10,27 @@ namespace MNS
 {
     class ModbusRTU
     {
-        //переменная которая будет хранить сообщние-команду Modbus в виде List
+        //Переменная которая будет хранить сообщние-команду Modbus в виде List
         private List<byte> Modbus_Message;
-        //переменная которая будет хранить сообщние-команду Modbus в виде byte[]
+        //Переменная которая будет хранить сообщние-команду Modbus в виде byte[]
         public byte[] ModbusMessage;
+        //Экземпляр класса SerialPort
+        private SerialPort SerialPort; 
+
         //Объявляем делегат
         public delegate void ModbusHandler(byte[] message);
-        //объявляем событие "получен ответ от SLAVE-устройства"
+        //Объявляем событие "получен ответ от SLAVE-устройства"
         public event ModbusHandler ResponseReceived;
-        //объявляем событие "не получен ответ от SLAVE-устройства"
+        //Объявляем событие "не получен ответ от SLAVE-устройства"
         public event ModbusHandler ResponseError;
 
         public ModbusRTU()
         {
             Modbus_Message = new List<byte>();
+            SerialPort.Handshake = ModbusRTUSettings.Handshake;
+            SerialPort.WriteTimeout = ModbusRTUSettings.SilentInterval;
+            SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout;
+            SerialPort = new SerialPort(ModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
         }
 
         public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
@@ -68,29 +75,44 @@ namespace MNS
             return CRC;
         }
 
-        public void SendModbusMessage(byte[] modbusMessage, SerialPort serialPort)
+        public void SendModbusMessage(byte[] modbusMessage)
         {
-            serialPort.Handshake = ModbusRTUSettings.Handshake;
-            serialPort.WriteTimeout = ModbusRTUSettings.SilentInterval;
-            serialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout;
             try
             {
-                if (!(serialPort.IsOpen))
-                    serialPort.Open();
-                serialPort.Write(ModbusMessage, 0, ModbusMessage.Length);
+                if (!SerialPort.IsOpen)
+                    SerialPort.Open();
+                SerialPort.Write(ModbusMessage, 0, ModbusMessage.Length);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка открытия порта или записи данных в него: " + "\n\n" + ex.Message, "Ошибка!");
             }
 
-            serialPort.Close();
+            SerialPort.Close();
         }
 
-        public void ReceiveModbusMessage()
+        public void ListenToSlaveResponse()
         {
-            ResponseReceived?.Invoke();
+            try
+            {
+                if (!SerialPort.IsOpen)
+                    SerialPort.Open();
+                //SerialPort.DataReceived+= new SerialDataReceivedEventHandler(SerialPortDataReceived);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка открытия порта или чтения данных из него: " + "\n\n" + ex.Message, "Ошибка!");
+            }
+
+            SerialPort.Close();
+            //ResponseReceived?.Invoke();
         }
+
+        //public static void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
+        //{
+        //    int bytesQuantity;
+        //    bytesQuantity = 
+        //}
 
 
     }
