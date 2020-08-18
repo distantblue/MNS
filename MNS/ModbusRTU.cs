@@ -27,10 +27,11 @@ namespace MNS
         public ModbusRTU()
         {
             Modbus_Message = new List<byte>();
+            SerialPort = new SerialPort(ModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
             SerialPort.Handshake = ModbusRTUSettings.Handshake;
             SerialPort.WriteTimeout = ModbusRTUSettings.SilentInterval;
             SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout;
-            SerialPort = new SerialPort(ModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
+            
         }
 
         public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
