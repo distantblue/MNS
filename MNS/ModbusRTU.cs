@@ -14,8 +14,12 @@ namespace MNS
         private List<byte> Modbus_Message;
         //переменная которая будет хранить сообщние-команду Modbus в виде byte[]
         public byte[] ModbusMessage;
-        //объявляем событие при 
-        public event ModbusResponseHandler ResponseReceived;
+        //Объявляем делегат
+        public delegate void ModbusHandler(byte[] message);
+        //объявляем событие "получен ответ от SLAVE-устройства"
+        public event ModbusHandler ResponseReceived;
+        //объявляем событие "не получен ответ от SLAVE-устройства"
+        public event ModbusHandler ResponseError;
 
         public ModbusRTU()
         {
@@ -85,7 +89,9 @@ namespace MNS
 
         public void ReceiveModbusMessage()
         {
-
+            ResponseReceived?.Invoke();
         }
+
+
     }
 }
