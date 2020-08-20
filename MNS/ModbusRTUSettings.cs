@@ -13,7 +13,7 @@ namespace MNS
     public class ModbusRTUSettings
     {
         //НАСТРОЙКИ COM-порта
-        public static string PortName { get; set; }
+        public string PortName { get; set; }
 
         //ИНТЕРВАЛ ОПРОСА
         public int PollingInterval { get; set; }

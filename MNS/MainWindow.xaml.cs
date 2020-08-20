@@ -23,10 +23,10 @@ namespace MNS
     public partial class MainWindow : Window
     {
         //ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
-        ModbusRTUSettings CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
-        
+        ModbusRTUSettings CurrentModbusRTUSettings;
+
         //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
-        ModbusRTU modbus = new ModbusRTU();
+        ModbusRTU modbus;// = new ModbusRTU(CurrentModbusRTUSettings);
 
         //ПЕРЕМЕННАЯ котора будет хранить СТАТУС ПРИБОРА
         ushort SlaveState; 
@@ -37,6 +37,8 @@ namespace MNS
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
+            modbus = new ModbusRTU(CurrentModbusRTUSettings);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -78,9 +80,9 @@ namespace MNS
         private void Measure(object obj)
         {
             //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
-            ModbusRTU modbusMeasuring = new ModbusRTU();
-            byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
-            modbusMeasuring.SendModbusMessage(MeasuringMessage);
+            //ModbusRTU modbusMeasuring = new ModbusRTU();
+            //byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
+            //modbusMeasuring.SendModbusMessage(MeasuringMessage);
 
         }
     }

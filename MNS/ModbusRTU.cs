@@ -24,24 +24,27 @@ namespace MNS
         //Объявляем событие "не получен ответ от SLAVE-устройства"
         public event ModbusHandler ResponseError;
 
-        public ModbusRTU()
+        /// <summary>
+        /// Конструктор класса ModbusRTU
+        /// </summary>
+        /// <param name="modbusRTUSettings">Экземпляр класса ModbusRTUSettings</param>
+        public ModbusRTU(ModbusRTUSettings modbusRTUSettings)
         {
             Modbus_Message = new List<byte>();
-            SerialPort = new SerialPort(ModbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
+            SerialPort = new SerialPort(modbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
             SerialPort.Handshake = ModbusRTUSettings.Handshake;
             SerialPort.WriteTimeout = ModbusRTUSettings.SilentInterval;
             SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout;
-            
         }
 
-        public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
+        public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
         {
             Modbus_Message.Add(SlaveAddress);
             Modbus_Message.Add(ModbusFunctionCode);
-            Modbus_Message.Add((byte)(StartingAddressOfRegister >> 8)); // сдвиг регистров на 8 позиций вправо, чтобы получить старший байт [HI Byte] 16 битного числа
-            Modbus_Message.Add((byte)(StartingAddressOfRegister & 0xFF)); // накладываем битовую маску 00000000 11111111 (0xFF) чтобы получить младший байт [LO Byte] 16 битного числа
-            Modbus_Message.Add((byte)(QuantityOfRegisters >> 8)); // сдвиг регистров на 8 позиций вправо, чтобы получить старший байт [HI Byte] 16 битного числа
-            Modbus_Message.Add((byte)(QuantityOfRegisters & 0xFF)); // накладываем битовую маску 00001111 (0xF) чтобы получить младший байт [LO Byte] 16 битного числа
+            Modbus_Message.Add((byte)(StartingAddressOfRegisterToRead >> 8)); // сдвиг регистров на 8 позиций вправо, чтобы получить старший байт [HI Byte] 16 битного числа
+            Modbus_Message.Add((byte)(StartingAddressOfRegisterToRead & 0xFF)); // накладываем битовую маску 00000000 11111111 (0xFF) чтобы получить младший байт [LO Byte] 16 битного числа
+            Modbus_Message.Add((byte)(QuantityOfRegistersToRead >> 8)); // сдвиг регистров на 8 позиций вправо, чтобы получить старший байт [HI Byte] 16 битного числа
+            Modbus_Message.Add((byte)(QuantityOfRegistersToRead & 0xFF)); // накладываем битовую маску 00001111 (0xF) чтобы получить младший байт [LO Byte] 16 битного числа
             byte[] data = Modbus_Message.ToArray(); // формируем массив данных по которым будет выполнен подсчет контрольной суммы
             ushort CRC = GenerateCRC(data); // генерация контрольной суммы
             byte CRC_LO_byte = (byte)(CRC & 0xFF); // разделение 2 байт на старший и младший байты
@@ -53,7 +56,13 @@ namespace MNS
             return ModbusMessage;
         }
 
-        ushort GenerateCRC(byte[] data)
+        public byte[] BuildModbusMessage(byte[] bytesToWrite, byte SlaveAddress, byte ModbusFunctionCode,  ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
+        {
+            //позже
+            return ModbusMessage;
+        }
+
+        private ushort GenerateCRC(byte[] data)
         {
             ushort CRC = 0xFFFF; // 11111111 11111111
             for (int i = 0; i < data.Length; i++) // для каждого байта в Modbus сообщении
@@ -76,7 +85,7 @@ namespace MNS
             return CRC;
         }
 
-        public void SendModbusMessage(byte[] modbusMessage)
+        private void SendModbusMessage(byte[] modbusMessage)
         {
             try
             {
@@ -90,6 +99,16 @@ namespace MNS
             }
 
             SerialPort.Close();
+        }
+
+        public void SendDataRequest(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
+        {
+            SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead));
+        }
+
+        public void SendCommand()
+        {
+
         }
 
         public void ListenToSlaveResponse()
