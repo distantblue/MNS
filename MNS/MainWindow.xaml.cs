@@ -64,16 +64,18 @@ namespace MNS
             VisualEffects.ClearBlurEffect(this);
         }
 
+        /*
+
         public void SendCommand(byte functionCode, ushort register, ushort quantityOfRegisters)
         {
             byte[] slaveStateMessage = modbus.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, functionCode, register, quantityOfRegisters); //ФОРМИРОВАНИЕ СООБЩЕНИЯ
             modbus.SendModbusMessage(slaveStateMessage); //ОТПРАВКА ЗАПРОСА
         }
-
+        */
         private void GetSlaveState()
         {
             //ushort SlaveState = 0xFFFF; //начальная инициализация значением 11111111 11111111;
-            SendCommand(0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
+            modbus.SendRequestToSlaveDeviceToReceiveData(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
             //return SlaveState;
         }
 

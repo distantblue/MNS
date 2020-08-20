@@ -15,7 +15,7 @@ namespace MNS
         //Переменная которая будет хранить сообщние-команду Modbus в виде byte[]
         public byte[] ModbusMessage;
         //Экземпляр класса SerialPort
-        private SerialPort SerialPort; 
+        private SerialPort SerialPort;
 
         //Объявляем делегат
         public delegate void ModbusHandler(byte[] message);
@@ -56,7 +56,7 @@ namespace MNS
             return ModbusMessage;
         }
 
-        public byte[] BuildModbusMessage(byte[] bytesToWrite, byte SlaveAddress, byte ModbusFunctionCode,  ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
+        public byte[] BuildModbusMessage(byte[] bytesToWrite, byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
         {
             //позже
             return ModbusMessage;
@@ -90,7 +90,9 @@ namespace MNS
             try
             {
                 if (!SerialPort.IsOpen)
+                {
                     SerialPort.Open();
+                }
                 SerialPort.Write(ModbusMessage, 0, ModbusMessage.Length);
             }
             catch (Exception ex)
@@ -101,14 +103,14 @@ namespace MNS
             SerialPort.Close();
         }
 
-        public void SendDataRequest(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
+        public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
         {
             SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead));
         }
 
-        public void SendCommand()
+        public void SendCommandToSlaveDevice()
         {
-
+            //позже...
         }
 
         public void ListenToSlaveResponse()
@@ -124,7 +126,7 @@ namespace MNS
                 MessageBox.Show("Ошибка открытия порта или чтения данных из него: " + "\n\n" + ex.Message, "Ошибка!");
             }
 
-            SerialPort.Close();
+            //SerialPort.Close();
             //ResponseReceived?.Invoke();
         }
 
