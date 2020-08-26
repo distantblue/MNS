@@ -35,7 +35,7 @@ namespace MNS
         public static int DataBits = 8;
         [NonSerialized]
         public static Handshake Handshake = Handshake.None;
-
+        
         //ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
         [NonSerialized]
         public int SilentInterval = GetSilentInterval();

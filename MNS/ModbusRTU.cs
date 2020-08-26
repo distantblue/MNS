@@ -37,7 +37,7 @@ namespace MNS
             SerialPort = new SerialPort(modbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
             SerialPort.Handshake = ModbusRTUSettings.Handshake;
             SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа на COM-порт
-            SerialPort.WriteTimeout = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
+            //SerialPort.WriteTimeout = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
         }
 
         public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
@@ -88,6 +88,34 @@ namespace MNS
             return CRC;
         }
 
+        private bool CheckCRC_Correct(byte[] modbusMessage)
+        {
+            bool res = false;
+            byte[] data = new byte[modbusMessage.Length-2];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = modbusMessage[i];
+            }
+
+            ushort CRC = GenerateCRC(modbusMessage); // генерация контрольной суммы
+
+            //Cтарший и младший байт контрольной суммы
+            byte CRC_LO_byte = (byte)(CRC & 0xFF);
+            byte CRC_HI_byte = (byte)(CRC >> 8);
+
+            //Полученные байты контрольной суммы
+            byte received_CRC_LO_byte = modbusMessage[modbusMessage.Length-2]; 
+            byte received_CRC_HI_byte = modbusMessage[modbusMessage.Length - 1];
+
+            //Сравнение
+            if (CRC_LO_byte == received_CRC_LO_byte && CRC_HI_byte== received_CRC_HI_byte)
+            {
+                res = true;
+            }
+            return res;
+        }
+
         private void SendModbusMessage(byte[] modbusMessage)
         {
             if (!SerialPort.IsOpen)
@@ -109,7 +137,7 @@ namespace MNS
             {
                 MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
             }
-
+            SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
             SerialPort.Close();
         }
 
@@ -136,7 +164,7 @@ namespace MNS
             {
                 MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
             }
-
+            SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
             SerialPort.Close();
         }
 
@@ -144,16 +172,35 @@ namespace MNS
         private void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            int buferSize = sp.BytesToRead; // получаем количество пришедших байтов данных в буфере приема
+            int bufferSize = sp.BytesToRead; // получаем количество пришедших байтов данных в буфере приема
+            byte[] buffer = new byte[bufferSize]; //создаем массив байтов
 
-            //считываем побайтно:
-            for (int i = 0; i < length; i++)
+            sp.DiscardNull = false; //не игнорировать пустые байты - 0000 0000
+
+            //считываем побайтно и заполняем массив байтов:
+            for (int i = 0; i < bufferSize; i++)
             {
-                //https://qna.habr.com/q/199341
+                buffer[i] = (byte)sp.ReadByte();
             }
-            //sp.ReadExisting();
-            // int bytesQuantity;
-            // bytesQuantity = 
+
+            sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
+            sp.DiscardOutBuffer(); //удаляем данные из буфера приема
+            sp.DiscardInBuffer(); //удаляем данные из буфера передачи
+            sp.Dispose(); //освобождаем ресурсы используемые COM-портом
+            sp.Close();
+
+            //проверка контрольной суммы
+            if (CheckCRC_Correct(buffer))
+            {
+                //просмотреть не прислало ли устройство ошибку
+
+                //событие пришли данные и они корректные
+            }
+            else
+            {
+                //пришли некорректные данные - сделать повторный запрос
+            }
+
         }
 
         public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
