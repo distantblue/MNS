@@ -36,7 +36,7 @@ namespace MNS
         public MainWindow()
         {
             InitializeComponent();
-            Loaded += MainWindow_Loaded;
+            this.Loaded += MainWindow_Loaded;
             CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
             modbus = new ModbusRTU(CurrentModbusRTUSettings);
         }

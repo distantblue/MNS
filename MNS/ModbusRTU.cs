@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -18,11 +19,11 @@ namespace MNS
         private SerialPort SerialPort;
 
         //Объявляем делегат
-        public delegate void ModbusHandler(byte[] message);
+        public delegate void ModbusRTUEventHandler();
         //Объявляем событие "получен ответ от SLAVE-устройства"
-        public event ModbusHandler ResponseReceived;
+        public event ModbusRTUEventHandler ResponseReceived;
         //Объявляем событие "не получен ответ от SLAVE-устройства"
-        public event ModbusHandler ResponseError;
+        public event ModbusRTUEventHandler ResponseError;
 
         /// <summary>
         /// Конструктор класса ModbusRTU
@@ -31,10 +32,12 @@ namespace MNS
         public ModbusRTU(ModbusRTUSettings modbusRTUSettings)
         {
             Modbus_Message = new List<byte>();
+
+            //КОНФИГУРИРОВАНИЕ COM-ПОРТА
             SerialPort = new SerialPort(modbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
             SerialPort.Handshake = ModbusRTUSettings.Handshake;
-            SerialPort.WriteTimeout = ModbusRTUSettings.SilentInterval;
-            SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout;
+            SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа на COM-порт
+            SerialPort.WriteTimeout = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
         }
 
         public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
@@ -87,25 +90,76 @@ namespace MNS
 
         private void SendModbusMessage(byte[] modbusMessage)
         {
-            try
+            if (!SerialPort.IsOpen)
             {
-                if (!SerialPort.IsOpen)
+                try
                 {
                     SerialPort.Open();
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+                }
+            }
+            try
+            {
                 SerialPort.Write(ModbusMessage, 0, ModbusMessage.Length);
             }
-            catch (Exception ex)
+            catch (TimeoutException ex)
             {
-                MessageBox.Show("Ошибка открытия порта или записи данных в него: " + "\n\n" + ex.Message, "Ошибка!");
+                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
             }
 
             SerialPort.Close();
         }
 
+        private void ListenToSlaveResponse()
+        {
+            SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
+
+            if (!SerialPort.IsOpen)
+            {
+                try
+                {
+                    SerialPort.Open();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+                }
+            }
+            try
+            {
+                SerialPort.Read(ModbusMessage, 0, ModbusMessage.Length);
+            }
+            catch (TimeoutException ex)
+            {
+                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+            }
+
+            SerialPort.Close();
+        }
+
+        //обработка события "пришли данные на COM-порт"
+        private void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+            int buferSize = sp.BytesToRead; // получаем количество пришедших байтов данных в буфере приема
+
+            //считываем побайтно:
+            for (int i = 0; i < length; i++)
+            {
+                //https://qna.habr.com/q/199341
+            }
+            //sp.ReadExisting();
+            // int bytesQuantity;
+            // bytesQuantity = 
+        }
+
         public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
         {
-            SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead));
+            SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead)); //отправка сообщения
+            ListenToSlaveResponse(); //прослушка порта
         }
 
         public void SendCommandToSlaveDevice()
@@ -113,28 +167,9 @@ namespace MNS
             //позже...
         }
 
-        public void ListenToSlaveResponse()
-        {
-            try
-            {
-                if (!SerialPort.IsOpen)
-                    SerialPort.Open();
-                //SerialPort.DataReceived+= new SerialDataReceivedEventHandler(SerialPortDataReceived);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка открытия порта или чтения данных из него: " + "\n\n" + ex.Message, "Ошибка!");
-            }
 
-            //SerialPort.Close();
-            //ResponseReceived?.Invoke();
-        }
 
-        //public static void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
-        //{
-        //    int bytesQuantity;
-        //    bytesQuantity = 
-        //}
+
 
 
     }

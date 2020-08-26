@@ -38,7 +38,7 @@ namespace MNS
 
         //ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
         [NonSerialized]
-        public static int SilentInterval = GetSilentInterval();
+        public int SilentInterval = GetSilentInterval();
 
         //ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от SLAVE-устройства [мс]
         [NonSerialized]
@@ -48,7 +48,6 @@ namespace MNS
         {
             PortName = portName;
             PollingInterval = pollingInterval;
-            SilentInterval = GetSilentInterval();
         }
 
         public static ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
