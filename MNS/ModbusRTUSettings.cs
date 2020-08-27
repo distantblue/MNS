@@ -24,7 +24,7 @@ namespace MNS
 
         //НАСТРОЙКИ Modbus
         [NonSerialized]
-        public static byte ModbusSlaveAddress = 0x9;
+        public static byte ModbusSlaveAddress = 0x65;
         [NonSerialized]
         public static int BaudRate = 19200;
         [NonSerialized]
@@ -42,7 +42,7 @@ namespace MNS
 
         //ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от SLAVE-устройства [мс]
         [NonSerialized]
-        public static int ReponseTimeout = 150;
+        public static int ReponseTimeout = 500;
 
         public ModbusRTUSettings(string portName, int pollingInterval)
         {

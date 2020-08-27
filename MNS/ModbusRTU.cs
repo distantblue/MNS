@@ -17,13 +17,15 @@ namespace MNS
         public byte[] ModbusMessage;
         //Экземпляр класса SerialPort
         private SerialPort SerialPort;
+        //Интервал тишины после отправки команды Slave-устройству
+        private readonly int SilentInterval;
 
         //Объявляем делегат
-        public delegate void ModbusRTUEventHandler();
+        public delegate void ModbusRTUEventHandler(byte[] buffer);
         //Объявляем событие "получен ответ от SLAVE-устройства"
         public event ModbusRTUEventHandler ResponseReceived;
         //Объявляем событие "не получен ответ от SLAVE-устройства"
-        public event ModbusRTUEventHandler ResponseError;
+        //public event ModbusRTUEventHandler ResponseError;
 
         /// <summary>
         /// Конструктор класса ModbusRTU
@@ -36,12 +38,13 @@ namespace MNS
             //КОНФИГУРИРОВАНИЕ COM-ПОРТА
             SerialPort = new SerialPort(modbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
             SerialPort.Handshake = ModbusRTUSettings.Handshake;
-            SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа на COM-порт
-            //SerialPort.WriteTimeout = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
+            //SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа на COM-порт
+            this.SilentInterval = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
         }
 
-        public byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
+        private byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
         {
+            Modbus_Message = new List<byte>();
             Modbus_Message.Add(SlaveAddress);
             Modbus_Message.Add(ModbusFunctionCode);
             Modbus_Message.Add((byte)(StartingAddressOfRegisterToRead >> 8)); // сдвиг регистров на 8 позиций вправо, чтобы получить старший байт [HI Byte] 16 битного числа
@@ -59,7 +62,7 @@ namespace MNS
             return ModbusMessage;
         }
 
-        public byte[] BuildModbusMessage(byte[] bytesToWrite, byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
+        private byte[] BuildModbusMessage(byte[] bytesToWrite, byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
         {
             //позже
             return ModbusMessage;
@@ -116,7 +119,7 @@ namespace MNS
             return res;
         }
 
-        private void SendModbusMessage(byte[] modbusMessage)
+        public void SendModbusMessage(byte[] modbusMessage)
         {
             if (!SerialPort.IsOpen)
             {
@@ -129,16 +132,24 @@ namespace MNS
                     MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
                 }
             }
-            try
-            {
-                SerialPort.Write(ModbusMessage, 0, ModbusMessage.Length);
-            }
-            catch (TimeoutException ex)
-            {
-                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
-            }
+            //try
+            //{
+                SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
+            //}
+            //catch (TimeoutException ex)
+            //{
+            //    MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+            //}
+           
+
+            SerialPort.DiscardOutBuffer(); //удаляем данные из буфера приема
+            SerialPort.DiscardInBuffer(); //удаляем данные из буфера передачи
+            SerialPort.BaseStream.Flush();
+            SerialPort.BaseStream.Dispose();
             SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
             SerialPort.Close();
+
+            Thread.Sleep(1000); //выдерживаем интервал тишины после отправки сообщения Modbus
         }
 
         private void ListenToSlaveResponse()
@@ -193,20 +204,21 @@ namespace MNS
             if (CheckCRC_Correct(buffer))
             {
                 //просмотреть не прислало ли устройство ошибку
+                //потом дописать...
 
                 //событие пришли данные и они корректные
+                ResponseReceived?.Invoke(buffer);
             }
             else
             {
                 //пришли некорректные данные - сделать повторный запрос
             }
-
         }
 
         public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
         {
             SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead)); //отправка сообщения
-            ListenToSlaveResponse(); //прослушка порта
+            //ListenToSlaveResponse(); //прослушка порта
         }
 
         public void SendCommandToSlaveDevice()
