@@ -142,10 +142,10 @@ namespace MNS
             //}
            
 
-            SerialPort.DiscardOutBuffer(); //удаляем данные из буфера приема
-            SerialPort.DiscardInBuffer(); //удаляем данные из буфера передачи
-            SerialPort.BaseStream.Flush();
-            SerialPort.BaseStream.Dispose();
+            //SerialPort.DiscardOutBuffer(); //удаляем данные из буфера приема
+            //SerialPort.DiscardInBuffer(); //удаляем данные из буфера передачи
+            //SerialPort.BaseStream.Flush();
+            //SerialPort.BaseStream.Dispose();
             SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
             SerialPort.Close();
 
@@ -195,8 +195,8 @@ namespace MNS
             }
 
             sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
-            sp.DiscardOutBuffer(); //удаляем данные из буфера приема
-            sp.DiscardInBuffer(); //удаляем данные из буфера передачи
+            //sp.DiscardOutBuffer(); //удаляем данные из буфера приема
+            //sp.DiscardInBuffer(); //удаляем данные из буфера передачи
             sp.Dispose(); //освобождаем ресурсы используемые COM-портом
             sp.Close();
 
