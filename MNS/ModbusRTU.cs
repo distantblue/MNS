@@ -14,7 +14,7 @@ namespace MNS
         //Переменная которая будет хранить сообщние-команду Modbus в виде List
         private List<byte> Modbus_Message;
         //Переменная которая будет хранить сообщние-команду Modbus в виде byte[]
-        public byte[] ModbusMessage;
+        private byte[] ModbusMessage;
         //Экземпляр класса SerialPort
         private SerialPort SerialPort;
         //Интервал тишины после отправки команды Slave-устройству
@@ -119,6 +119,17 @@ namespace MNS
             return res;
         }
 
+        public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
+        {
+            SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead)); // Отправляем данные
+            ListenToSlaveResponse(); // Прослушка порта, получение данных
+        }
+
+        private void SendCommandToSlaveDevice()
+        {
+            //позже...
+        }
+
         public void SendModbusMessage(byte[] modbusMessage)
         {
             if (!SerialPort.IsOpen)
@@ -132,16 +143,31 @@ namespace MNS
                     MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
                 }
             }
-            //try
-            //{
+            try
+            {
+                // Отправляем данные
                 SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
-            //}
-            //catch (TimeoutException ex)
-            //{
-            //    MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
-            //}
-           
+            }
+            catch (TimeoutException ex)
+            {
+                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+            }
+        }
 
+        private void ListenToSlaveResponse()
+        {
+            SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
+
+            try
+            {
+                // Считываем данные 
+                SerialPort.Read(ModbusMessage, 0, ModbusMessage.Length);
+            }
+            catch (TimeoutException ex)
+            {
+                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+            }
+            
             //SerialPort.DiscardOutBuffer(); //удаляем данные из буфера приема
             //SerialPort.DiscardInBuffer(); //удаляем данные из буфера передачи
             //SerialPort.BaseStream.Flush();
@@ -150,33 +176,6 @@ namespace MNS
             SerialPort.Close();
 
             Thread.Sleep(1000); //выдерживаем интервал тишины после отправки сообщения Modbus
-        }
-
-        private void ListenToSlaveResponse()
-        {
-            SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
-
-            if (!SerialPort.IsOpen)
-            {
-                try
-                {
-                    SerialPort.Open();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
-                }
-            }
-            try
-            {
-                SerialPort.Read(ModbusMessage, 0, ModbusMessage.Length);
-            }
-            catch (TimeoutException ex)
-            {
-                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
-            }
-            SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
-            SerialPort.Close();
         }
 
         //обработка события "пришли данные на COM-порт"
@@ -214,22 +213,5 @@ namespace MNS
                 //пришли некорректные данные - сделать повторный запрос
             }
         }
-
-        public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
-        {
-            SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead)); //отправка сообщения
-            //ListenToSlaveResponse(); //прослушка порта
-        }
-
-        public void SendCommandToSlaveDevice()
-        {
-            //позже...
-        }
-
-
-
-
-
-
     }
 }

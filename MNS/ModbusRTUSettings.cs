@@ -24,11 +24,11 @@ namespace MNS
 
         //НАСТРОЙКИ Modbus
         [NonSerialized]
-        public static byte ModbusSlaveAddress = 0x65;
+        public static byte ModbusSlaveAddress = 0x9;
         [NonSerialized]
         public static int BaudRate = 19200;
         [NonSerialized]
-        public static Parity Parity = Parity.Even;
+        public static Parity Parity = Parity.None;
         [NonSerialized]
         public static StopBits StopBits = StopBits.One;
         [NonSerialized]
