@@ -158,24 +158,24 @@ namespace MNS
         {
             SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
 
-            try
-            {
-                // Считываем данные 
-                SerialPort.Read(ModbusMessage, 0, ModbusMessage.Length);
-            }
-            catch (TimeoutException ex)
-            {
-                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
-            }
+            //try
+            //{
+            //    // Считываем данные 
+            //    SerialPort.Read(ModbusMessage, 0, ModbusMessage.Length);
+            //}
+            //catch (TimeoutException ex)
+            //{
+            //    MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+            //}
             
             //SerialPort.DiscardOutBuffer(); //удаляем данные из буфера приема
             //SerialPort.DiscardInBuffer(); //удаляем данные из буфера передачи
             //SerialPort.BaseStream.Flush();
             //SerialPort.BaseStream.Dispose();
-            SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
-            SerialPort.Close();
+            //SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
+            //SerialPort.Close();
 
-            Thread.Sleep(1000); //выдерживаем интервал тишины после отправки сообщения Modbus
+            //Thread.Sleep(1000); //выдерживаем интервал тишины после отправки сообщения Modbus
         }
 
         //обработка события "пришли данные на COM-порт"
@@ -193,11 +193,11 @@ namespace MNS
                 buffer[i] = (byte)sp.ReadByte();
             }
 
-            sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
+            //sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
             //sp.DiscardOutBuffer(); //удаляем данные из буфера приема
             //sp.DiscardInBuffer(); //удаляем данные из буфера передачи
-            sp.Dispose(); //освобождаем ресурсы используемые COM-портом
-            sp.Close();
+            //sp.Dispose(); //освобождаем ресурсы используемые COM-портом
+            //sp.Close();
 
             //проверка контрольной суммы
             if (CheckCRC_Correct(buffer))

@@ -26,12 +26,10 @@ namespace MNS
         ModbusRTUSettings CurrentModbusRTUSettings;
 
         //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
-        ModbusRTU modbus;// = new ModbusRTU(CurrentModbusRTUSettings);
+        ModbusRTU modbus;
 
-        //ПЕРЕМЕННАЯ котора будет хранить СТАТУС ПРИБОРА
-        //ushort SlaveState; 
-
-        //ModbusRTU.ModbusHandler += Method(); //; //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ
+        //ПЕРЕМЕННАЯ которая хранит СТАТУС ПРИБОРА
+        ushort SlaveState; 
 
         public MainWindow()
         {
@@ -49,44 +47,10 @@ namespace MNS
         private void StartMeasuring_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ RespodReceived
-            //modbus.ResponseReceived += this.ShowRes;
+            modbus.ResponseReceived += this.ShowRes;
 
-            for (int i = 0; i < 256; i++)
-            {
-                modbus.SendRequestToSlaveDeviceToReceiveData((byte)i, 0x03, 200, 1);
-                Thread.Sleep(1000);
-            }
-
-            //ПОЛУЧАЕМ СТАТУС ПРИБОРА если он подключен
-            //GetSlaveState();
-            /*
-            byte[] message = new byte[6];
-            message[0] = 0xFE;
-            message[1] = 0x5;
-            message[2] = 0x0;
-            message[3] = 0xA6;
-            message[4] = 0x0;
-            message[5] = 0x9;
-
-            ModbusRTU mb = new ModbusRTU(CurrentModbusRTUSettings);
-            ushort crc = mb.GenerateCRC(message);
-
-            byte[] message_ = new byte[8];
-            message_[0] = 0xFE;
-            message_[1] = 0x5;
-            message_[2] = 0x0;
-            message_[3] = 0xA6;
-            message_[4] = 0x0;
-            message_[5] = 0x9;
-
-            byte CRC_LO_byte = (byte)(crc & 0xFF); // разделение 2 байт на старший и младший байты
-            byte CRC_HI_byte = (byte)(crc >> 8);
-
-            message_[6] = CRC_LO_byte;
-            message_[7] = CRC_HI_byte;
-
-            mb.SendModbusMessage(message_);
-            */
+            modbus.SendRequestToSlaveDeviceToReceiveData(0x09, 0x03, 200, 1);
+            
             //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
             //TimerCallback timerCallback = new TimerCallback(Measure); //функция обратного вызова метода Measure()
             //Timer timer = new Timer(timerCallback, null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
@@ -108,6 +72,7 @@ namespace MNS
             modbus.SendModbusMessage(slaveStateMessage); //ОТПРАВКА ЗАПРОСА
         }
         */
+
         private void GetSlaveState()
         {
             //ushort SlaveState = 0xFFFF; //начальная инициализация значением 11111111 11111111;
