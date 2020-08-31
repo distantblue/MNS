@@ -11,9 +11,9 @@ namespace MNS
 {
     class ModbusRTU
     {
-        //Переменная которая будет хранить сообщние-команду Modbus в виде List
+        //Переменная которая хранит сообщние-команду Modbus в виде List
         private List<byte> Modbus_Message;
-        //Переменная которая будет хранить сообщние-команду Modbus в виде byte[]
+        //Переменная которая хранит сообщние-команду Modbus в виде byte[]
         private byte[] ModbusMessage;
         //Экземпляр класса SerialPort
         private SerialPort SerialPort;
@@ -24,6 +24,16 @@ namespace MNS
         public delegate void ModbusRTUEventHandler(byte[] buffer);
         //Объявляем событие "получен ответ от SLAVE-устройства"
         public event ModbusRTUEventHandler ResponseReceived;
+
+        //Объявляем делегат
+        public delegate void ModbusRTUErrorHandler();
+        //Объявляем событие "не корректная контрольная сумма сообщения ответа Slave-устройства"
+        private event ModbusRTUErrorHandler CRC_Error;
+
+        //Переменная хранит количество повторных попыток отправки 
+        //сообщения Modbus по причине некорректной контрольной суммы 
+        private int CRC_error_etempt = 0;
+
         //Объявляем событие "не получен ответ от SLAVE-устройства"
         //public event ModbusRTUEventHandler ResponseError;
 
@@ -38,7 +48,8 @@ namespace MNS
             //КОНФИГУРИРОВАНИЕ COM-ПОРТА
             SerialPort = new SerialPort(modbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
             SerialPort.Handshake = ModbusRTUSettings.Handshake;
-            //SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа на COM-порт
+            SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа устройства на COM-порт
+            SerialPort.WriteTimeout = ModbusRTUSettings.WriteTimeout; //время ожидания записи данных в COM-порт
             this.SilentInterval = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
         }
 
@@ -94,7 +105,7 @@ namespace MNS
         private bool CheckCRC_Correct(byte[] modbusMessage)
         {
             bool res = false;
-            byte[] data = new byte[modbusMessage.Length-2];
+            byte[] data = new byte[modbusMessage.Length - 2];
 
             for (int i = 0; i < data.Length; i++)
             {
@@ -108,11 +119,11 @@ namespace MNS
             byte CRC_HI_byte = (byte)(CRC >> 8);
 
             //Полученные байты контрольной суммы
-            byte received_CRC_LO_byte = modbusMessage[modbusMessage.Length-2]; 
+            byte received_CRC_LO_byte = modbusMessage[modbusMessage.Length - 2];
             byte received_CRC_HI_byte = modbusMessage[modbusMessage.Length - 1];
 
             //Сравнение
-            if (CRC_LO_byte == received_CRC_LO_byte && CRC_HI_byte== received_CRC_HI_byte)
+            if (CRC_LO_byte == received_CRC_LO_byte && CRC_HI_byte == received_CRC_HI_byte)
             {
                 res = true;
             }
@@ -121,7 +132,8 @@ namespace MNS
 
         public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
         {
-            SendModbusMessage(BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead)); // Отправляем данные
+            byte[] messageToSend = BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead); // Формируем массив байт для отправки
+            SendModbusMessage(messageToSend); // Отправляем данные
             ListenToSlaveResponse(); // Прослушка порта, получение данных
         }
 
@@ -157,25 +169,6 @@ namespace MNS
         private void ListenToSlaveResponse()
         {
             SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
-
-            //try
-            //{
-            //    // Считываем данные 
-            //    SerialPort.Read(ModbusMessage, 0, ModbusMessage.Length);
-            //}
-            //catch (TimeoutException ex)
-            //{
-            //    MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
-            //}
-            
-            //SerialPort.DiscardOutBuffer(); //удаляем данные из буфера приема
-            //SerialPort.DiscardInBuffer(); //удаляем данные из буфера передачи
-            //SerialPort.BaseStream.Flush();
-            //SerialPort.BaseStream.Dispose();
-            //SerialPort.Dispose(); //освобождаем ресурсы используемые COM-портом
-            //SerialPort.Close();
-
-            //Thread.Sleep(1000); //выдерживаем интервал тишины после отправки сообщения Modbus
         }
 
         //обработка события "пришли данные на COM-порт"
@@ -193,15 +186,15 @@ namespace MNS
                 buffer[i] = (byte)sp.ReadByte();
             }
 
-            //sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
-            //sp.DiscardOutBuffer(); //удаляем данные из буфера приема
-            //sp.DiscardInBuffer(); //удаляем данные из буфера передачи
-            //sp.Dispose(); //освобождаем ресурсы используемые COM-портом
-            //sp.Close();
+            sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
+            sp.DiscardOutBuffer(); //удаляем данные из буфера приема
+            sp.DiscardInBuffer(); //удаляем данные из буфера передачи
 
             //проверка контрольной суммы
             if (CheckCRC_Correct(buffer))
             {
+                CRC_error_etempt = 0; // обнуляем количество попыток
+
                 //просмотреть не прислало ли устройство ошибку
                 //потом дописать...
 
@@ -210,7 +203,21 @@ namespace MNS
             }
             else
             {
+                CRC_error_etempt++; // увеличиваем счетчик, считаем попытки
+                if (CRC_error_etempt <= 3)
+                {
+                    //await Pause(SilentInterval);
+
+                    
+                    SendModbusMessage(this.ModbusMessage);
+                }
                 //пришли некорректные данные - сделать повторный запрос
+
+            }
+
+            async Task Pause(int interval)
+            {
+                Task.Delay(interval);
             }
         }
     }

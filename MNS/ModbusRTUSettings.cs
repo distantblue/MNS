@@ -44,6 +44,10 @@ namespace MNS
         [NonSerialized]
         public static int ReponseTimeout = 500;
 
+        //ВРЕМЯ ОЖИДАНИЯ ЗАПИСИ в порт [мс]
+        [NonSerialized]
+        public static int WriteTimeout = 500;
+
         public ModbusRTUSettings(string portName, int pollingInterval)
         {
             PortName = portName;
