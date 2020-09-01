@@ -26,9 +26,13 @@ namespace MNS
         public event ModbusRTUEventHandler ResponseReceived;
 
         //Объявляем делегат
-        public delegate void ModbusRTUErrorHandler();
+        public delegate void ModbusRTUErrorHandler(string message);
         //Объявляем событие "не корректная контрольная сумма сообщения ответа Slave-устройства"
-        private event ModbusRTUErrorHandler CRC_Error;
+        public event ModbusRTUErrorHandler BadSignalError;
+        //Объявляем событие "устройство не ответило на запрос"
+        public event ModbusRTUErrorHandler DeviceNotRespondingError;
+        //Объявляем событие "не удалось открыть порт"
+        public event ModbusRTUErrorHandler SerialPortOpeningError;
 
         //Переменная хранит количество повторных попыток отправки 
         //сообщения Modbus по причине некорректной контрольной суммы 
@@ -46,10 +50,10 @@ namespace MNS
             Modbus_Message = new List<byte>();
 
             //КОНФИГУРИРОВАНИЕ COM-ПОРТА
-            SerialPort = new SerialPort(modbusRTUSettings.PortName, ModbusRTUSettings.BaudRate, ModbusRTUSettings.Parity, ModbusRTUSettings.DataBits, ModbusRTUSettings.StopBits); // конфигурируем COM-порт
-            SerialPort.Handshake = ModbusRTUSettings.Handshake;
-            SerialPort.ReadTimeout = ModbusRTUSettings.ReponseTimeout; //время ожидания ответа устройства на COM-порт
-            SerialPort.WriteTimeout = ModbusRTUSettings.WriteTimeout; //время ожидания записи данных в COM-порт
+            SerialPort = new SerialPort(modbusRTUSettings.PortName, modbusRTUSettings.BaudRate, modbusRTUSettings.Parity, modbusRTUSettings.DataBits, modbusRTUSettings.StopBits); // конфигурируем COM-порт
+            SerialPort.Handshake = modbusRTUSettings.Handshake;
+            SerialPort.ReadTimeout = modbusRTUSettings.ReponseTimeout; //время ожидания ответа устройства на COM-порт
+            SerialPort.WriteTimeout = modbusRTUSettings.WriteTimeout; //время ожидания записи данных в COM-порт
             this.SilentInterval = modbusRTUSettings.SilentInterval; //интервал тишины после отправки данных по COM-порт    
         }
 
@@ -152,7 +156,9 @@ namespace MNS
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+                    SerialPortOpeningError?.Invoke($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+
+                    MessageBox.Show($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!"); // Позже переместить в класс Main
                 }
             }
             try
@@ -162,7 +168,9 @@ namespace MNS
             }
             catch (TimeoutException ex)
             {
-                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!");
+                DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                
+                MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!"); // Позже переместить в класс Main
             }
         }
 
@@ -190,8 +198,9 @@ namespace MNS
             sp.DiscardOutBuffer(); //удаляем данные из буфера приема
             sp.DiscardInBuffer(); //удаляем данные из буфера передачи
 
-            //проверка контрольной суммы
-            if (CheckCRC_Correct(buffer))
+            // ПРОВЕРКА КОНТРОЛЬНОЙ СУММЫ
+
+            if (CheckCRC_Correct(buffer)) // Если контрольная сумма сошлась
             {
                 CRC_error_etempt = 0; // обнуляем количество попыток
 
@@ -201,23 +210,23 @@ namespace MNS
                 //событие пришли данные и они корректные
                 ResponseReceived?.Invoke(buffer);
             }
-            else
+            else // Если контрольная сумма НЕ сошлась - сделать повторный запрос
             {
                 CRC_error_etempt++; // увеличиваем счетчик, считаем попытки
                 if (CRC_error_etempt <= 3)
                 {
-                    //await Pause(SilentInterval);
-
-                    
-                    SendModbusMessage(this.ModbusMessage);
+                    SendMessageAgain(SilentInterval);
                 }
-                //пришли некорректные данные - сделать повторный запрос
-
+                else
+                {
+                    BadSignalError?.Invoke("Программа несколько раз отправила повторные запросы на получение данных, но в ответ получила некорректную контрольную сумму. Проверьте подключение, возможны помехи и наводки на линии передачи данных.");
+                }
             }
 
-            async Task Pause(int interval)
+            async void SendMessageAgain(int interval)
             {
-                Task.Delay(interval);
+                await Task.Delay(interval);
+                SendModbusMessage(this.ModbusMessage);
             }
         }
     }

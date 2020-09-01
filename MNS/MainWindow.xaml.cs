@@ -26,17 +26,21 @@ namespace MNS
         ModbusRTUSettings CurrentModbusRTUSettings;
 
         //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
-        ModbusRTU modbus;
+        ModbusRTU Modbus;
 
         //ПЕРЕМЕННАЯ которая хранит СТАТУС ПРИБОРА
-        ushort SlaveState; 
+        //ushort SlaveState; 
 
         public MainWindow()
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-            CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
-            modbus = new ModbusRTU(CurrentModbusRTUSettings);
+
+            ModbusRTUSettings.SettingsFileNotFoundError += this.ShowSettingsError; // Подписываемся на событие "не найден файл настроек"
+            ModbusRTUSettings.SettingsFileReadingError += this.ShowSettingsError; // Подписываемся на событие "ошибка при чтении файла настроек"
+
+            CurrentModbusRTUSettings = new ModbusRTUSettings(); // Создаем объект настроек
+            Modbus = new ModbusRTU(CurrentModbusRTUSettings); // Создаем объект ModbusRTU
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -47,9 +51,9 @@ namespace MNS
         private void StartMeasuring_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ RespodReceived
-            modbus.ResponseReceived += this.ShowRes;
+            Modbus.ResponseReceived += this.ShowRes;
 
-            modbus.SendRequestToSlaveDeviceToReceiveData(0x09, 0x03, 200, 1);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(0x09, 0x03, 200, 1);
             
             //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
             //TimerCallback timerCallback = new TimerCallback(Measure); //функция обратного вызова метода Measure()
@@ -76,7 +80,7 @@ namespace MNS
         private void GetSlaveState()
         {
             //ushort SlaveState = 0xFFFF; //начальная инициализация значением 11111111 11111111;
-            modbus.SendRequestToSlaveDeviceToReceiveData(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
             //return SlaveState;
         }
 
@@ -87,6 +91,11 @@ namespace MNS
             {
                 Console.WriteLine(item);
             }
+        }
+
+        private void ShowSettingsError(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Ошибка!");
         }
 
         private void Measure(object obj)

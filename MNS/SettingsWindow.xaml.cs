@@ -24,31 +24,27 @@ namespace MNS
     {
         ModbusRTUSettings CurrentModbusRTUSettings;
 
+        public delegate void SavingHandler();
+        public event SavingHandler SavingSuccess;
+
+
         public SettingsWindow()
         {
             InitializeComponent();
             Loaded += SettingsWindow_Loaded;
+
+            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowSettingsError; // Подписываемся на событие "не найден файл настроек"
+            CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowSettingsError; // Подписываемся на событие "ошибка при чтении файла настроек"
+            this.SavingSuccess += this.ShowSavingSuccess;
+
+            CurrentModbusRTUSettings = new ModbusRTUSettings();
         }
 
         private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //ПРОВЕРКА ФАЙЛА НАСТРОЕК
-            try
-            {
-                CurrentModbusRTUSettings = ModbusRTUSettings.GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath); // получаем текущие настройки подключения
-            }
-            catch (FileNotFoundException exception)
-            {
-                MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
-            }
-
             //ТЕКУЩИЕ НАСТРОЙКИ
             currentSerialPort_label.Content = CurrentModbusRTUSettings.PortName; // отображаем текущий порт в окне настроек
-            currentDeviceAddress_label.Content = "0x"+ModbusRTUSettings.ModbusSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
+            currentDeviceAddress_label.Content = "0x"+ CurrentModbusRTUSettings.ModbusRTUSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
             currentPollingInterval_label.Content = CurrentModbusRTUSettings.PollingInterval; // отображаем текущий интервал опроса
 
             //ЗАПОЛНЕНИЕ НАСТРОЕК ДЛЯ ВОЗМОЖНОСТИ ИЗМЕНЕНИЯ
@@ -82,16 +78,9 @@ namespace MNS
             if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "")
             {
                 ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text));
-                try
-                {
-                    ModbusRTUSettings.SaveSettings(newSettings, ModbusRTUSettings.ModbusRTUSettingsFilePath);
-                }
-                catch (Exception exception)
-                {
-                    MessageBox.Show("Возникла ошибка при попытке сохранения настроек подключения устройства" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
-                }
-                ;
-                MessageBox.Show("Настройки успешно сохранены");
+                newSettings.SaveSettings(newSettings, ModbusRTUSettings.ModbusRTUSettingsFilePath);
+
+                SavingSuccess?.Invoke();
                 this.Close();
             }
         }
@@ -99,6 +88,16 @@ namespace MNS
         private void SettingsButtonCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void ShowSettingsError(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Ошибка!");
+        }
+
+        private void ShowSavingSuccess()
+        {
+            MessageBox.Show("Настройки успешно сохранены", "Успех!");
         }
     }
 }

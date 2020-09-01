@@ -12,78 +12,126 @@ namespace MNS
     [Serializable]
     public class ModbusRTUSettings
     {
-        //НАСТРОЙКИ COM-порта
+        // ИМЯ ПОРТА
         public string PortName { get; set; }
 
-        //ИНТЕРВАЛ ОПРОСА
+        // ИНТЕРВАЛ ОПРОСА
         public int PollingInterval { get; set; }
 
-        //ПУТЬ к ФАЙЛУ НАСТРОЕК
+        // ПУТЬ к ФАЙЛУ НАСТРОЕК
         [NonSerialized]
-        public static string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
+        public static readonly string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
 
-        //НАСТРОЙКИ Modbus
+        // НАСТРОЙКИ Modbus
         [NonSerialized]
-        public static byte ModbusSlaveAddress = 0x9;
+        public readonly byte ModbusRTUSlaveAddress = 0x9;
         [NonSerialized]
-        public static int BaudRate = 19200;
+        public readonly int BaudRate = 19200;
         [NonSerialized]
-        public static Parity Parity = Parity.None;
+        public readonly Parity Parity = Parity.None;
         [NonSerialized]
-        public static StopBits StopBits = StopBits.One;
+        public readonly StopBits StopBits = StopBits.One;
         [NonSerialized]
-        public static int DataBits = 8;
+        public readonly int DataBits = 8;
         [NonSerialized]
-        public static Handshake Handshake = Handshake.None;
-        
-        //ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
-        [NonSerialized]
-        public int SilentInterval = GetSilentInterval();
+        public readonly Handshake Handshake = Handshake.None;
 
-        //ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от SLAVE-устройства [мс]
+        // ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
         [NonSerialized]
-        public static int ReponseTimeout = 500;
+        public readonly int SilentInterval;
 
-        //ВРЕМЯ ОЖИДАНИЯ ЗАПИСИ в порт [мс]
+        // ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от SLAVE-устройства [мс]
         [NonSerialized]
-        public static int WriteTimeout = 500;
+        public readonly int ReponseTimeout = 500;
+
+        // ВРЕМЯ ОЖИДАНИЯ ЗАПИСИ в порт [мс]
+        [NonSerialized]
+        public readonly int WriteTimeout = 500;
+
+        // Объявляю делегат
+        public delegate void ModbusRTUSettingsErrorHandler(string message);
+
+        // Обявляю событие "не найден файл настроек"
+        public static event ModbusRTUSettingsErrorHandler SettingsFileNotFoundError;
+
+        // Обявляю событие "ошибка при чтении файла настроек"
+        public static event ModbusRTUSettingsErrorHandler SettingsFileReadingError;
+
+        public ModbusRTUSettings()
+        {
+            ModbusRTUSettings modbusRTUSettings = GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
+            this.PortName = modbusRTUSettings.PortName;
+            this.PollingInterval = modbusRTUSettings.PollingInterval;
+            this.SilentInterval = GetSilentInterval();
+        }
 
         public ModbusRTUSettings(string portName, int pollingInterval)
         {
-            PortName = portName;
-            PollingInterval = pollingInterval;
+            this.PortName = portName;
+            this.PollingInterval = pollingInterval;
+            this.SilentInterval = GetSilentInterval();
         }
 
-        public static ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
+        private ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
         {
             ModbusRTUSettings currentSettings = null;
             BinaryFormatter binaryFormatter = new BinaryFormatter();
-
-            using (FileStream fileStream = new FileStream(settingsFilePath, FileMode.Open)) // десериализация объекта
+            
+            try
             {
-                currentSettings = (ModbusRTUSettings)binaryFormatter.Deserialize(fileStream);
+                FileStream fileStream = new FileStream(settingsFilePath, FileMode.Open);
+                currentSettings = (ModbusRTUSettings)binaryFormatter.Deserialize(fileStream); // получаем текущие настройки подключения
+                fileStream.Dispose();
             }
+            catch (FileNotFoundException exception)
+            {
+                SettingsFileNotFoundError?.Invoke($"В директории где расположен исполняемый файл программы отсутствует файл настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                //MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+            }
+            catch (System.Runtime.Serialization.SerializationException exception)
+            {
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при десериализации объекта настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                //MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+            }
+            catch (Exception exception)
+            {
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при считывании настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                //MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+            }
+
             return currentSettings;
         }
 
-        public static void SaveSettings(ModbusRTUSettings settings, string settingsFilePath)
+        public void SaveSettings(ModbusRTUSettings settings, string settingsFilePath)
         {
             BinaryFormatter binaryFormatter = new BinaryFormatter();
 
-            using (FileStream fileStream = new FileStream(settingsFilePath, FileMode.OpenOrCreate)) // сериализация объекта
+            try
             {
-                binaryFormatter.Serialize(fileStream, settings);
+                FileStream fileStream = new FileStream(settingsFilePath, FileMode.OpenOrCreate);
+                binaryFormatter.Serialize(fileStream, settings); // сериализация объекта
+                fileStream.Dispose();
+            }
+            catch (System.Runtime.Serialization.SerializationException exception)
+            {
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при десериализации объекта настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                //MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+            }
+            catch (Exception exception)
+            {
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при считывании настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                //MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
             }
         }
 
-        private static int GetSilentInterval()
+        private int GetSilentInterval()
         {
             int delay = 1; // задержка в [мс]
-            if (BaudRate == 19200)
+            if (this.BaudRate == 19200)
             {
                 return delay;
             }
-            if (BaudRate == 9600 | BaudRate > 19200)
+            if (this.BaudRate == 9600 | BaudRate > 19200)
             {
                 return delay = 2;
             }
