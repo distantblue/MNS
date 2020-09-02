@@ -13,14 +13,14 @@ namespace MNS
     public class ModbusRTUSettings
     {
         // ИМЯ ПОРТА
-        public string PortName { get; set; }
+        public string PortName;
 
         // ИНТЕРВАЛ ОПРОСА
-        public int PollingInterval { get; set; }
+        public int PollingInterval;
 
         // ПУТЬ к ФАЙЛУ НАСТРОЕК
         [NonSerialized]
-        public static readonly string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
+        public readonly string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
 
         // НАСТРОЙКИ Modbus
         [NonSerialized]
@@ -52,16 +52,13 @@ namespace MNS
         public delegate void ModbusRTUSettingsErrorHandler(string message);
 
         // Обявляю событие "не найден файл настроек"
-        public static event ModbusRTUSettingsErrorHandler SettingsFileNotFoundError;
+        public event ModbusRTUSettingsErrorHandler SettingsFileNotFoundError;
 
         // Обявляю событие "ошибка при чтении файла настроек"
-        public static event ModbusRTUSettingsErrorHandler SettingsFileReadingError;
+        public event ModbusRTUSettingsErrorHandler SettingsFileReadingError;
 
         public ModbusRTUSettings()
         {
-            ModbusRTUSettings modbusRTUSettings = GetCurrentSettings(ModbusRTUSettings.ModbusRTUSettingsFilePath);
-            this.PortName = modbusRTUSettings.PortName;
-            this.PollingInterval = modbusRTUSettings.PollingInterval;
             this.SilentInterval = GetSilentInterval();
         }
 
@@ -72,11 +69,18 @@ namespace MNS
             this.SilentInterval = GetSilentInterval();
         }
 
-        private ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
+        public void GetCurrentSettings()
+        {
+            ModbusRTUSettings currentSettings = GetCurrentSettings(this.ModbusRTUSettingsFilePath);
+            this.PortName = currentSettings.PortName;
+            this.PollingInterval = currentSettings.PollingInterval;
+        }
+
+        public ModbusRTUSettings GetCurrentSettings(string settingsFilePath)
         {
             ModbusRTUSettings currentSettings = null;
             BinaryFormatter binaryFormatter = new BinaryFormatter();
-            
+
             try
             {
                 FileStream fileStream = new FileStream(settingsFilePath, FileMode.Open);

@@ -33,11 +33,13 @@ namespace MNS
             InitializeComponent();
             Loaded += SettingsWindow_Loaded;
 
+            CurrentModbusRTUSettings = new ModbusRTUSettings();
+
             CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowSettingsError; // Подписываемся на событие "не найден файл настроек"
             CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowSettingsError; // Подписываемся на событие "ошибка при чтении файла настроек"
-            this.SavingSuccess += this.ShowSavingSuccess;
+            this.SavingSuccess += this.ShowSavingSuccess; // Подписываемся на событие "успешное сохранение настроек"
 
-            CurrentModbusRTUSettings = new ModbusRTUSettings();
+            CurrentModbusRTUSettings.GetCurrentSettings();
         }
 
         private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
@@ -78,7 +80,7 @@ namespace MNS
             if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "")
             {
                 ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text));
-                newSettings.SaveSettings(newSettings, ModbusRTUSettings.ModbusRTUSettingsFilePath);
+                newSettings.SaveSettings(newSettings, newSettings.ModbusRTUSettingsFilePath);
 
                 SavingSuccess?.Invoke();
                 this.Close();
