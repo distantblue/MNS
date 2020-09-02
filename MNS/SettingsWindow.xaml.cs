@@ -37,7 +37,7 @@ namespace MNS
 
             CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowSettingsError; // Подписываемся на событие "не найден файл настроек"
             CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowSettingsError; // Подписываемся на событие "ошибка при чтении файла настроек"
-            this.SavingSuccess += this.ShowSavingSuccess; // Подписываемся на событие "успешное сохранение настроек"
+            this.SavingSuccess += this.ShowSettingsSavingSuccess; // Подписываемся на событие "успешное сохранение настроек"
 
             CurrentModbusRTUSettings.GetCurrentSettings();
         }
@@ -92,12 +92,12 @@ namespace MNS
             this.Close();
         }
 
-        private void ShowSettingsError(string errorMessage)
+        public void ShowSettingsError(string errorMessage)
         {
             MessageBox.Show(errorMessage, "Ошибка!");
         }
 
-        private void ShowSavingSuccess()
+        public void ShowSettingsSavingSuccess()
         {
             MessageBox.Show("Настройки успешно сохранены", "Успех!");
         }

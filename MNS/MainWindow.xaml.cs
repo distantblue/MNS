@@ -36,11 +36,18 @@ namespace MNS
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
 
-            ModbusRTUSettings.SettingsFileNotFoundError += this.ShowSettingsError; // Подписываемся на событие "не найден файл настроек"
-            ModbusRTUSettings.SettingsFileReadingError += this.ShowSettingsError; // Подписываемся на событие "ошибка при чтении файла настроек"
-
             CurrentModbusRTUSettings = new ModbusRTUSettings(); // Создаем объект настроек
+            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowError; // Подписываемся на событие "не найден файл настроек" 
+            CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowError; // Подписываемся на событие "ошибка при чтении файла настроек"
+
+            CurrentModbusRTUSettings.GetCurrentSettings(); // Считываем настройки
+
             Modbus = new ModbusRTU(CurrentModbusRTUSettings); // Создаем объект ModbusRTU
+
+            Modbus.BadSignalError += this.ShowError; // Подписываемся на событие "Помехи в линии" 
+            Modbus.DeviceNotRespondingError += this.ShowError; // Подписываемся на событие "Устройство не отвечает" 
+            Modbus.SerialPortOpeningError += this.ShowError; // Подписываемся на событие "Ошибка открытия порта" 
+
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -92,12 +99,7 @@ namespace MNS
                 Console.WriteLine(item);
             }
         }
-
-        private void ShowSettingsError(string errorMessage)
-        {
-            MessageBox.Show(errorMessage, "Ошибка!");
-        }
-
+        
         private void Measure(object obj)
         {
             //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
@@ -105,6 +107,16 @@ namespace MNS
             //byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
             //modbusMeasuring.SendModbusMessage(MeasuringMessage);
 
+        }
+
+        private void SettingsButtonCancel_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        public void ShowError(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Ошибка!");
         }
     }
 }
