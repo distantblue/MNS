@@ -7,26 +7,32 @@
         mc:Ignorable="d"
         Title="МНС 1100 - Измерительная система для ПК" MinHeight="600" MinWidth="900" Height="800" Width="1200" Background="LightSlateGray" WindowStartupLocation="CenterScreen">
     <Grid>
-        <DockPanel>
-            <StackPanel DockPanel.Dock="Top">
-                <Border BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
-                    <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White">
-                        <MenuItem Header="Управление">
-                            <MenuItem Header="Начать измерение" Click="StartMeasuring_MenuItem_Click"/>
-                            <MenuItem Header="Стоп"/>
-                            <MenuItem Header="Сохранить данные"/>
-                            <MenuItem Header="Выход"/>
-                        </MenuItem>
-                        <MenuItem Header="Настройки">
-                            <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
-                        </MenuItem>
-                        <MenuItem Header="О программе">
-                            <MenuItem Header="Информация о ПО"/>
-                            <MenuItem Header="Техническая поддержка"/>
-                        </MenuItem>
-                    </Menu>
-                </Border>
-            </StackPanel>
+        <DockPanel LastChildFill="False">
+            <Border BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Top">
+                <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White">
+                    <MenuItem Header="Управление">
+                        <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click"/>
+                        <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
+                        <MenuItem Header="Сохранить данные"/>
+                        <MenuItem Header="Выход"/>
+                    </MenuItem>
+                    <MenuItem Header="Настройки">
+                        <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
+                    </MenuItem>
+                    <MenuItem Header="О программе">
+                        <MenuItem Header="Информация о ПО"/>
+                        <MenuItem Header="Техническая поддержка"/>
+                    </MenuItem>
+                </Menu>
+            </Border>
+
+            <Border BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Bottom">
+                <TextBlock Margin="8" HorizontalAlignment="Stretch">
+                    <InlineUIContainer>
+                        <TextBlock x:Name="statusTextBlock" TextWrapping="Wrap" />
+                    </InlineUIContainer>
+                </TextBlock>
+            </Border>
         </DockPanel>
     </Grid>
 </Window>

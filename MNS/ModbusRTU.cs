@@ -138,7 +138,6 @@ namespace MNS
         {
             byte[] messageToSend = BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead); // Формируем массив байт для отправки
             SendModbusMessage(messageToSend); // Отправляем данные
-            ListenToSlaveResponse(); // Прослушка порта, получение данных
         }
 
         private void SendCommandToSlaveDevice()
@@ -169,23 +168,26 @@ namespace MNS
             catch (TimeoutException ex)
             {
                 DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
-                
+
                 MessageBox.Show("Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: " + "\n\n" + ex.Message, "Ошибка!"); // Позже переместить в класс Main
             }
-        }
-
-        private void ListenToSlaveResponse()
-        {
+            
             SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
         }
-
+        
         //обработка события "пришли данные на COM-порт"
         private void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            SerialPort.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
+            if (!SerialPort.IsOpen)
+            {
+                SerialPort.Open();
+            }           
+            //Делаем паузу
+            //Thread.Sleep(10*SilentInterval);
             SerialPort sp = (SerialPort)sender;
             int bufferSize = sp.BytesToRead; // получаем количество пришедших байтов данных в буфере приема
             byte[] buffer = new byte[bufferSize]; //создаем массив байтов
-
             sp.DiscardNull = false; //не игнорировать пустые байты - 0000 0000
 
             //считываем побайтно и заполняем массив байтов:
@@ -193,13 +195,17 @@ namespace MNS
             {
                 buffer[i] = (byte)sp.ReadByte();
             }
-
-            sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
-            sp.DiscardOutBuffer(); //удаляем данные из буфера приема
+                        
+            //sp.DiscardOutBuffer(); //удаляем данные из буфера приема
             sp.DiscardInBuffer(); //удаляем данные из буфера передачи
+            sp.BaseStream.Flush();
+            sp.BaseStream.Dispose();
+
+            ResponseReceived?.Invoke(buffer);
+            SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
 
             // ПРОВЕРКА КОНТРОЛЬНОЙ СУММЫ
-
+            /*
             if (CheckCRC_Correct(buffer)) // Если контрольная сумма сошлась
             {
                 CRC_error_etempt = 0; // обнуляем количество попыток
@@ -207,12 +213,19 @@ namespace MNS
                 //просмотреть не прислало ли устройство ошибку
                 //потом дописать...
 
-                //событие пришли данные и они корректные
+                //отписываемся от события "пришли данные на COM-порт"
+                sp.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived);
+
+                //событие "пришли данные"
                 ResponseReceived?.Invoke(buffer);
             }
             else // Если контрольная сумма НЕ сошлась - сделать повторный запрос
             {
+                sp.DiscardOutBuffer(); //удаляем данные из буфера приема
+                sp.DiscardInBuffer(); //удаляем данные из буфера передачи
+
                 CRC_error_etempt++; // увеличиваем счетчик, считаем попытки
+
                 if (CRC_error_etempt <= 3)
                 {
                     SendMessageAgain(SilentInterval);
@@ -228,6 +241,7 @@ namespace MNS
                 await Task.Delay(interval);
                 SendModbusMessage(this.ModbusMessage);
             }
+            */
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO; // убрать потом если не будет filestream
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MNS
 {
@@ -28,6 +30,10 @@ namespace MNS
         //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
         ModbusRTU Modbus;
 
+        Thread MeasurementThread;
+
+        bool cancelMeasurementThread = true;
+
         //ПЕРЕМЕННАЯ которая хранит СТАТУС ПРИБОРА
         //ushort SlaveState; 
 
@@ -35,19 +41,6 @@ namespace MNS
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-
-            CurrentModbusRTUSettings = new ModbusRTUSettings(); // Создаем объект настроек
-            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowError; // Подписываемся на событие "не найден файл настроек" 
-            CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowError; // Подписываемся на событие "ошибка при чтении файла настроек"
-
-            CurrentModbusRTUSettings.GetCurrentSettings(); // Считываем настройки
-
-            Modbus = new ModbusRTU(CurrentModbusRTUSettings); // Создаем объект ModbusRTU
-
-            Modbus.BadSignalError += this.ShowError; // Подписываемся на событие "Помехи в линии" 
-            Modbus.DeviceNotRespondingError += this.ShowError; // Подписываемся на событие "Устройство не отвечает" 
-            Modbus.SerialPortOpeningError += this.ShowError; // Подписываемся на событие "Ошибка открытия порта" 
-
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -55,16 +48,62 @@ namespace MNS
 
         }
 
-        private void StartMeasuring_MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MainWindow_Closing(object sender, RoutedEventArgs e)
         {
+            cancelMeasurementThread = true;
+            //MeasurementThread.Abort();
+        }
+
+        private void StopMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            cancelMeasurementThread = true;
+            //MeasurementThread.Abort();
+        }
+
+        private void StartMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentModbusRTUSettings = new ModbusRTUSettings(); //Создаем объект настроек
+            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowError; //Подписываемся на событие "не найден файл настроек" 
+            CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowError; //Подписываемся на событие "ошибка при чтении файла настроек"
+
+            CurrentModbusRTUSettings.GetCurrentSettings(); //Считываем настройки из файла настроек
+
+            Modbus = new ModbusRTU(CurrentModbusRTUSettings); //Создаем объект ModbusRTU
+
+            Modbus.BadSignalError += this.ShowError; // Подписываемся на событие "Помехи в линии" 
+            Modbus.DeviceNotRespondingError += this.ShowError; //Подписываемся на событие "Устройство не отвечает" 
+            Modbus.SerialPortOpeningError += this.ShowError; //Подписываемся на событие "Ошибка открытия порта" 
+
             //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ RespodReceived
             Modbus.ResponseReceived += this.ShowRes;
 
-            Modbus.SendRequestToSlaveDeviceToReceiveData(0x09, 0x03, 200, 1);
-            
-            //СОЗДАНИЕ ТАЙМЕРА который будет запускать метод "Measure()"
-            //TimerCallback timerCallback = new TimerCallback(Measure); //функция обратного вызова метода Measure()
-            //Timer timer = new Timer(timerCallback, null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
+            /*
+            //СОЗДАНИЕ ПОТОКА в котором будет запускать метод "Measure()"
+            MeasurementThread = new Thread(Measure);
+            cancelMeasurementThread = false;
+            MeasurementThread.Start();*/
+
+            TimerCallback tm = new TimerCallback(this.Measure);
+
+            Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval*1000);
+        }
+
+        private void Measure(object obj)
+        {
+            GetSlaveState();
+            /*
+            while (!cancelMeasurementThread)
+            {
+                //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
+                GetSlaveState();
+                Thread.Sleep(CurrentModbusRTUSettings.PollingInterval * 1000);
+            }*/
+
+        }
+
+        private void GetSlaveState()
+        {
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
         }
 
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -75,38 +114,19 @@ namespace MNS
             VisualEffects.ClearBlurEffect(this);
         }
 
-        /*
-
-        public void SendCommand(byte functionCode, ushort register, ushort quantityOfRegisters)
-        {
-            byte[] slaveStateMessage = modbus.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, functionCode, register, quantityOfRegisters); //ФОРМИРОВАНИЕ СООБЩЕНИЯ
-            modbus.SendModbusMessage(slaveStateMessage); //ОТПРАВКА ЗАПРОСА
-        }
-        */
-
-        private void GetSlaveState()
-        {
-            //ushort SlaveState = 0xFFFF; //начальная инициализация значением 11111111 11111111;
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
-            //return SlaveState;
-        }
-
         private void ShowRes(byte[] buffer)
         {
-            Console.WriteLine("Received modbus message from the slave device:");
-            foreach (var item in buffer)
+            //this.Dispatcher.BeginInvoke(DispatcherPriority.Send, (ThreadStart)delegate () { statusTextBlock.Text = BitConverter.ToString(buffer); });
+            //statusTextBlock.Text = BitConverter.ToString(buffer);
+            using (StreamWriter sw = new StreamWriter(@"Answer.txt", true, System.Text.Encoding.Default))
             {
-                Console.WriteLine(item);
+                string str = "";
+                foreach (var item in buffer)
+                {
+                    str = str + item.ToString();
+                }
+                sw.WriteLine(str);
             }
-        }
-        
-        private void Measure(object obj)
-        {
-            //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
-            //ModbusRTU modbusMeasuring = new ModbusRTU();
-            //byte[] MeasuringMessage = modbusMeasuring.BuildModbusMessage(ModbusRTUSettings.ModbusSlaveAddress, 0x03, 200, 1);
-            //modbusMeasuring.SendModbusMessage(MeasuringMessage);
-
         }
 
         private void SettingsButtonCancel_Click(object sender, RoutedEventArgs e)

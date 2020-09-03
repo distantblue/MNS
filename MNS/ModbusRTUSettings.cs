@@ -13,10 +13,10 @@ namespace MNS
     public class ModbusRTUSettings
     {
         // ИМЯ ПОРТА
-        public string PortName;
+        public string PortName { get; set; }
 
         // ИНТЕРВАЛ ОПРОСА
-        public int PollingInterval;
+        public int PollingInterval { get; set; }
 
         // ПУТЬ к ФАЙЛУ НАСТРОЕК
         [NonSerialized]
@@ -57,9 +57,11 @@ namespace MNS
         // Обявляю событие "ошибка при чтении файла настроек"
         public event ModbusRTUSettingsErrorHandler SettingsFileReadingError;
 
-        public ModbusRTUSettings()
+        public ModbusRTUSettings() // Инициализируем переменные значениями по умолчанию, чтоб не ссылались в null
         {
-            this.SilentInterval = GetSilentInterval();
+            this.SilentInterval = GetSilentInterval(); 
+            this.PortName = "COM1"; 
+            this.PollingInterval = 1;
         }
 
         public ModbusRTUSettings(string portName, int pollingInterval)
