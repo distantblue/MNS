@@ -30,9 +30,9 @@ namespace MNS
         //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
         ModbusRTU Modbus;
 
-        Thread MeasurementThread;
+        //Thread MeasurementThread;
 
-        bool cancelMeasurementThread = true;
+        //bool cancelMeasurementThread = true;
 
         //ПЕРЕМЕННАЯ которая хранит СТАТУС ПРИБОРА
         //ushort SlaveState; 
@@ -50,13 +50,13 @@ namespace MNS
 
         private void MainWindow_Closing(object sender, RoutedEventArgs e)
         {
-            cancelMeasurementThread = true;
+            //cancelMeasurementThread = true;
             //MeasurementThread.Abort();
         }
 
         private void StopMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            cancelMeasurementThread = true;
+            //cancelMeasurementThread = true;
             //MeasurementThread.Abort();
         }
 
@@ -74,30 +74,26 @@ namespace MNS
             Modbus.DeviceNotRespondingError += this.ShowError; //Подписываемся на событие "Устройство не отвечает" 
             Modbus.SerialPortOpeningError += this.ShowError; //Подписываемся на событие "Ошибка открытия порта" 
 
-            //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ RespodReceived
+            //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.ShowRes;
 
-            /*
+
             //СОЗДАНИЕ ПОТОКА в котором будет запускать метод "Measure()"
-            MeasurementThread = new Thread(Measure);
-            cancelMeasurementThread = false;
-            MeasurementThread.Start();*/
+            //MeasurementThread = new Thread(Measure);
 
-            TimerCallback tm = new TimerCallback(this.Measure);
-
-            Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval*1000);
+            //MeasurementThread.Start();
+            GetSlaveState();
+            ..Thread.Sleep()
         }
 
-        private void Measure(object obj)
+        private void Measure()
         {
             GetSlaveState();
-            /*
-            while (!cancelMeasurementThread)
-            {
-                //СТАТУС ПРИБОРА - обращение к регистру статуса "200" - 16 бит
-                GetSlaveState();
-                Thread.Sleep(CurrentModbusRTUSettings.PollingInterval * 1000);
-            }*/
+
+            //cancelMeasurementThread = false;
+
+            //TimerCallback tm = new TimerCallback(GetSlaveState);
+            //Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval*1000);
 
         }
 
@@ -116,8 +112,20 @@ namespace MNS
 
         private void ShowRes(byte[] buffer)
         {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+
+            if (statusTextBlock.CheckAccess()) // Поток иеет доступ к потоку UI         
+            {
+                statusTextBlock.Text = BitConverter.ToString(buffer);
+            }
+            else //Поток не имеет доступ к потоку UI 
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = BitConverter.ToString(buffer));
+            }
+
             //this.Dispatcher.BeginInvoke(DispatcherPriority.Send, (ThreadStart)delegate () { statusTextBlock.Text = BitConverter.ToString(buffer); });
             //statusTextBlock.Text = BitConverter.ToString(buffer);
+            /*
             using (StreamWriter sw = new StreamWriter(@"Answer.txt", true, System.Text.Encoding.Default))
             {
                 string str = "";
@@ -127,6 +135,7 @@ namespace MNS
                 }
                 sw.WriteLine(str);
             }
+            */
         }
 
         private void SettingsButtonCancel_Click(object sender, RoutedEventArgs e)

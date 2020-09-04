@@ -178,13 +178,11 @@ namespace MNS
         //обработка события "пришли данные на COM-порт"
         private void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            SerialPort.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //подписываемся на событие "пришли данные на COM-порт"
+            SerialPort.DataReceived -= new SerialDataReceivedEventHandler(SerialPortDataReceived); //отписываемся от события "пришли данные на COM-порт"
             if (!SerialPort.IsOpen)
             {
                 SerialPort.Open();
             }           
-            //Делаем паузу
-            //Thread.Sleep(10*SilentInterval);
             SerialPort sp = (SerialPort)sender;
             int bufferSize = sp.BytesToRead; // получаем количество пришедших байтов данных в буфере приема
             byte[] buffer = new byte[bufferSize]; //создаем массив байтов
