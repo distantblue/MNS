@@ -83,7 +83,7 @@ namespace MNS
 
             //MeasurementThread.Start();
             GetSlaveState();
-            ..Thread.Sleep()
+            //Thread.Sleep();
         }
 
         private void Measure()

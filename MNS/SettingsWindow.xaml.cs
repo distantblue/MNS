@@ -46,8 +46,13 @@ namespace MNS
         {
             //ТЕКУЩИЕ НАСТРОЙКИ
             currentSerialPort_label.Content = CurrentModbusRTUSettings.PortName; // отображаем текущий порт в окне настроек
-            currentDeviceAddress_label.Content = "0x"+ CurrentModbusRTUSettings.ModbusRTUSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
             currentPollingInterval_label.Content = CurrentModbusRTUSettings.PollingInterval; // отображаем текущий интервал опроса
+            currentDeviceAddress_label.Content = "0x"+ CurrentModbusRTUSettings.ModbusRTUSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
+            currentBaudRate_label.Content = CurrentModbusRTUSettings.BaudRate;
+            currentDataBits_label.Content = CurrentModbusRTUSettings.DataBits;
+            currentStopBits_label.Content = "Один";
+            currentParity_label.Content = "Нет";
+            currentHandShake_label.Content = "Нет";
 
             //ЗАПОЛНЕНИЕ НАСТРОЕК ДЛЯ ВОЗМОЖНОСТИ ИЗМЕНЕНИЯ
             string[] serialPortNames = SerialPort.GetPortNames(); // получаем массив доступных COM-портов на ПК
@@ -65,15 +70,15 @@ namespace MNS
             //ПРОВЕРКА НА ПУСТЫЕ ПОЛЯ НАСТРОЕК
             if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text == "")
             {
-                MessageBox.Show("Вы не выбрали COM-порт и интервал опроса устройства");
+                MessageBox.Show("Вы не выбрали COM-порт и интервал опроса устройства","Ошибка!");
             }
             if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text != "")
             {
-                MessageBox.Show("Вы не выбрали COM-порт");
+                MessageBox.Show("Вы не выбрали COM-порт", "Ошибка!");
             }
             if (pollingInterval_ComboBox.Text == "" && portName_ComboBox.Text != "")
             {
-                MessageBox.Show("Вы не выбрали интервал опроса устройства");
+                MessageBox.Show("Вы не выбрали интервал опроса устройства", "Ошибка!");
             }
 
             //СОХРАНЕНИЕ НАСТРОЕК
@@ -99,7 +104,7 @@ namespace MNS
 
         public void ShowSettingsSavingSuccess()
         {
-            MessageBox.Show("Настройки успешно сохранены", "Успех!");
+            MessageBox.Show("Настройки успешно сохранены. \n\nДля вступления с силу новых настроек необходимо заново начать измерение или перезапустить программу.", "Успех!");
         }
     }
 }
