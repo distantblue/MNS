@@ -74,26 +74,21 @@ namespace MNS
             Modbus.DeviceNotRespondingError += this.ShowError; //Подписываемся на событие "Устройство не отвечает" 
             Modbus.SerialPortOpeningError += this.ShowError; //Подписываемся на событие "Ошибка открытия порта" 
 
-            //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
-            Modbus.ResponseReceived += this.ShowRes;
-
-
-            //СОЗДАНИЕ ПОТОКА в котором будет запускать метод "Measure()"
-            //MeasurementThread = new Thread(Measure);
-
-            //MeasurementThread.Start();
-            GetSlaveState();
-            //Thread.Sleep();
+            // Создаем функцию обратного вызова по таймеру
+            TimerCallback tm = new TimerCallback(Measure);
+            Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
         }
 
-        private void Measure()
+        private void Measure(object obj)
         {
+            //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.IdentifyStatus;
+
             GetSlaveState();
+        }
 
-            //cancelMeasurementThread = false;
-
-            //TimerCallback tm = new TimerCallback(GetSlaveState);
-            //Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval*1000);
+        private void IdentifyStatus(byte[] buffer)
+        {
 
         }
 
@@ -110,6 +105,9 @@ namespace MNS
             VisualEffects.ClearBlurEffect(this);
         }
 
+
+
+        /*
         private void ShowRes(byte[] buffer)
         {
             //Проверяем имеет ли вызывающий поток доступ к потоку UI
@@ -135,8 +133,9 @@ namespace MNS
                 }
                 sw.WriteLine(str);
             }
-            */
+            
         }
+        */
 
         private void SettingsButtonCancel_Click(object sender, RoutedEventArgs e)
         {
