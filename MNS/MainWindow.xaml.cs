@@ -30,12 +30,17 @@ namespace MNS
         //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
         ModbusRTU Modbus;
 
-        //Thread MeasurementThread;
+        // СТАТУС ПРИБОРА
+        ushort SlaveState;
 
-        //bool cancelMeasurementThread = true;
+        // СХЕМА ЗАМЕЩЕНИЯ
+        string EquivalentCircuit;
 
-        //ПЕРЕМЕННАЯ которая хранит СТАТУС ПРИБОРА
-        //ushort SlaveState; 
+        // НАЛИЧИЕ ИНТЕГРИРОВАНИЯ
+        string Integration;
+
+        // НАЛИЧИЕ УСРЕДНЕНИЯ
+        string Averaging;
 
         public MainWindow()
         {
@@ -75,26 +80,72 @@ namespace MNS
             Modbus.SerialPortOpeningError += this.ShowError; //Подписываемся на событие "Ошибка открытия порта" 
 
             // Создаем функцию обратного вызова по таймеру
-            TimerCallback tm = new TimerCallback(Measure);
+            TimerCallback tm = new TimerCallback(GetSlaveState);
             Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
         }
 
-        private void Measure(object obj)
+        private void GetSlaveState(object obj)
         {
             //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyStatus;
 
-            GetSlaveState();
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
         }
 
         private void IdentifyStatus(byte[] buffer)
         {
+            //ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.IdentifyStatus;
 
-        }
+            // Получаем 16 битное значение состояния прибора
+            this.SlaveState = BitConverter.ToUInt16(new byte[2] { buffer[3], buffer[4] }, 0);
 
-        private void GetSlaveState()
-        {
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
+            // Узнаем схему замещения
+            ushort equivalentCircuit = (ushort)(SlaveState & 0x8); // Накладываем битовую маску 00000000 00001000 чтобы получить значение 4го бита
+            switch (equivalentCircuit)
+            {
+                case 8:
+                    this.EquivalentCircuit = "Посл.";
+                    break;
+                case 0:
+                    this.EquivalentCircuit = "Парал.";
+                    break;
+            }
+            // Узнаем наличие интегрирования
+            ushort integrationValue = (ushort)(SlaveState & 0x10); // Накладываем битовую маску 00000000 00010000 чтобы получить значение 5го бита 
+            switch (integrationValue)
+            {
+                case 16:
+                    this.Integration = "Вкл.";
+                    break;
+                case 0:
+                    this.Integration = "Выкл.";
+                    break;
+            }
+            // Узнаем наличие усреднения
+            ushort averagingValue = (ushort)(SlaveState & 0x200); // Накладываем битовую маску 00000010 00000000 чтобы получить значение 9го бита 
+            switch (averagingValue)
+            {
+                case 512:
+                    this.Averaging = "Вкл.";
+                    break;
+                case 0:
+                    this.Averaging = "Выкл.";
+                    break;
+            }
+            // Узнаем основной индицируемы канал
+            switch ((ushort)(SlaveState >> 14))
+            {
+                case 0: // канал R
+                    break;
+                case 1: // канал L
+                    break;
+                case 2: // канал C
+                    break;
+                case 3: // канал M
+                    break;
+            }
+
         }
 
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
