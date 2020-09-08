@@ -42,6 +42,9 @@ namespace MNS
         // НАЛИЧИЕ УСРЕДНЕНИЯ
         string Averaging;
 
+        // ИНТЕРВАЛ ДИАПАЗОНА ИЗМЕРЕНИЯ
+        string FixedMeasInterval;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -133,6 +136,17 @@ namespace MNS
                     this.Averaging = "Выкл.";
                     break;
             }
+            // Узнаем фиксирован ли интервал диапазона измерения
+            ushort fixedMeasIntervalValue = (ushort)(SlaveState & 0x100); // Накладываем битовую маску 00000001 00000000 чтобы получить значение 9го бита 
+            switch (fixedMeasIntervalValue)
+            {
+                case 256:
+                    this.FixedMeasInterval = "Да";
+                    break;
+                case 0:
+                    this.FixedMeasInterval = "Нет";
+                    break;
+            }
             // Узнаем основной индицируемы канал
             switch ((ushort)(SlaveState >> 14))
             {
@@ -145,7 +159,6 @@ namespace MNS
                 case 3: // канал M
                     break;
             }
-
         }
 
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
