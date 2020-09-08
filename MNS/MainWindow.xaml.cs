@@ -45,6 +45,33 @@ namespace MNS
         // ИНТЕРВАЛ ДИАПАЗОНА ИЗМЕРЕНИЯ
         string FixedMeasInterval;
 
+        // Сопротивление
+        float Resistance;
+
+        // Тангенс R
+        float tg_R;
+
+        // Частота
+        float Frequency;
+
+        // Индуктивность
+        float Inductance;
+
+        // Тангенс L
+        float tg_L;
+
+        // Емкость
+        float Сapacity;
+
+        // Тангенс С
+        float tg_C;
+
+        // Взаимоиндуктивность
+        float MutualInductance;
+
+        // Тангенс M
+        float tg_M;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -89,7 +116,7 @@ namespace MNS
 
         private void GetSlaveState(object obj)
         {
-            //ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyStatus;
 
             Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
@@ -97,7 +124,7 @@ namespace MNS
 
         private void IdentifyStatus(byte[] buffer)
         {
-            //ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived -= this.IdentifyStatus;
 
             // Получаем 16 битное значение состояния прибора
@@ -150,15 +177,156 @@ namespace MNS
             // Узнаем основной индицируемы канал
             switch ((ushort)(SlaveState >> 14))
             {
-                case 0: // канал R
+                // Канал R
+                case 0:
+                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    Modbus.ResponseReceived += this.Get_R;
+
+                    // Отправляем запрос на чтение регистров R 
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 2);
                     break;
-                case 1: // канал L
+
+                // Канал L
+                case 1:
+                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    Modbus.ResponseReceived += this.Get_L;
+
+                    // Отправляем запрос на чтение регистров R 
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 108, 2);
                     break;
-                case 2: // канал C
+
+                // Канал C
+                case 2:
+                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    Modbus.ResponseReceived += this.Get_C;
+
+                    // Отправляем запрос на чтение регистров R 
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 112, 2);
                     break;
-                case 3: // канал M
+
+                // Канал M
+                case 3:
+                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    Modbus.ResponseReceived += this.Get_M;
+
+                    // Отправляем запрос на чтение регистров R 
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 116, 2);
                     break;
             }
+        }
+
+        private void Get_R(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_R;
+
+            // Получаем значение сопротивления
+            this.Resistance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgR;
+
+            // Отправляем запрос на чтение регистра tgR
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 106, 2);
+        }
+
+        private void Get_tgR(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgR;
+
+            // Получаем значение tgR
+            this.tg_R = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
+
+            // Отправляем запрос на чтение регистра F
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 2);
+        }
+
+        private void Get_F(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_F;
+
+            // Получаем значение F
+            this.Frequency = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+        }
+
+        private void Get_L(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_L;
+
+            // Получаем значение индуктивности
+            this.Inductance= BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgL;
+
+            // Отправляем запрос на чтение регистра tgL
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 2);
+        }
+
+        private void Get_tgL(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgL;
+
+            // Получаем значение tgL
+            this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
+        }
+
+        private void Get_C(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_C;
+
+            // Получаем значение емкости
+            this.Сapacity = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgC;
+        }
+
+        private void Get_tgC(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgC;
+
+            // Получаем значение емкости
+            this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
+        }
+
+        private void Get_M(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_M;
+
+            // Получаем значение взаимоиндуктивности
+            this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgM;
+        }
+
+        private void Get_tgM(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgM;
+
+            // Получаем значение емкости
+            this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+
+            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
         }
 
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
