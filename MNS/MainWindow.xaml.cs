@@ -128,7 +128,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.IdentifyStatus;
 
             // Получаем 16 битное значение состояния прибора
-            this.SlaveState = BitConverter.ToUInt16(new byte[2] { buffer[3], buffer[4] }, 0);
+            this.SlaveState = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
 
             // Узнаем схему замещения
             ushort equivalentCircuit = (ushort)(SlaveState & 0x8); // Накладываем битовую маску 00000000 00001000 чтобы получить значение 4го бита
@@ -175,7 +175,8 @@ namespace MNS
                     break;
             }
             // Узнаем основной индицируемы канал
-            switch ((ushort)(SlaveState >> 14))
+            ushort chanelValue = (ushort)(SlaveState >> 14);
+            switch (chanelValue)
             {
                 // Канал R
                 case 0:

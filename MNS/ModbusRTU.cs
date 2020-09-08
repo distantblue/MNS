@@ -148,7 +148,7 @@ namespace MNS
                 DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
             }
 
-            Thread.Sleep(100); // Задержка для поступления ответа на
+            Thread.Sleep(150); // Задержка для поступления ответа на
         }
 
         private void ReadResponse()
@@ -206,7 +206,7 @@ namespace MNS
                         else if (buffer[1] == 81 || buffer[1] == 82)
                         {
                             // Если адресное поле сходится и код ответа 81
-                            if (buffer[1] == 81 && buffer[0] == ModbusMessage[0]) 
+                            if (buffer[1] == 81 && buffer[0] == ModbusMessage[0])
                             {
                                 switch (buffer[2])
                                 {
@@ -222,7 +222,7 @@ namespace MNS
                                 }
                             }
                             // Если адресное поле сходится и код ответа 82
-                            else if (buffer[1] == 82 && buffer[0] == ModbusMessage[0]) 
+                            else if (buffer[1] == 82 && buffer[0] == ModbusMessage[0])
                             {
                                 switch (buffer[2])
                                 {
@@ -246,7 +246,10 @@ namespace MNS
 
                         if (CRC_error_etempt <= 3)
                         {
-                            ClearBuffers(); // Удаляем данные из буфера приема и буфера передачи
+                            if (SerialPort.IsOpen)
+                            {
+                                ClearBuffers(); // Удаляем данные из буфера приема и буфера передачи
+                            }
 
                             SendModbusMessage(this.ModbusMessage); // Повторно отправляем сообщение
                         }
@@ -273,7 +276,7 @@ namespace MNS
                 data[i] = modbusMessage[i];
             }
 
-            ushort CRC = GenerateCRC(modbusMessage); // генерация контрольной суммы
+            ushort CRC = GenerateCRC(data); // генерация контрольной суммы
 
             //Cтарший и младший байт контрольной суммы
             byte CRC_LO_byte = (byte)(CRC & 0xFF);
