@@ -34,7 +34,7 @@ namespace MNS
         // Объявляем событие "не удалось открыть порт"
         public event ModbusRTUErrorHandler SerialPortOpeningError;
         // Объявляем событие "не удалось открыть порт"
-        public event ModbusRTUErrorHandler SlaveReportsError;
+        public event ModbusRTUErrorHandler SlaveError;
 
         // Переменная хранит количество повторных попыток отправки 
         // сообщения Modbus по причине некорректной контрольной суммы 
@@ -126,6 +126,7 @@ namespace MNS
 
         private void SendModbusMessage(byte[] modbusMessage)
         {
+            // ЕСЛИ ПОРТ ЗАКРЫТ
             if (!SerialPort.IsOpen)
             {
                 try
@@ -137,22 +138,36 @@ namespace MNS
                     SerialPortOpeningError?.Invoke($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
                 }
             }
-            try
+            // ЕСЛИ ПОРТ УЖЕ ОТКРЫТ
+            else
             {
-                // Отправляем данные
-                SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
-            }
-            catch (TimeoutException ex)
-            {
-                SerialPort.Dispose();
-                DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. Проверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                // Очищаем буффер исходящих данных (порт может быть уже открытым и там могут быть данные с прошлой отправки)
+                SerialPort.DiscardOutBuffer();
+
+                try
+                {
+                    // Отправляем данные
+                    SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
+                }
+                catch (TimeoutException ex)
+                {
+                    SerialPort.Close(); // Закрыть порт
+                    DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                }
             }
 
-            Thread.Sleep(150); // Задержка для поступления ответа на
+            Thread.Sleep(100); // Задержка для поступления ответа на
         }
 
         private void ReadResponse()
         {
+            // ЕСЛИ ПОРТ ЗАКРЫТ 
+            if (!SerialPort.IsOpen)
+            {
+                return; // Выходим из метода, невозможно читать из порта когда он закрыт
+            }
+
+            // ЕСЛИ ПОРТ ОТКРЫТ И В НЕМ ЕСТЬ ДАННЫЕ
             if (SerialPort.BytesToRead > 0)
             {
                 int bufferSize = SerialPort.BytesToRead; // Получаем количество пришедших байтов данных в буфере приема
@@ -165,13 +180,14 @@ namespace MNS
 
                     if (BytesQuantity_error_etempt <= 3)
                     {
-                        ClearBuffers(); // Удаляем данные из буфера приема и буфера передачи
+                        // Очищаем буффер входящих данных 
+                        SerialPort.DiscardInBuffer();
 
                         SendModbusMessage(this.ModbusMessage); // Повторно отправляем сообщение
                     }
                     else
                     {
-                        SlaveReportsError?.Invoke("Программа несколько раз отправила повторные запросы, но в ответ получила сообщения с количеством байт 4 или менее, что является недопустимым.");
+                        SlaveError?.Invoke("Программа несколько раз отправила повторные запросы, но в ответ получила сообщения с количеством байт 4 или менее, что является недопустимым.");
                     }
                 }
                 // ЕCЛИ В БУФФЕРЕ 5 И БОЛЕЕ БАЙТ - ОК 
@@ -187,7 +203,8 @@ namespace MNS
                         buffer[i] = (byte)SerialPort.ReadByte();
                     }
 
-                    ClearBuffers(); // Удаляем данные из буфера приема и буфера передачи
+                    // Очищаем буффер входящих данных 
+                    SerialPort.DiscardInBuffer();
 
                     // ПРОВЕРКА КОНТРОЛЬНОЙ СУММЫ 
                     // ЕСЛИ КОНТРОЛЬНАЯ СУММА СОШЛАСЬ
@@ -211,13 +228,13 @@ namespace MNS
                                 switch (buffer[2])
                                 {
                                     case 1:
-                                        SlaveReportsError?.Invoke("На запрос программы устройство ответило ошибкой \"01\": \n\n\"Запрошенная функция не поддерживается устройством\"");
+                                        SlaveError?.Invoke("На запрос программы устройство ответило ошибкой \"01\": \n\n\"Запрошенная функция не поддерживается устройством\"");
                                         break;
                                     case 2:
-                                        SlaveReportsError?.Invoke("На запрос программы устройство ответило ошибкой \"02\": \n\n\"Запрошенное адресное поле не поддерживается устройством\"");
+                                        SlaveError?.Invoke("На запрос программы устройство ответило ошибкой \"02\": \n\n\"Запрошенное адресное поле не поддерживается устройством\"");
                                         break;
                                     default:
-                                        SlaveReportsError?.Invoke("На запрос программы устройство ответило ошибкой");
+                                        SlaveError?.Invoke("На запрос программы устройство ответило ошибкой");
                                         break;
                                 }
                             }
@@ -227,13 +244,13 @@ namespace MNS
                                 switch (buffer[2])
                                 {
                                     case 1:
-                                        SlaveReportsError?.Invoke("На запрос программы устройство ответило ошибкой \"01\": \n\n\"Запрошенная функция не поддерживается устройством\"");
+                                        SlaveError?.Invoke("На запрос программы устройство ответило ошибкой \"01\": \n\n\"Запрошенная функция не поддерживается устройством\"");
                                         break;
                                     case 2:
-                                        SlaveReportsError?.Invoke("На запрос программы устройство ответило ошибкой \"02\": \n\n\"Запрошенное адресное поле не поддерживается устройством\"");
+                                        SlaveError?.Invoke("На запрос программы устройство ответило ошибкой \"02\": \n\n\"Запрошенное адресное поле не поддерживается устройством\"");
                                         break;
                                     default:
-                                        SlaveReportsError?.Invoke("На запрос программы устройство ответило ошибкой");
+                                        SlaveError?.Invoke("На запрос программы устройство ответило ошибкой");
                                         break;
                                 }
                             }
@@ -246,10 +263,8 @@ namespace MNS
 
                         if (CRC_error_etempt <= 3)
                         {
-                            if (SerialPort.IsOpen)
-                            {
-                                ClearBuffers(); // Удаляем данные из буфера приема и буфера передачи
-                            }
+                            // Очищаем буффер входящих данных 
+                            SerialPort.DiscardInBuffer();
 
                             SendModbusMessage(this.ModbusMessage); // Повторно отправляем сообщение
                         }
@@ -260,6 +275,7 @@ namespace MNS
                     }
                 }
             }
+            // ЕСЛИ В БУФФЕРЕ НЕТ ДАННЫХ
             else
             {
                 DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {new TimeoutException().Message}");
@@ -294,12 +310,12 @@ namespace MNS
             return res;
         }
 
-        private void ClearBuffers()
-        {
-            SerialPort.DiscardOutBuffer(); // Удаляем данные из буфера приема
-            SerialPort.DiscardInBuffer(); // Удаляем данные из буфера передачи
-            SerialPort.BaseStream.Flush();
-            SerialPort.BaseStream.Dispose();
-        }
+        //private void ClearBuffers()
+        //{
+        //SerialPort.DiscardOutBuffer(); // Удаляем данные из буфера приема
+        //SerialPort.DiscardInBuffer(); // Удаляем данные из буфера передачи
+        //SerialPort.BaseStream.Flush();
+        //SerialPort.BaseStream.Dispose();
+        //}
     }
 }
