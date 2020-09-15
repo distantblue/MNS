@@ -38,15 +38,19 @@ namespace MNS
 
         // ИНТЕРВАЛ ТИШИНЫ после отправки сообщения ModbusRTU 
         [NonSerialized]
-        public readonly int SilentInterval;
+        public readonly int SilentInterval; // Гарантированный интервал тишины после отправки данных устройству после которого устройство начинает обработку запроса   
 
-        // ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от SLAVE-устройства [мс]
+        // ВРЕМЯ ОЖИДАНИЯ ЧТЕНИЯ из COM порта [мс]
         [NonSerialized]
-        public readonly int ReponseTimeout = 500;
+        public readonly int ReadTimeout = -1; // [-1] - бесконечное время ожидания
 
         // ВРЕМЯ ОЖИДАНИЯ ЗАПИСИ в порт [мс]
         [NonSerialized]
-        public readonly int WriteTimeout = 500;
+        public readonly int WriteTimeout = 100;
+
+        // ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от устройства [мс]
+        [NonSerialized]
+        public readonly int ResponseTimeout = 100;
 
         // Объявляю делегат
         public delegate void ModbusRTUSettingsErrorHandler(string message);

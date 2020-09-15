@@ -17,13 +17,17 @@ namespace MNS
         private byte[] ModbusMessage;
         // Экземпляр класса SerialPort
         private SerialPort SerialPort;
-        // Интервал тишины после отправки команды Slave-устройству
+        // Гарантированный интервал тишины после отправки команды устройству после которого устройство начинает обработку команды
         private readonly int SilentInterval;
+        // Интервал после которого начинается считывание поступивших данных на COM порт или вызывается исключение TimeoutException
+        private readonly int ResponseTimeout;
 
         // Объявляем делегат
         public delegate void ModbusRTUEventHandler(byte[] buffer);
-        // Объявляем событие "получен ответ от SLAVE-устройства"
+        // Объявляем событие "получен ответ от устройства"
         public event ModbusRTUEventHandler ResponseReceived;
+        // Объявляем событие "отправлена команда"
+        public event ModbusRTUEventHandler RequestSent;
 
         // Объявляем делегат
         public delegate void ModbusRTUErrorHandler(string message);
@@ -56,11 +60,12 @@ namespace MNS
             Modbus_Message = new List<byte>();
 
             // КОНФИГУРИРОВАНИЕ COM-ПОРТА
-            SerialPort = new SerialPort(modbusRTUSettings.PortName, modbusRTUSettings.BaudRate, modbusRTUSettings.Parity, modbusRTUSettings.DataBits, modbusRTUSettings.StopBits); // Конфигурируем COM-порт
-            SerialPort.Handshake = modbusRTUSettings.Handshake;
-            SerialPort.ReadTimeout = modbusRTUSettings.ReponseTimeout; // Время ожидания ответа устройства на COM-порт
+            SerialPort = new SerialPort(modbusRTUSettings.PortName, modbusRTUSettings.BaudRate, modbusRTUSettings.Parity, modbusRTUSettings.DataBits, modbusRTUSettings.StopBits);
+            SerialPort.Handshake = modbusRTUSettings.Handshake; // Аппаратное рукопожатие
+            SerialPort.ReadTimeout = modbusRTUSettings.ReadTimeout; // Время ожидания ответа устройства на COM-порт
             SerialPort.WriteTimeout = modbusRTUSettings.WriteTimeout; // Время ожидания записи данных в COM-порт
-            SilentInterval = modbusRTUSettings.SilentInterval; // Интервал тишины после отправки данных по COM-порт    
+            SilentInterval = modbusRTUSettings.SilentInterval; // Гарантированный интервал тишины после отправки данных устройству после которого устройство начинает обработку запроса
+            ResponseTimeout = modbusRTUSettings.ResponseTimeout; // Интервал после которого начинается считывание поступивших данных на COM порт или вызывается исключение TimeoutException
         }
 
         private byte[] BuildModbusMessage(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
@@ -80,12 +85,6 @@ namespace MNS
             Modbus_Message.Add(CRC_HI_byte);
             ModbusMessage = Modbus_Message.ToArray(); // получаем массив байт (сообщение Modbus)
 
-            return ModbusMessage;
-        }
-
-        private byte[] BuildModbusMessage(byte[] bytesToWrite, byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegister, ushort QuantityOfRegisters)
-        {
-            //позже
             return ModbusMessage;
         }
 
@@ -119,11 +118,6 @@ namespace MNS
             ReadResponse(); // Читаем данные 
         }
 
-        private void SendCommandToSlaveDevice()
-        {
-            //позже...
-        }
-
         private void SendModbusMessage(byte[] modbusMessage)
         {
             // ЕСЛИ ПОРТ ЗАКРЫТ
@@ -149,14 +143,15 @@ namespace MNS
                     // Отправляем данные
                     SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
                 }
-                catch (TimeoutException ex)
+                catch (TimeoutException ex) // По истечении WriteTimeout [мс]
                 {
                     SerialPort.Close(); // Закрыть порт
                     DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
                 }
+                RequestSent?.Invoke(modbusMessage); // Вызов события "отправлена команда"
             }
 
-            Thread.Sleep(100); // Задержка для поступления ответа на
+            Thread.Sleep(ResponseTimeout); // Задержка выжидания поступления данных на COM порт
         }
 
         private void ReadResponse()
@@ -310,6 +305,10 @@ namespace MNS
             return res;
         }
 
+        public void Close()
+        {
+            SerialPort.Close();
+        }
         //private void ClearBuffers()
         //{
         //SerialPort.DiscardOutBuffer(); // Удаляем данные из буфера приема

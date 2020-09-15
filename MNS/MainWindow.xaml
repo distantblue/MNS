@@ -26,10 +26,10 @@
                 </Menu>
             </Border>
 
-            <Border BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Bottom">
-                <TextBlock Margin="8" HorizontalAlignment="Stretch">
+            <Border BorderThickness="2" BorderBrush="White"  Margin="8" CornerRadius="16" Background="Black" DockPanel.Dock="Bottom">
+                <TextBlock Margin="8" HorizontalAlignment="Stretch" Height="200">
                     <InlineUIContainer>
-                        <TextBlock x:Name="statusTextBlock" TextWrapping="Wrap" />
+                        <TextBlock x:Name="statusTextBlock" TextWrapping="Wrap" Foreground="White"/>
                     </InlineUIContainer>
                 </TextBlock>
             </Border>

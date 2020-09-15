@@ -24,11 +24,17 @@ namespace MNS
     /// </summary>
     public partial class MainWindow : Window
     {
-        //ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
+        // ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
         ModbusRTUSettings CurrentModbusRTUSettings;
 
-        //СОЗДАНИЕ ОБЪЕКТА ModbusRTU
+        // СОЗДАНИЕ ОБЪЕКТА ModbusRTU
         ModbusRTU Modbus;
+
+        // ТАЙМЕР ПО КОТОРОМУ ВЫЗЫВАЕТСЯ ИЗМЕРЕНИЕ
+        Timer Timer;
+
+        // СТРОКА СОСТОЯНИЯ
+        string[] ConsoleText;
 
         // СТАТУС ПРИБОРА
         ushort SlaveState;
@@ -76,6 +82,7 @@ namespace MNS
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
+            ConsoleText = new string[10];
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -85,14 +92,14 @@ namespace MNS
 
         private void MainWindow_Closing(object sender, RoutedEventArgs e)
         {
-            //cancelMeasurementThread = true;
-            //MeasurementThread.Abort();
+            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
+            Modbus.Close(); // Закрываем COM порт 
         }
 
         private void StopMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            //cancelMeasurementThread = true;
-            //MeasurementThread.Abort();
+            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
+            Modbus.Close(); // Закрываем COM порт 
         }
 
         private void StartMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -106,12 +113,13 @@ namespace MNS
             Modbus = new ModbusRTU(CurrentModbusRTUSettings); //Создаем объект ModbusRTU
 
             Modbus.BadSignalError += this.ShowError; // Подписываемся на событие "Помехи в линии" 
-            Modbus.DeviceNotRespondingError += this.ShowError; //Подписываемся на событие "Устройство не отвечает" 
-            Modbus.SerialPortOpeningError += this.ShowError; //Подписываемся на событие "Ошибка открытия порта" 
+            Modbus.DeviceNotRespondingError += this.ShowError; // Подписываемся на событие "Устройство не отвечает" 
+            Modbus.SerialPortOpeningError += this.ShowError; // Подписываемся на событие "Ошибка открытия порта"
+            Modbus.RequestSent += this.DisplayOnConsole; // Подписываемся на событие "Отправлена команда"
+            //Modbus.ResponseReceived += this.DisplayOnConsole; // Подписываемся на событие "Получен ответ"
 
             // Создаем функцию обратного вызова по таймеру
-            TimerCallback tm = new TimerCallback(GetSlaveState);
-            Timer timer = new Timer(tm, null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
+            Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
         }
 
         private void GetSlaveState(object obj)
@@ -261,7 +269,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_L;
 
             // Получаем значение индуктивности
-            this.Inductance= BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgL;
@@ -377,7 +385,41 @@ namespace MNS
 
         public void ShowError(string errorMessage)
         {
+            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
+            Modbus.Close(); // Закрываем COM порт
+
             MessageBox.Show(errorMessage, "Ошибка!");
+        }
+
+        private void DisplayOnConsole(byte[] message)
+        {
+            for (int i = 0; i < ConsoleText.Length - 2; i++)
+            {
+                ConsoleText[i] = ConsoleText[i + 1];
+            }
+            ConsoleText[ConsoleText.Length - 1] = BitConverter.ToString(message); // Запись в последний элемент массива
+
+            string res = "";
+            foreach (var item in ConsoleText)
+            {
+                if (item != null)
+                {
+                    res += $"\n{item}";
+                }
+            }
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (statusTextBlock.CheckAccess())
+            {
+                statusTextBlock.Text = res;
+            }
+
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = res);
+            }
+
         }
     }
 }
