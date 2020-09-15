@@ -116,7 +116,7 @@ namespace MNS
             Modbus.DeviceNotRespondingError += this.ShowError; // Подписываемся на событие "Устройство не отвечает" 
             Modbus.SerialPortOpeningError += this.ShowError; // Подписываемся на событие "Ошибка открытия порта"
             Modbus.RequestSent += this.DisplayOnConsole; // Подписываемся на событие "Отправлена команда"
-            //Modbus.ResponseReceived += this.DisplayOnConsole; // Подписываемся на событие "Получен ответ"
+            Modbus.ResponseReceived += this.DisplayOnConsole; // Подписываемся на событие "Получен ответ"
 
             // Создаем функцию обратного вызова по таймеру
             Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);

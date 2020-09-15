@@ -132,24 +132,21 @@ namespace MNS
                     SerialPortOpeningError?.Invoke($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
                 }
             }
-            // ЕСЛИ ПОРТ УЖЕ ОТКРЫТ
-            else
-            {
-                // Очищаем буффер исходящих данных (порт может быть уже открытым и там могут быть данные с прошлой отправки)
-                SerialPort.DiscardOutBuffer();
 
-                try
-                {
-                    // Отправляем данные
-                    SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
-                }
-                catch (TimeoutException ex) // По истечении WriteTimeout [мс]
-                {
-                    SerialPort.Close(); // Закрыть порт
-                    DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
-                }
-                RequestSent?.Invoke(modbusMessage); // Вызов события "отправлена команда"
+            // Очищаем буффер исходящих данных (порт может быть уже открытым и там могут быть данные с прошлой отправки)
+            SerialPort.DiscardOutBuffer();
+
+            try
+            {
+                // Отправляем данные
+                SerialPort.Write(modbusMessage, 0, modbusMessage.Length);
             }
+            catch (TimeoutException ex) // По истечении WriteTimeout [мс]
+            {
+                SerialPort.Close(); // Закрыть порт
+                DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+            }
+            RequestSent?.Invoke(modbusMessage); // Вызов события "отправлена команда"
 
             Thread.Sleep(ResponseTimeout); // Задержка выжидания поступления данных на COM порт
         }

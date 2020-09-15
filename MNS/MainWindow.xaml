@@ -26,12 +26,8 @@
                 </Menu>
             </Border>
 
-            <Border BorderThickness="2" BorderBrush="White"  Margin="8" CornerRadius="16" Background="Black" DockPanel.Dock="Bottom">
-                <TextBlock Margin="8" HorizontalAlignment="Stretch" Height="200">
-                    <InlineUIContainer>
-                        <TextBlock x:Name="statusTextBlock" TextWrapping="Wrap" Foreground="White"/>
-                    </InlineUIContainer>
-                </TextBlock>
+            <Border BorderThickness="2" BorderBrush="White" Margin="8" CornerRadius="16" Background="Black" DockPanel.Dock="Bottom">
+                <TextBlock Margin="8" VerticalAlignment="Stretch" TextWrapping="Wrap" Height="200" x:Name="statusTextBlock" Foreground="GreenYellow" FontSize="12" />
             </Border>
         </DockPanel>
     </Grid>
