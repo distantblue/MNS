@@ -127,7 +127,7 @@ namespace MNS
             // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyStatus;
 
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 200, 1); //команда (0x04) на чтение 200-го регистра статуса, считываем 1 регистр 16 бит
         }
 
         private void IdentifyStatus(byte[] buffer)
@@ -192,7 +192,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_R;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 104, 2);
                     break;
 
                 // Канал L
@@ -201,7 +201,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_L;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 108, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 108, 2);
                     break;
 
                 // Канал C
@@ -210,7 +210,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_C;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 112, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 112, 2);
                     break;
 
                 // Канал M
@@ -219,7 +219,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_M;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 116, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 116, 2);
                     break;
             }
         }
@@ -232,11 +232,14 @@ namespace MNS
             // Получаем значение сопротивления
             this.Resistance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
+            // Отображаем значение
+            //R_textBlock.Text = Resistance.ToString();
+
             // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgR;
 
             // Отправляем запрос на чтение регистра tgR
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 106, 2);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 106, 2);
         }
 
         private void Get_tgR(byte[] buffer)
@@ -251,7 +254,7 @@ namespace MNS
             Modbus.ResponseReceived += this.Get_F;
 
             // Отправляем запрос на чтение регистра F
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 2);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 120, 2);
         }
 
         private void Get_F(byte[] buffer)
@@ -275,7 +278,7 @@ namespace MNS
             Modbus.ResponseReceived += this.Get_tgL;
 
             // Отправляем запрос на чтение регистра tgL
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 2);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 110, 2);
         }
 
         private void Get_tgL(byte[] buffer)
@@ -346,38 +349,6 @@ namespace MNS
             VisualEffects.ClearBlurEffect(this);
         }
 
-
-
-        /*
-        private void ShowRes(byte[] buffer)
-        {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-
-            if (statusTextBlock.CheckAccess()) // Поток иеет доступ к потоку UI         
-            {
-                statusTextBlock.Text = BitConverter.ToString(buffer);
-            }
-            else //Поток не имеет доступ к потоку UI 
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = BitConverter.ToString(buffer));
-            }
-
-            //this.Dispatcher.BeginInvoke(DispatcherPriority.Send, (ThreadStart)delegate () { statusTextBlock.Text = BitConverter.ToString(buffer); });
-            //statusTextBlock.Text = BitConverter.ToString(buffer);
-            /*
-            using (StreamWriter sw = new StreamWriter(@"Answer.txt", true, System.Text.Encoding.Default))
-            {
-                string str = "";
-                foreach (var item in buffer)
-                {
-                    str = str + item.ToString();
-                }
-                sw.WriteLine(str);
-            }
-            
-        }
-        */
-
         private void SettingsButtonCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -393,33 +364,33 @@ namespace MNS
 
         private void DisplayOnConsole(byte[] message)
         {
-            for (int i = 0; i < ConsoleText.Length - 2; i++)
+            //byte[] message
+            for (int i = 0; i < ConsoleText.Length - 1; i++)
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = BitConverter.ToString(message); // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"{DateTime.UtcNow}    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
-            string res = "";
+            string displStr = "";
             foreach (var item in ConsoleText)
             {
                 if (item != null)
                 {
-                    res += $"\n{item}";
+                    displStr += $"\n{item}";
                 }
             }
+
             //Проверяем имеет ли вызывающий поток доступ к потоку UI
             // Поток имеет доступ к потоку UI
             if (statusTextBlock.CheckAccess())
             {
-                statusTextBlock.Text = res;
+                statusTextBlock.Text = displStr;
             }
-
             //Поток не имеет доступ к потоку UI 
             else
             {
-                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = res);
+                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = displStr);
             }
-
         }
     }
 }

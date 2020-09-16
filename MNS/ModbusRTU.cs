@@ -306,12 +306,5 @@ namespace MNS
         {
             SerialPort.Close();
         }
-        //private void ClearBuffers()
-        //{
-        //SerialPort.DiscardOutBuffer(); // Удаляем данные из буфера приема
-        //SerialPort.DiscardInBuffer(); // Удаляем данные из буфера передачи
-        //SerialPort.BaseStream.Flush();
-        //SerialPort.BaseStream.Dispose();
-        //}
     }
 }
