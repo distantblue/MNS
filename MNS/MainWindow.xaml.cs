@@ -127,7 +127,7 @@ namespace MNS
             // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyStatus;
 
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 200, 1); //команда (0x04) на чтение 200-го регистра статуса, считываем 1 регистр 16 бит
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1); //команда (0x04) на чтение 200-го регистра статуса, считываем 1 регистр 16 бит
         }
 
         private void IdentifyStatus(byte[] buffer)
@@ -192,7 +192,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_R;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 104, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 1);
                     break;
 
                 // Канал L
@@ -201,7 +201,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_L;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 108, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 108, 1);
                     break;
 
                 // Канал C
@@ -210,7 +210,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_C;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 112, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 112, 1);
                     break;
 
                 // Канал M
@@ -219,7 +219,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_M;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 116, 2);
+                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 116, 1);
                     break;
             }
         }
@@ -233,13 +233,23 @@ namespace MNS
             this.Resistance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
             // Отображаем значение
-            //R_textBlock.Text = Resistance.ToString();
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (statusTextBlock.CheckAccess())
+            {
+                R_textBlock.Text = Resistance.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => R_textBlock.Text = Resistance.ToString());
+            }
 
             // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgR;
 
             // Отправляем запрос на чтение регистра tgR
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 106, 2);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 106, 1);
         }
 
         private void Get_tgR(byte[] buffer)
@@ -254,7 +264,7 @@ namespace MNS
             Modbus.ResponseReceived += this.Get_F;
 
             // Отправляем запрос на чтение регистра F
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 120, 2);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1);
         }
 
         private void Get_F(byte[] buffer)
@@ -278,7 +288,7 @@ namespace MNS
             Modbus.ResponseReceived += this.Get_tgL;
 
             // Отправляем запрос на чтение регистра tgL
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x04, 110, 2);
+            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 1);
         }
 
         private void Get_tgL(byte[] buffer)
@@ -369,7 +379,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"{DateTime.UtcNow}    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)

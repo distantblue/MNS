@@ -26,12 +26,12 @@
                 </Menu>
             </Border>
 
-            <Border BorderThickness="1" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Left">
+            <Border BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Left">
                 <TextBlock  Margin="8" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="250" x:Name="R_textBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
             </Border>
-            
-            <Border BorderThickness="1" BorderBrush="Aqua" Margin="8" Background="Black" DockPanel.Dock="Bottom">
-                <TextBlock Margin="8" VerticalAlignment="Stretch" TextWrapping="Wrap" Height="180" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
+
+            <Border BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black" DockPanel.Dock="Bottom">
+                <TextBlock Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Height="170" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
             </Border>
             
         </DockPanel>

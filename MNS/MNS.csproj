@@ -72,6 +72,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BitReader.cs" />
     <Compile Include="ModbusRTU.cs" />
     <Compile Include="ModbusRTUSettings.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
