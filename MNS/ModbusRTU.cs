@@ -32,21 +32,29 @@ namespace MNS
         // Объявляем делегат
         public delegate void ModbusRTUErrorHandler(string message);
         // Объявляем событие "не корректная контрольная сумма сообщения ответа Slave-устройства"
-        public event ModbusRTUErrorHandler BadSignalError;
+        public event ModbusRTUErrorHandler CRCError;
         // Объявляем событие "устройство не ответило на запрос"
         public event ModbusRTUErrorHandler DeviceNotRespondingError;
         // Объявляем событие "не удалось открыть порт"
         public event ModbusRTUErrorHandler SerialPortOpeningError;
-        // Объявляем событие "не удалось открыть порт"
+        // Объявляем событие "не удалось записать данные в порт"
+        public event ModbusRTUErrorHandler SerialPortWritingError;
+        // Объявляем событие "устройство сообщило об ошибке"
         public event ModbusRTUErrorHandler SlaveError;
+        // Перемення хранит ожидаемое количество байт данных в ответе устройства
+        private int ExpectedQuantityOfDataBytesInResponse;
+        // Перемення хранит ожидаемое количество байт в ответе устройства
+        private int ExpectedQuantityOfBytesInResponse;
 
         // Переменная хранит количество повторных попыток отправки 
         // сообщения Modbus по причине некорректной контрольной суммы 
-        private int CRC_error_etempt = 0;
+        //private int CRC_error_etempt = 0;
 
         // Переменная хранит количество повторных попыток отправки 
-        // сообщения Modbus по причине "колличество полученных байт меньше 5" 
-        private int BytesQuantity_error_etempt = 0;
+        // сообщения Modbus по причине "количество полученных байт меньше 5" 
+        //private int BytesQuantity_error_etempt = 0;
+
+
 
         // Объявляем событие "не получен ответ от SLAVE-устройства"
         // public event ModbusRTUEventHandler ResponseError;
@@ -111,8 +119,10 @@ namespace MNS
             return CRC;
         }
 
-        public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead)
+        public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead, int QuantityOfBytesInReg)
         {
+            this.ExpectedQuantityOfDataBytesInResponse = QuantityOfRegistersToRead * QuantityOfBytesInReg; // Ожидаемое количество байтов данных в сообщении ответа устройства
+            this.ExpectedQuantityOfBytesInResponse = 5 + ExpectedQuantityOfDataBytesInResponse; // Ожидаемое количество байтов в сообщении ответа устройства
             byte[] messageToSend = BuildModbusMessage(SlaveAddress, ModbusFunctionCode, StartingAddressOfRegisterToRead, QuantityOfRegistersToRead); // Формируем массив байт для отправки
             SendModbusMessage(messageToSend); // Отправляем данные
             ReadResponse(); // Читаем данные 
@@ -127,7 +137,7 @@ namespace MNS
                 {
                     SerialPort.Open();
                 }
-                catch (Exception ex)
+                catch (InvalidOperationException ex)
                 {
                     SerialPortOpeningError?.Invoke($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
                 }
@@ -135,6 +145,7 @@ namespace MNS
 
             // Очищаем буффер исходящих данных (порт может быть уже открытым и там могут быть данные с прошлой отправки)
             SerialPort.DiscardOutBuffer();
+            Thread.Sleep(50);
 
             try
             {
@@ -144,7 +155,7 @@ namespace MNS
             catch (TimeoutException ex) // По истечении WriteTimeout [мс]
             {
                 SerialPort.Close(); // Закрыть порт
-                DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                SerialPortWritingError?.Invoke($"Произошла ошибка при записи порт. \n\nПодробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
             }
             RequestSent?.Invoke(modbusMessage); // Вызов события "отправлена команда"
 
@@ -160,10 +171,121 @@ namespace MNS
             }
 
             // ЕСЛИ ПОРТ ОТКРЫТ И В НЕМ ЕСТЬ ДАННЫЕ
+            if (SerialPort.BytesToRead >= 5)
+            {
+                int bufferSize = SerialPort.BytesToRead; // Получаем количество пришедших байтов данных в буффере приема
+                byte[] buffer = new byte[bufferSize]; // Создаем массив байтов
+                SerialPort.DiscardNull = false; // Не игнорировать пустые байты - 0000 0000
+
+                // Считываем побайтно и заполняем массив байтов:
+                for (int i = 0; i < bufferSize; i++)
+                {
+                    buffer[i] = (byte)SerialPort.ReadByte();
+                }
+
+                // ПРОВЕРКА КОНТРОЛЬНОЙ СУММЫ 
+                // ЕСЛИ КОНТРОЛЬНАЯ СУММА СОШЛАСЬ
+                if (CheckCRC_Correct(buffer))
+                {
+                    // ЕСЛИ ПРИШЛО ОЖИДАЕМОЕ КОЛИЧЕСТВО БАЙТОВ В ОТВЕТЕ
+                    if (bufferSize == ExpectedQuantityOfBytesInResponse)
+                    {
+                        // Если адрес устройства правильный
+                        if (buffer[0] == ModbusMessage[0])
+                        {
+                            // Если совпадает функция команды и количество запрошенных байтов данных 
+                            if (buffer[1] == ModbusMessage[1] && buffer[2] == ExpectedQuantityOfDataBytesInResponse)
+                            {
+                                // Событие "пришли данные"
+                                ResponseReceived?.Invoke(buffer);
+                            }
+                            else
+                            {
+                                SendMessageAgain();
+                            }
+                        }
+                        else
+                        {
+                            SendMessageAgain();
+                        }
+                    }
+
+                }
+                // ЕСЛИ КОНТРОЛЬНАЯ СУММА НЕ СОШЛАСЬ
+                else
+                {
+                    SendMessageAgain();
+                }
+            }
+            else
+            {
+                SendMessageAgain();
+            }
+        }
+
+        private bool CheckCRC_Correct(byte[] modbusMessage)
+        {
+            bool res = false;
+            byte[] data = new byte[modbusMessage.Length - 2];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = modbusMessage[i];
+            }
+
+            ushort CRC = GenerateCRC(data); // генерация контрольной суммы
+
+            //Cтарший и младший байт контрольной суммы
+            byte CRC_LO_byte = (byte)(CRC & 0xFF);
+            byte CRC_HI_byte = (byte)(CRC >> 8);
+
+            //Полученные байты контрольной суммы
+            byte received_CRC_LO_byte = modbusMessage[modbusMessage.Length - 2];
+            byte received_CRC_HI_byte = modbusMessage[modbusMessage.Length - 1];
+
+            //Сравнение
+            if (CRC_LO_byte == received_CRC_LO_byte && CRC_HI_byte == received_CRC_HI_byte)
+            {
+                res = true;
+            }
+            return res;
+        }
+
+        public void Close()
+        {
+            SerialPort.Close();
+        }
+
+        private void SendMessageAgain()
+        {
+            // Очищаем буффер входящих данных 
+            SerialPort.DiscardInBuffer();
+
+            // Пауза для очистки буффера входящих данных
+            Thread.Sleep(50);
+
+            // Повторно отправляем сообщение
+            SendModbusMessage(this.ModbusMessage);
+        }
+    }
+}
+
+/*
+            // ЕСЛИ ПОРТ ЗАКРЫТ 
+            if (!SerialPort.IsOpen)
+            {
+                return; // Выходим из метода, невозможно читать из порта когда он закрыт
+            }
+
+            // ЕСЛИ ПОРТ ОТКРЫТ И В НЕМ ЕСТЬ ДАННЫЕ
             if (SerialPort.BytesToRead > 0)
             {
-                int bufferSize = SerialPort.BytesToRead; // Получаем количество пришедших байтов данных в буфере приема
+                int bufferSize = SerialPort.BytesToRead; // Получаем количество пришедших байтов данных в буффере приема
+
                 byte[] buffer = new byte[bufferSize]; // Создаем массив байтов
+
+
+
 
                 // ЕCЛИ В БУФФЕРЕ 4 И МЕНЕ БАЙТ - ОШИБКА 
                 if (buffer.Length <= 4)
@@ -271,40 +393,6 @@ namespace MNS
             else
             {
                 DeviceNotRespondingError?.Invoke($"Устройство не ответило на запрос. \n\nПроверьте подключение устройства. Подробнее о возникшей исключительной ситуации: \n\n {new TimeoutException().Message}");
-            }
-        }
+            }*/
 
-        private bool CheckCRC_Correct(byte[] modbusMessage)
-        {
-            bool res = false;
-            byte[] data = new byte[modbusMessage.Length - 2];
 
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] = modbusMessage[i];
-            }
-
-            ushort CRC = GenerateCRC(data); // генерация контрольной суммы
-
-            //Cтарший и младший байт контрольной суммы
-            byte CRC_LO_byte = (byte)(CRC & 0xFF);
-            byte CRC_HI_byte = (byte)(CRC >> 8);
-
-            //Полученные байты контрольной суммы
-            byte received_CRC_LO_byte = modbusMessage[modbusMessage.Length - 2];
-            byte received_CRC_HI_byte = modbusMessage[modbusMessage.Length - 1];
-
-            //Сравнение
-            if (CRC_LO_byte == received_CRC_LO_byte && CRC_HI_byte == received_CRC_HI_byte)
-            {
-                res = true;
-            }
-            return res;
-        }
-
-        public void Close()
-        {
-            SerialPort.Close();
-        }
-    }
-}

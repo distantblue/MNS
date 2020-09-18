@@ -50,7 +50,7 @@ namespace MNS
 
         // ВРЕМЯ ОЖИДАНИЯ ОТВЕТА от устройства [мс]
         [NonSerialized]
-        public readonly int ResponseTimeout = 100;
+        public readonly int ResponseTimeout = 150;
 
         // Объявляю делегат
         public delegate void ModbusRTUSettingsErrorHandler(string message);
