@@ -24,10 +24,10 @@ namespace MNS
     /// </summary>
     public partial class MainWindow : Window
     {
-        // ПОЛУЧАЕМ ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
+        // ТЕКУЩИЕ НАСТРОЙКИ связи с устройством Modbus
         ModbusRTUSettings CurrentModbusRTUSettings;
 
-        // СОЗДАНИЕ ОБЪЕКТА ModbusRTU
+        // ОБЪЯВЛЕНИЕ ОБЪЕКТА ModbusRTU
         ModbusRTU Modbus;
 
         // ТАЙМЕР ПО КОТОРОМУ ВЫЗЫВАЕТСЯ ИЗМЕРЕНИЕ
@@ -104,18 +104,20 @@ namespace MNS
 
         private void StartMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            CurrentModbusRTUSettings = new ModbusRTUSettings(); //Создаем объект настроек
-            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.ShowError; //Подписываемся на событие "не найден файл настроек" 
-            CurrentModbusRTUSettings.SettingsFileReadingError += this.ShowError; //Подписываемся на событие "ошибка при чтении файла настроек"
+            CurrentModbusRTUSettings = new ModbusRTUSettings(); // Создаем объект настроек
+            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "не найден файл настроек" 
+            CurrentModbusRTUSettings.SettingsFileReadingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "ошибка при чтении файла настроек"
 
-            CurrentModbusRTUSettings.GetCurrentSettings(); //Считываем настройки из файла настроек
+            CurrentModbusRTUSettings.GetCurrentSettings(); // Считываем настройки из файла настроек
 
-            Modbus = new ModbusRTU(CurrentModbusRTUSettings); //Создаем объект ModbusRTU
+            Modbus = new ModbusRTU(CurrentModbusRTUSettings); // Создаем объект ModbusRTU
 
-            Modbus.DeviceNotRespondingError += this.ShowError; // Подписываемся на событие "Устройство не отвечает" 
-            Modbus.SerialPortOpeningError += this.ShowError; // Подписываемся на событие "Ошибка открытия порта"
-            Modbus.RequestSent += this.DisplayOnConsole; // Подписываемся на событие "Отправлена команда"
-            Modbus.ResponseReceived += this.DisplayOnConsole; // Подписываемся на событие "Получен ответ"
+            Modbus.DeviceNotRespondingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Устройство не отвечает" 
+            Modbus.SerialPortOpeningError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Ошибка открытия порта"
+            Modbus.RequestSent += this.DisplayMessageOnConsole; // Подписываемся на обработчик события "Отправлена команда"
+            Modbus.ResponseReceived += this.DisplayMessageOnConsole; // Подписываемся на обработчик события "Получен ответ"
+            Modbus.CRC_Error += this.ProcessMissedResult;
+            Modbus.SlaveError += this.ProcessMissedResult;
 
             // Создаем функцию обратного вызова по таймеру
             Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
@@ -123,10 +125,10 @@ namespace MNS
 
         private void GetSlaveState(object obj)
         {
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyStatus;
 
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1,2); //команда (0x04) на чтение 200-го регистра статуса, считываем 1 регистр 16 бит
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1, 2); // Команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр 16 бит
         }
 
         private void IdentifyStatus(byte[] buffer)
@@ -187,38 +189,38 @@ namespace MNS
             {
                 // Канал R
                 case 0:
-                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_R;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 1,4);
+                    Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 1, 4);
                     break;
 
                 // Канал L
                 case 1:
-                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_L;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 108, 1,4);
+                    Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 108, 1, 4);
                     break;
 
                 // Канал C
                 case 2:
-                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_C;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 112, 1,4);
+                    Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 112, 1, 4);
                     break;
 
                 // Канал M
                 case 3:
-                    // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+                    // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_M;
 
                     // Отправляем запрос на чтение регистров R 
-                    Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 116, 1,4);
+                    Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 116, 1, 4);
                     break;
             }
         }
@@ -244,11 +246,11 @@ namespace MNS
                 statusTextBlock.Dispatcher.InvokeAsync(() => R_textBlock.Text = Resistance.ToString());
             }
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgR;
 
             // Отправляем запрос на чтение регистра tgR
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 106, 1,4);
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 106, 1, 4);
         }
 
         private void Get_tgR(byte[] buffer)
@@ -259,11 +261,11 @@ namespace MNS
             // Получаем значение tgR
             this.tg_R = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
 
             // Отправляем запрос на чтение регистра F
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1,4);
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1, 4);
         }
 
         private void Get_F(byte[] buffer)
@@ -283,11 +285,11 @@ namespace MNS
             // Получаем значение индуктивности
             this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgL;
 
             // Отправляем запрос на чтение регистра tgL
-            Modbus.SendRequestToSlaveDeviceToReceiveData(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 1,4);
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 1, 4);
         }
 
         private void Get_tgL(byte[] buffer)
@@ -298,7 +300,7 @@ namespace MNS
             // Получаем значение tgL
             this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
         }
 
@@ -310,7 +312,7 @@ namespace MNS
             // Получаем значение емкости
             this.Сapacity = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgC;
         }
 
@@ -322,7 +324,7 @@ namespace MNS
             // Получаем значение емкости
             this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
         }
 
@@ -334,7 +336,7 @@ namespace MNS
             // Получаем значение взаимоиндуктивности
             this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgM;
         }
 
@@ -346,7 +348,7 @@ namespace MNS
             // Получаем значение емкости
             this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
 
-            // ПОДПИСЫВАЕМСЯ НА СОБЫТИЕ ResposeReceived
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
         }
 
@@ -363,7 +365,7 @@ namespace MNS
             this.Close();
         }
 
-        public void ShowError(string errorMessage)
+        private void DisplayErrorOccurred(string errorMessage)
         {
             Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
             Modbus.Close(); // Закрываем COM порт
@@ -371,7 +373,7 @@ namespace MNS
             MessageBox.Show(errorMessage, "Ошибка!");
         }
 
-        private void DisplayOnConsole(byte[] message)
+        private void DisplayMessageOnConsole(byte[] message)
         {
             //byte[] message
             for (int i = 0; i < ConsoleText.Length - 1; i++)
@@ -400,6 +402,26 @@ namespace MNS
             {
                 statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = displStr);
             }
+        }
+
+        private void ProcessMissedResult(string errorMessage)
+        {
+            // ПРИОСТАНАВЛИВАЕМ ТАЙМЕР
+            //
+            
+            // ОТПИСЫВАЕМСЯ ОТ ОБРАБОТЧИКОВ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_R;
+            Modbus.ResponseReceived -= this.Get_L;
+            Modbus.ResponseReceived -= this.Get_C;
+            Modbus.ResponseReceived -= this.Get_M;
+            Modbus.ResponseReceived -= this.Get_F;
+            Modbus.ResponseReceived -= this.Get_tgR;
+            Modbus.ResponseReceived -= this.Get_tgL;
+            Modbus.ResponseReceived -= this.Get_tgC;
+            Modbus.ResponseReceived -= this.Get_tgM;
+            
+            // ВКЛЮЧАЕМ ТАЙМЕР
+            //
         }
     }
 }

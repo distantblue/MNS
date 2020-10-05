@@ -32,7 +32,7 @@ namespace MNS
         // Объявляем делегат
         public delegate void ModbusRTUErrorHandler(string message);
         // Объявляем событие "не корректная контрольная сумма сообщения ответа Slave-устройства"
-        public event ModbusRTUErrorHandler CRCError;
+        public event ModbusRTUErrorHandler CRC_Error;
         // Объявляем событие "устройство не ответило на запрос"
         public event ModbusRTUErrorHandler DeviceNotRespondingError;
         // Объявляем событие "не удалось открыть порт"
@@ -45,16 +45,6 @@ namespace MNS
         private int ExpectedQuantityOfDataBytesInResponse;
         // Перемення хранит ожидаемое количество байт в ответе устройства
         private int ExpectedQuantityOfBytesInResponse;
-
-        // Переменная хранит количество повторных попыток отправки 
-        // сообщения Modbus по причине некорректной контрольной суммы 
-        //private int CRC_error_etempt = 0;
-
-        // Переменная хранит количество повторных попыток отправки 
-        // сообщения Modbus по причине "количество полученных байт меньше 5" 
-        //private int BytesQuantity_error_etempt = 0;
-
-
 
         // Объявляем событие "не получен ответ от SLAVE-устройства"
         // public event ModbusRTUEventHandler ResponseError;
@@ -119,7 +109,7 @@ namespace MNS
             return CRC;
         }
 
-        public void SendRequestToSlaveDeviceToReceiveData(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead, int QuantityOfBytesInReg)
+        public void SendCommandToReadRegisters(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead, int QuantityOfBytesInReg)
         {
             this.ExpectedQuantityOfDataBytesInResponse = QuantityOfRegistersToRead * QuantityOfBytesInReg; // Ожидаемое количество байтов данных в сообщении ответа устройства
             this.ExpectedQuantityOfBytesInResponse = 5 + ExpectedQuantityOfDataBytesInResponse; // Ожидаемое количество байтов в сообщении ответа устройства
@@ -154,8 +144,7 @@ namespace MNS
             }
             catch (TimeoutException ex) // По истечении WriteTimeout [мс]
             {
-                SerialPort.Close(); // Закрыть порт
-                SerialPortWritingError?.Invoke($"Произошла ошибка при записи порт. \n\nПодробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                SerialPortWritingError?.Invoke($"Произошла ошибка при записи данных порт. \n\nПодробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
             }
             RequestSent?.Invoke(modbusMessage); // Вызов события "отправлена команда"
 
@@ -170,7 +159,7 @@ namespace MNS
                 return; // Выходим из метода, невозможно читать из порта когда он закрыт
             }
 
-            // ЕСЛИ ПОРТ ОТКРЫТ И В НЕМ ЕСТЬ ДАННЫЕ
+            // ЕСЛИ ВО ВХОДЯЩЕМ БУФФЕРЕ ПОРТА БОЛЕЕ 5 байтов
             if (SerialPort.BytesToRead >= 5)
             {
                 int bufferSize = SerialPort.BytesToRead; // Получаем количество пришедших байтов данных в буффере приема
@@ -187,11 +176,11 @@ namespace MNS
                 // ЕСЛИ КОНТРОЛЬНАЯ СУММА СОШЛАСЬ
                 if (CheckCRC_Correct(buffer))
                 {
-                    // ЕСЛИ ПРИШЛО ОЖИДАЕМОЕ КОЛИЧЕСТВО БАЙТОВ В ОТВЕТЕ
-                    if (bufferSize == ExpectedQuantityOfBytesInResponse)
+                    // Если адрес устройства правильный
+                    if (buffer[0] == ModbusMessage[0])
                     {
-                        // Если адрес устройства правильный
-                        if (buffer[0] == ModbusMessage[0])
+                        // ЕСЛИ ПРИШЛО ОЖИДАЕМОЕ КОЛИЧЕСТВО БАЙТОВ В ОТВЕТЕ
+                        if (bufferSize == ExpectedQuantityOfBytesInResponse)
                         {
                             // Если совпадает функция команды и количество запрошенных байтов данных 
                             if (buffer[1] == ModbusMessage[1] && buffer[2] == ExpectedQuantityOfDataBytesInResponse)
@@ -201,25 +190,36 @@ namespace MNS
                             }
                             else
                             {
-                                SendMessageAgain();
+                                SlaveError?.Invoke("Ошибка! В сообщении ответа устройства не совпадает функция команды или количество запрошенных байтов данных.");
                             }
                         }
                         else
                         {
-                            SendMessageAgain();
+                            if (buffer[1] == 81 || buffer[1] == 82)
+                            {
+                                SlaveError?.Invoke("Ошибка! Запрашиваемая функция или адресное поле не поддерживается устройством.");
+                            }
+                            else
+                            {
+                                SlaveError?.Invoke("Неустановленная ошибка.");
+                            }
                         }
                     }
-
+                    else
+                    {
+                        SlaveError?.Invoke("Ошибка! В сообщении ответа неверный адрес устройства.");
+                    }
                 }
                 // ЕСЛИ КОНТРОЛЬНАЯ СУММА НЕ СОШЛАСЬ
                 else
                 {
-                    SendMessageAgain();
+                    CRC_Error?.Invoke("Ошибка! В сообщении ответа устройства неверная контрольная сумма.");
                 }
             }
+            // ЕСЛИ ВО ВХОДЯЩЕМ БУФФЕРЕ ПОРТА МЕНЕЕ 5 байтов
             else
             {
-                SendMessageAgain();
+                SlaveError?.Invoke("Ошибка! В сообщении ответа устройства менее 5 байтов.");
             }
         }
 
