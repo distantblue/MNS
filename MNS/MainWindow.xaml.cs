@@ -98,29 +98,59 @@ namespace MNS
 
         private void StopMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
-            Modbus.Close(); // Закрываем COM порт 
+            if (Modbus != null)
+            {
+                // ОТПИСЫВАЕМСЯ ОТ ОБРАБОТЧИКОВ СОБЫТИЯ ResposeReceived
+                Modbus.ResponseReceived -= this.IdentifyStatus;
+                Modbus.ResponseReceived -= this.Get_R;
+                Modbus.ResponseReceived -= this.Get_L;
+                Modbus.ResponseReceived -= this.Get_C;
+                Modbus.ResponseReceived -= this.Get_M;
+                Modbus.ResponseReceived -= this.Get_F;
+                Modbus.ResponseReceived -= this.Get_tgR;
+                Modbus.ResponseReceived -= this.Get_tgL;
+                Modbus.ResponseReceived -= this.Get_tgC;
+                Modbus.ResponseReceived -= this.Get_tgM;
+
+                Modbus.ResponseReceived -= this.DisplayMessageInConsole;
+                Modbus.RequestSent -= this.DisplayMessageInConsole;
+                Modbus.CRC_Error -= this.ProcessMissedResult;
+                Modbus.SlaveError -= this.ProcessMissedResult;
+                Modbus.DeviceNotRespondingError -= this.ProcessMissedResult;
+
+                // ПРИОСТАНАВЛИВАЕМ ТАЙМЕР
+                Timer.Change(Timeout.Infinite, 0); // Приостанавливаем вызов метода GetSlaveState
+
+                Thread.Sleep(200);
+
+                Modbus.Close(); // Закрываем COM порт
+                Modbus = null;
+            }
         }
 
         private void StartMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            CurrentModbusRTUSettings = new ModbusRTUSettings(); // Создаем объект настроек
-            CurrentModbusRTUSettings.SettingsFileNotFoundError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "не найден файл настроек" 
-            CurrentModbusRTUSettings.SettingsFileReadingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "ошибка при чтении файла настроек"
+            if (Modbus == null)
+            {
+                CurrentModbusRTUSettings = new ModbusRTUSettings(); // Создаем объект настроек
+                CurrentModbusRTUSettings.SettingsFileNotFoundError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "не найден файл настроек" 
+                CurrentModbusRTUSettings.SettingsFileReadingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "ошибка при чтении файла настроек"
 
-            CurrentModbusRTUSettings.GetCurrentSettings(); // Считываем настройки из файла настроек
+                CurrentModbusRTUSettings.GetCurrentSettings(); // Считываем настройки из файла настроек
 
-            Modbus = new ModbusRTU(CurrentModbusRTUSettings); // Создаем объект ModbusRTU
+                Modbus = new ModbusRTU(CurrentModbusRTUSettings); // Создаем объект ModbusRTU
 
-            Modbus.DeviceNotRespondingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Устройство не отвечает" 
-            Modbus.SerialPortOpeningError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Ошибка открытия порта"
-            Modbus.RequestSent += this.DisplayMessageOnConsole; // Подписываемся на обработчик события "Отправлена команда"
-            Modbus.ResponseReceived += this.DisplayMessageOnConsole; // Подписываемся на обработчик события "Получен ответ"
-            Modbus.CRC_Error += this.ProcessMissedResult;
-            Modbus.SlaveError += this.ProcessMissedResult;
+                //Modbus.DeviceNotRespondingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Устройство не отвечает" 
+                Modbus.SerialPortOpeningError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Ошибка открытия порта"
+                Modbus.RequestSent += this.DisplayMessageInConsole; // Подписываемся на обработчик события "Отправлена команда"
+                Modbus.ResponseReceived += this.DisplayMessageInConsole; // Подписываемся на обработчик события "Получен ответ"
+                Modbus.CRC_Error += this.ProcessMissedResult;
+                Modbus.SlaveError += this.ProcessMissedResult;
+                Modbus.DeviceNotRespondingError += this.ProcessMissedResult;
 
-            // Создаем функцию обратного вызова по таймеру
-            Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
+                // Создаем функцию обратного вызова по таймеру
+                Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
+            }
         }
 
         private void GetSlaveState(object obj)
@@ -368,12 +398,32 @@ namespace MNS
         private void DisplayErrorOccurred(string errorMessage)
         {
             Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
+
+            // ОТПИСЫВАЕМСЯ ОТ ОБРАБОТЧИКОВ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.IdentifyStatus;
+            Modbus.ResponseReceived -= this.Get_R;
+            Modbus.ResponseReceived -= this.Get_L;
+            Modbus.ResponseReceived -= this.Get_C;
+            Modbus.ResponseReceived -= this.Get_M;
+            Modbus.ResponseReceived -= this.Get_F;
+            Modbus.ResponseReceived -= this.Get_tgR;
+            Modbus.ResponseReceived -= this.Get_tgL;
+            Modbus.ResponseReceived -= this.Get_tgC;
+            Modbus.ResponseReceived -= this.Get_tgM;
+
+            Modbus.ResponseReceived -= this.DisplayMessageInConsole;
+            Modbus.RequestSent -= this.DisplayMessageInConsole;
+            Modbus.CRC_Error -= this.ProcessMissedResult;
+            Modbus.SlaveError -= this.ProcessMissedResult;
+            Modbus.DeviceNotRespondingError -= this.ProcessMissedResult;
+            //Modbus.DeviceNotRespondingError -= this.DisplayErrorOccurred;
+
             Modbus.Close(); // Закрываем COM порт
 
             MessageBox.Show(errorMessage, "Ошибка!");
         }
 
-        private void DisplayMessageOnConsole(byte[] message)
+        private void DisplayMessageInConsole(byte[] message)
         {
             //byte[] message
             for (int i = 0; i < ConsoleText.Length - 1; i++)
@@ -407,9 +457,10 @@ namespace MNS
         private void ProcessMissedResult(string errorMessage)
         {
             // ПРИОСТАНАВЛИВАЕМ ТАЙМЕР
-            //
-            
+            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем вызов метода GetSlaveState
+
             // ОТПИСЫВАЕМСЯ ОТ ОБРАБОТЧИКОВ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.IdentifyStatus;
             Modbus.ResponseReceived -= this.Get_R;
             Modbus.ResponseReceived -= this.Get_L;
             Modbus.ResponseReceived -= this.Get_C;
@@ -419,9 +470,9 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_tgL;
             Modbus.ResponseReceived -= this.Get_tgC;
             Modbus.ResponseReceived -= this.Get_tgM;
-            
+
             // ВКЛЮЧАЕМ ТАЙМЕР
-            //
+            Timer.Change(100, CurrentModbusRTUSettings.PollingInterval * 1000); // Возобновляем вызов метода GetSlaveState
         }
     }
 }

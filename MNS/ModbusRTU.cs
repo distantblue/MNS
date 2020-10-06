@@ -158,6 +158,12 @@ namespace MNS
             {
                 return; // Выходим из метода, невозможно читать из порта когда он закрыт
             }
+            
+            // ЕСЛИ ВХОДЯЩИЙ БУФФЕР ПУСТОЙ
+            if (SerialPort.BytesToRead == 0)
+            {
+                DeviceNotRespondingError?.Invoke("Ошибка! Устройство не ответило на запрос.");
+            }
 
             // ЕСЛИ ВО ВХОДЯЩЕМ БУФФЕРЕ ПОРТА БОЛЕЕ 5 байтов
             if (SerialPort.BytesToRead >= 5)
