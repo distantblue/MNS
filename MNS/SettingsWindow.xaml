@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-        Title="Настройки подключения МНС 1100" Width="780" Height="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="DarkKhaki">
+        Title="Настройки подключения МНС 1100" Width="780" Height="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="PowderBlue">
     <Grid>
         <DockPanel>
             <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">

@@ -212,8 +212,8 @@ namespace MNS
                     break;
             }
             // Узнаем основной индицируемы канал
-            ushort chanelValue = (ushort)(SlaveState >> 14);
-            switch (chanelValue)
+            ushort chanalValue = (ushort)(SlaveState >> 14);
+            switch (chanalValue)
             {
                 // Канал R
                 case 0:
@@ -266,12 +266,12 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (statusTextBlock.CheckAccess())
             {
-                Value1_textBlock.Text = Resistance.ToString();
+                Value_textBlock.Text = Resistance.ToString();
             }
             //Поток не имеет доступ к потоку UI 
             else
             {
-                statusTextBlock.Dispatcher.InvokeAsync(() => Value1_textBlock.Text = Resistance.ToString());
+                statusTextBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Resistance.ToString());
             }
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
