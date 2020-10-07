@@ -266,12 +266,12 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (statusTextBlock.CheckAccess())
             {
-                R_textBlock.Text = Resistance.ToString();
+                Value1_textBlock.Text = Resistance.ToString();
             }
             //Поток не имеет доступ к потоку UI 
             else
             {
-                statusTextBlock.Dispatcher.InvokeAsync(() => R_textBlock.Text = Resistance.ToString());
+                statusTextBlock.Dispatcher.InvokeAsync(() => Value1_textBlock.Text = Resistance.ToString());
             }
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived

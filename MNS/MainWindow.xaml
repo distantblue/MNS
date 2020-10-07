@@ -5,35 +5,52 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-        Title="МНС 1100 - Измерительная система для ПК" MinHeight="600" MinWidth="900" Height="800" Width="1200" Background="LightSlateGray" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <DockPanel LastChildFill="False">
-            <Border BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Top">
-                <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White">
-                    <MenuItem Header="Управление">
-                        <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click"/>
-                        <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
-                        <MenuItem Header="Сохранить данные"/>
-                        <MenuItem Header="Выход"/>
-                    </MenuItem>
-                    <MenuItem Header="Настройки">
-                        <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
-                    </MenuItem>
-                    <MenuItem Header="О программе">
-                        <MenuItem Header="Информация о ПО"/>
-                        <MenuItem Header="Техническая поддержка"/>
-                    </MenuItem>
-                </Menu>
-            </Border>
+        Title="МНС 1100 - Измерительная система для ПК. Версия v1.0" MinHeight="600" MinWidth="900" Height="800" Width="1200" Background="LightSlateGray" WindowStartupLocation="CenterScreen">
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="53"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="110"/>
+            <RowDefinition Height="110"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="450"/>
+            <ColumnDefinition Width="0.6*"/>
+        </Grid.ColumnDefinitions>
 
-            <Border BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" DockPanel.Dock="Left">
-                <TextBlock  Margin="8" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="250" x:Name="R_textBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
-            </Border>
 
-            <Border BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black" DockPanel.Dock="Bottom">
-                <TextBlock Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Height="170" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
-            </Border>
-            
-        </DockPanel>
+        <Border Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
+            <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" >
+                <MenuItem Header="Управление">
+                    <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click"/>
+                    <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
+                    <MenuItem Header="Сохранить данные"/>
+                    <MenuItem Header="Выход"/>
+                </MenuItem>
+                <MenuItem Header="Настройки">
+                    <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
+                </MenuItem>
+                <MenuItem Header="О программе">
+                    <MenuItem Header="Информация о ПО"/>
+                    <MenuItem Header="Техническая поддержка"/>
+                </MenuItem>
+            </Menu>
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="0" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+            <TextBlock  Margin="8" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="340" x:Name="Value1_textBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+            <Canvas Margin="8" VerticalAlignment="Stretch"/>
+        </Border>
+
+
+        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
+            <TextBlock Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="326" Height="170" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
+        </Border>
+
+
+
     </Grid>
 </Window>
