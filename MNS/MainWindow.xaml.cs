@@ -111,7 +111,6 @@ namespace MNS
                 Modbus.ResponseReceived -= this.Get_tgL;
                 Modbus.ResponseReceived -= this.Get_tgC;
                 Modbus.ResponseReceived -= this.Get_tgM;
-
                 Modbus.ResponseReceived -= this.DisplayMessageInConsole;
                 Modbus.RequestSent -= this.DisplayMessageInConsole;
                 Modbus.CRC_Error -= this.ProcessMissedResult;
@@ -120,11 +119,10 @@ namespace MNS
 
                 // ПРИОСТАНАВЛИВАЕМ ТАЙМЕР
                 Timer.Change(Timeout.Infinite, 0); // Приостанавливаем вызов метода GetSlaveState
-
                 Thread.Sleep(200);
 
                 Modbus.Close(); // Закрываем COM порт
-                Modbus = null;
+                Modbus = null; // Ссылка в null
             }
         }
 
@@ -261,7 +259,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_R;
 
             // Получаем значение сопротивления
-            this.Resistance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.Resistance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // Отображаем значение
             //Проверяем имеет ли вызывающий поток доступ к потоку UI
@@ -289,7 +287,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_tgR;
 
             // Получаем значение tgR
-            this.tg_R = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.tg_R = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
@@ -304,7 +302,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_F;
 
             // Получаем значение F
-            this.Frequency = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.Frequency = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
         }
 
         private void Get_L(byte[] buffer)
@@ -313,7 +311,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_L;
 
             // Получаем значение индуктивности
-            this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgL;
@@ -328,7 +326,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_tgL;
 
             // Получаем значение tgL
-            this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
@@ -340,7 +338,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_C;
 
             // Получаем значение емкости
-            this.Сapacity = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.Сapacity = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgC;
@@ -352,7 +350,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_tgC;
 
             // Получаем значение емкости
-            this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
@@ -364,7 +362,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_M;
 
             // Получаем значение взаимоиндуктивности
-            this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgM;
@@ -376,7 +374,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_tgM;
 
             // Получаем значение емкости
-            this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[3], buffer[4], buffer[5], buffer[6] }, 0);
+            this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
