@@ -51,6 +51,9 @@ namespace MNS
         // ИНТЕРВАЛ ДИАПАЗОНА ИЗМЕРЕНИЯ
         string FixedMeasInterval;
 
+        // НОМЕР КАНАЛА ИЗМЕРЕНИЯ
+        ushort ChanalNumber;
+
         // Сопротивление
         float Resistance;
 
@@ -180,6 +183,7 @@ namespace MNS
                     this.EquivalentCircuit = "Парал.";
                     break;
             }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
             DisplayEquivalentCircuitResult();
             // Узнаем наличие интегрирования
             ushort integrationValue = (ushort)(SlaveState & 0x10); // Накладываем битовую маску 00000000 00010000 чтобы получить значение 5го бита 
@@ -192,6 +196,7 @@ namespace MNS
                     this.Integration = "Выкл.";
                     break;
             }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
             DisplayIntegrationResult();
             // Узнаем наличие усреднения
             ushort averagingValue = (ushort)(SlaveState & 0x200); // Накладываем битовую маску 00000010 00000000 чтобы получить значение 9го бита 
@@ -204,6 +209,7 @@ namespace MNS
                     this.Averaging = "Выкл.";
                     break;
             }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
             DisplayAveragingResult();
             // Узнаем фиксирован ли интервал диапазона измерения
             ushort fixedMeasIntervalValue = (ushort)(SlaveState & 0x100); // Накладываем битовую маску 00000001 00000000 чтобы получить значение 9го бита 
@@ -216,7 +222,39 @@ namespace MNS
                     this.FixedMeasInterval = "Нет";
                     break;
             }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
             DisplayFixedMeasIntervalResult();
+            // Узнаем номер канала измерения
+            ushort chanalNumber = (ushort)(SlaveState & 0x7); // Накладываем битовую маску 00000000 00000111 чтобы получить значение первых 3х битов
+            switch (chanalNumber)
+            {
+                case 0:
+                    this.ChanalNumber = 0;
+                    break;
+                case 1:
+                    this.ChanalNumber = 1;
+                    break;
+                case 2:
+                    this.ChanalNumber = 2;
+                    break;
+                case 3:
+                    this.ChanalNumber = 3;
+                    break;
+                case 4:
+                    this.ChanalNumber = 4;
+                    break;
+                case 5:
+                    this.ChanalNumber = 5;
+                    break;
+                case 6:
+                    this.ChanalNumber = 6;
+                    break;
+                case 7:
+                    this.ChanalNumber = 7;
+                    break;
+            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
+            DisplayChanalNumber();
             // Узнаем основной индицируемы канал
             ushort chanalValue = (ushort)(SlaveState >> 14);
             switch (chanalValue)
@@ -508,6 +546,7 @@ namespace MNS
             fixedMeasIntervalValue_textBlock.Text = "---";
             integrationValue_textBlock.Text = "---";
             averagingValue_textBlock.Text = "---";
+            chanalNumber_textBlock.Text = "---";
         }
 
         private void DisplayEquivalentCircuitResult()
@@ -726,12 +765,12 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (tgSymbol_textBlock.CheckAccess())
             {
-                tgSymbol_textBlock.Text = "tg" + "\u03C6:";
+                tgSymbol_textBlock.Text = "tg" + "\u03B4:";
             }
             //Поток не имеет доступ к потоку UI 
             else
             {
-                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg"+"\u03C6:");
+                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg"+ "\u03B4:");
             }
 
             //Проверяем имеет ли вызывающий поток доступ к потоку UI
@@ -798,6 +837,21 @@ namespace MNS
             else
             {
                 tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_M.ToString());
+            }
+        }
+
+        private void DisplayChanalNumber()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (chanalNumber_textBlock.CheckAccess())
+            {
+                chanalNumber_textBlock.Text = ChanalNumber.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                chanalNumber_textBlock.Dispatcher.InvokeAsync(() => chanalNumber_textBlock.Text = ChanalNumber.ToString());
             }
         }
     }
