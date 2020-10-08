@@ -87,7 +87,7 @@ namespace MNS
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-
+            DisplayMesResultsInactive();
         }
 
         private void MainWindow_Closing(object sender, RoutedEventArgs e)
@@ -123,6 +123,8 @@ namespace MNS
 
                 Modbus.Close(); // Закрываем COM порт
                 Modbus = null; // Ссылка в null
+
+                DisplayMesResultsInactive();
             }
         }
 
@@ -178,6 +180,7 @@ namespace MNS
                     this.EquivalentCircuit = "Парал.";
                     break;
             }
+            DisplayEquivalentCircuitResult();
             // Узнаем наличие интегрирования
             ushort integrationValue = (ushort)(SlaveState & 0x10); // Накладываем битовую маску 00000000 00010000 чтобы получить значение 5го бита 
             switch (integrationValue)
@@ -189,6 +192,7 @@ namespace MNS
                     this.Integration = "Выкл.";
                     break;
             }
+            DisplayIntegrationResult();
             // Узнаем наличие усреднения
             ushort averagingValue = (ushort)(SlaveState & 0x200); // Накладываем битовую маску 00000010 00000000 чтобы получить значение 9го бита 
             switch (averagingValue)
@@ -200,6 +204,7 @@ namespace MNS
                     this.Averaging = "Выкл.";
                     break;
             }
+            DisplayAveragingResult();
             // Узнаем фиксирован ли интервал диапазона измерения
             ushort fixedMeasIntervalValue = (ushort)(SlaveState & 0x100); // Накладываем битовую маску 00000001 00000000 чтобы получить значение 9го бита 
             switch (fixedMeasIntervalValue)
@@ -211,6 +216,7 @@ namespace MNS
                     this.FixedMeasInterval = "Нет";
                     break;
             }
+            DisplayFixedMeasIntervalResult();
             // Узнаем основной индицируемы канал
             ushort chanalValue = (ushort)(SlaveState >> 14);
             switch (chanalValue)
@@ -261,18 +267,8 @@ namespace MNS
             // Получаем значение сопротивления
             this.Resistance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
-            // Отображаем значение
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (statusTextBlock.CheckAccess())
-            {
-                Value_textBlock.Text = Resistance.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Resistance.ToString());
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ R
+            Display_R();
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgR;
@@ -289,6 +285,9 @@ namespace MNS
             // Получаем значение tgR
             this.tg_R = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgR
+            Display_tgR();
+
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
 
@@ -303,6 +302,9 @@ namespace MNS
 
             // Получаем значение F
             this.Frequency = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ F
+            Display_F();
         }
 
         private void Get_L(byte[] buffer)
@@ -312,6 +314,9 @@ namespace MNS
 
             // Получаем значение индуктивности
             this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ L
+            Display_L();
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgL;
@@ -328,6 +333,9 @@ namespace MNS
             // Получаем значение tgL
             this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgL
+            Display_tgL();
+
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
         }
@@ -339,6 +347,9 @@ namespace MNS
 
             // Получаем значение емкости
             this.Сapacity = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ C
+            Display_C();
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgC;
@@ -352,6 +363,9 @@ namespace MNS
             // Получаем значение емкости
             this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgC
+            Display_tgC();
+
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
         }
@@ -364,6 +378,9 @@ namespace MNS
             // Получаем значение взаимоиндуктивности
             this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ М
+            Display_M();
+
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgM;
         }
@@ -375,6 +392,9 @@ namespace MNS
 
             // Получаем значение емкости
             this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgМ
+            Display_tgM();
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_F;
@@ -471,6 +491,314 @@ namespace MNS
 
             // ВКЛЮЧАЕМ ТАЙМЕР
             Timer.Change(100, CurrentModbusRTUSettings.PollingInterval * 1000); // Возобновляем вызов метода GetSlaveState
+        }
+
+        private void DisplayMesResultsInactive()
+        {
+            ValueSymbol_textBlock.Text = "X:";
+            Value_textBlock.Text = "---";
+
+            tgSymbol_textBlock.Text = "tg:";
+            tg_textBlock.Text = "---";
+
+            FSymbol_textBlock.Text = "F:";
+            F_textBlock.Text = "---";
+
+            EquivalentCircuit_textBlock.Text = "---";
+            fixedMeasIntervalValue_textBlock.Text = "---";
+            integrationValue_textBlock.Text = "---";
+            averagingValue_textBlock.Text = "---";
+        }
+
+        private void DisplayEquivalentCircuitResult()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (EquivalentCircuit_textBlock.CheckAccess())
+            {
+                EquivalentCircuit_textBlock.Text = EquivalentCircuit;
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => EquivalentCircuit_textBlock.Text = EquivalentCircuit);
+            }
+        }
+
+        private void DisplayIntegrationResult()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (integrationValue_textBlock.CheckAccess())
+            {
+                integrationValue_textBlock.Text = Integration;
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => integrationValue_textBlock.Text = Integration);
+            }
+        }
+
+        private void DisplayAveragingResult()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (averagingValue_textBlock.CheckAccess())
+            {
+                averagingValue_textBlock.Text = Averaging;
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => averagingValue_textBlock.Text = Averaging);
+            }
+        }
+
+        private void DisplayFixedMeasIntervalResult()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (fixedMeasIntervalValue_textBlock.CheckAccess())
+            {
+                fixedMeasIntervalValue_textBlock.Text = FixedMeasInterval;
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => fixedMeasIntervalValue_textBlock.Text = FixedMeasInterval);
+            }
+        }
+
+        private void Display_R()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (ValueSymbol_textBlock.CheckAccess())
+            {
+                ValueSymbol_textBlock.Text = "R:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "R:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (Value_textBlock.CheckAccess())
+            {
+                Value_textBlock.Text = Resistance.ToString() + " Ом";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Resistance.ToString() + " Ом");
+            }
+        }
+
+        private void Display_tgR()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tgSymbol_textBlock.CheckAccess())
+            {
+                tgSymbol_textBlock.Text = "tg"+"\u03B4:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03B4:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tg_textBlock.CheckAccess())
+            {
+                tg_textBlock.Text = tg_R.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_R.ToString());
+            }
+        }
+
+        private void Display_F()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (F_textBlock.CheckAccess())
+            {
+                F_textBlock.Text = Frequency.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                F_textBlock.Dispatcher.InvokeAsync(() => F_textBlock.Text = Frequency.ToString() + " Гц");
+            }
+        }
+
+        private void Display_L()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (ValueSymbol_textBlock.CheckAccess())
+            {
+                ValueSymbol_textBlock.Text = "L:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "L:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (Value_textBlock.CheckAccess())
+            {
+                Value_textBlock.Text = Inductance.ToString() + " Гн";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Inductance.ToString() + " Гн");
+            }
+        }
+
+        private void Display_tgL()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tgSymbol_textBlock.CheckAccess())
+            {
+                tgSymbol_textBlock.Text = "tg"+"\u03C6:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03C6:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tg_textBlock.CheckAccess())
+            {
+                tg_textBlock.Text = tg_L.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_L.ToString());
+            }
+        }
+
+        private void Display_C()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (ValueSymbol_textBlock.CheckAccess())
+            {
+                ValueSymbol_textBlock.Text = "C:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "C:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (Value_textBlock.CheckAccess())
+            {
+                Value_textBlock.Text = Сapacity.ToString() + " Ф";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Сapacity.ToString() + " Ф");
+            }
+        }
+
+        private void Display_tgC()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tgSymbol_textBlock.CheckAccess())
+            {
+                tgSymbol_textBlock.Text = "tg" + "\u03C6:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg"+"\u03C6:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tg_textBlock.CheckAccess())
+            {
+                tg_textBlock.Text = tg_C.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_C.ToString());
+            }
+        }
+
+        private void Display_M()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (ValueSymbol_textBlock.CheckAccess())
+            {
+                ValueSymbol_textBlock.Text = "M:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "M:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (Value_textBlock.CheckAccess())
+            {
+                Value_textBlock.Text = MutualInductance.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = MutualInductance.ToString());
+            }
+        }
+
+        private void Display_tgM()
+        {
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tgSymbol_textBlock.CheckAccess())
+            {
+                tgSymbol_textBlock.Text = "tg" + "\u03C6:";
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03C6:");
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (tg_textBlock.CheckAccess())
+            {
+                tg_textBlock.Text = tg_M.ToString();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_M.ToString());
+            }
         }
     }
 }
