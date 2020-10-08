@@ -91,6 +91,7 @@ namespace MNS
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             DisplayMesResultsInactive();
+            DataManager.CreateNewDataFile();
         }
 
         private void MainWindow_Closing(object sender, RoutedEventArgs e)
@@ -642,7 +643,7 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (tgSymbol_textBlock.CheckAccess())
             {
-                tgSymbol_textBlock.Text = "tg"+"\u03B4:";
+                tgSymbol_textBlock.Text = "tg" + "\u03B4:";
             }
             //Поток не имеет доступ к потоку UI 
             else
@@ -711,7 +712,7 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (tgSymbol_textBlock.CheckAccess())
             {
-                tgSymbol_textBlock.Text = "tg"+"\u03C6:";
+                tgSymbol_textBlock.Text = "tg" + "\u03C6:";
             }
             //Поток не имеет доступ к потоку UI 
             else
@@ -770,7 +771,7 @@ namespace MNS
             //Поток не имеет доступ к потоку UI 
             else
             {
-                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg"+ "\u03B4:");
+                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03B4:");
             }
 
             //Проверяем имеет ли вызывающий поток доступ к потоку UI
@@ -853,6 +854,11 @@ namespace MNS
             {
                 chanalNumber_textBlock.Dispatcher.InvokeAsync(() => chanalNumber_textBlock.Text = ChanalNumber.ToString());
             }
+        }
+
+        private void AddDataToFile()
+        {
+
         }
     }
 }
