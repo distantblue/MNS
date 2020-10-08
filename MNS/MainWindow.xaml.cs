@@ -48,7 +48,7 @@ namespace MNS
         // НАЛИЧИЕ УСРЕДНЕНИЯ
         string Averaging;
 
-        // ИНТЕРВАЛ ДИАПАЗОНА ИЗМЕРЕНИЯ
+        // НАЛИЧИЕ ФИКСИРОВАНОГО ИНТЕРВАЛА ДИАПАЗОНА ИЗМЕРЕНИЯ
         string FixedMeasInterval;
 
         // НОМЕР КАНАЛА ИЗМЕРЕНИЯ
@@ -70,7 +70,7 @@ namespace MNS
         float tg_L;
 
         // Емкость
-        float Сapacity;
+        float Capacity;
 
         // Тангенс С
         float tg_C;
@@ -81,16 +81,27 @@ namespace MNS
         // Тангенс M
         float tg_M;
 
+        // Флаг основного индицируемого канала
+        int ChanalFlag;
+
+        // Порядковый номер ыизмерения
+        int DataRowNumber;
+
+        // Набор данных одиночного измерения (строка)
+        string DataRow;
+
         public MainWindow()
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-            ConsoleText = new string[10];
+            this.ConsoleText = new string[10];
+            this.DataRowNumber = 0;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            DisplayMesResultsInactive();
+            DisplayInactiveMesResults();
+            DataManager.ClearTempDirectory();
             DataManager.CreateNewDataFile();
         }
 
@@ -128,7 +139,7 @@ namespace MNS
                 Modbus.Close(); // Закрываем COM порт
                 Modbus = null; // Ссылка в null
 
-                DisplayMesResultsInactive();
+                DisplayInactiveMesResults();
             }
         }
 
@@ -170,23 +181,24 @@ namespace MNS
             // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived -= this.IdentifyStatus;
 
-            // Получаем 16 битное значение состояния прибора
+            // ПОЛУЧАЕМ 16 БИТРОЕ ЗНАЧЕНИЕ СОСТОЯНИЯ ПРИБОРА
             this.SlaveState = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
 
-            // Узнаем схему замещения
+            // УЗНАЕМ СХЕМУ ЗАМЕЩЕНИЯ ПРИБОРА
             ushort equivalentCircuit = (ushort)(SlaveState & 0x8); // Накладываем битовую маску 00000000 00001000 чтобы получить значение 4го бита
             switch (equivalentCircuit)
             {
                 case 8:
-                    this.EquivalentCircuit = "Посл.";
+                    this.EquivalentCircuit = "S";
                     break;
                 case 0:
-                    this.EquivalentCircuit = "Парал.";
+                    this.EquivalentCircuit = "P";
                     break;
             }
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
+            // Отображаем результат
             DisplayEquivalentCircuitResult();
-            // Узнаем наличие интегрирования
+
+            // УЗНАЕМ НАЛИЧИЕ ИНТЕГРИРОВАНИЯ
             ushort integrationValue = (ushort)(SlaveState & 0x10); // Накладываем битовую маску 00000000 00010000 чтобы получить значение 5го бита 
             switch (integrationValue)
             {
@@ -197,9 +209,10 @@ namespace MNS
                     this.Integration = "Выкл.";
                     break;
             }
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
+            // Отображаем результат
             DisplayIntegrationResult();
-            // Узнаем наличие усреднения
+
+            // УЗНАЕМ НАЛИЧИЕ УСРЕДНЕНИЯ
             ushort averagingValue = (ushort)(SlaveState & 0x200); // Накладываем битовую маску 00000010 00000000 чтобы получить значение 9го бита 
             switch (averagingValue)
             {
@@ -210,9 +223,10 @@ namespace MNS
                     this.Averaging = "Выкл.";
                     break;
             }
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
+            // Отображаем результат
             DisplayAveragingResult();
-            // Узнаем фиксирован ли интервал диапазона измерения
+
+            // УЗНАЕМ ФИКСИРОВАН ЛИ ИНТЕРВАЛ ДИАПАЗОНА ИЗМЕРЕНИЯ
             ushort fixedMeasIntervalValue = (ushort)(SlaveState & 0x100); // Накладываем битовую маску 00000001 00000000 чтобы получить значение 9го бита 
             switch (fixedMeasIntervalValue)
             {
@@ -223,9 +237,10 @@ namespace MNS
                     this.FixedMeasInterval = "Нет";
                     break;
             }
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
+            // Отображаем результат
             DisplayFixedMeasIntervalResult();
-            // Узнаем номер канала измерения
+
+            // УЗНАЕМ НОМЕР КАНАЛА ИЗМЕРЕНИЯ
             ushort chanalNumber = (ushort)(SlaveState & 0x7); // Накладываем битовую маску 00000000 00000111 чтобы получить значение первых 3х битов
             switch (chanalNumber)
             {
@@ -254,9 +269,10 @@ namespace MNS
                     this.ChanalNumber = 7;
                     break;
             }
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ
+            // Отображаем результат
             DisplayChanalNumber();
-            // Узнаем основной индицируемы канал
+
+            // УЗНАЕМ ОСНОВНОЙ ИНДИЦИРУЕМЫЙ КАНАЛ
             ushort chanalValue = (ushort)(SlaveState >> 14);
             switch (chanalValue)
             {
@@ -264,6 +280,9 @@ namespace MNS
                 case 0:
                     // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_R;
+
+                    // Включаем флаг основного индицируемого канала
+                    this.ChanalFlag = 0; 
 
                     // Отправляем запрос на чтение регистров R 
                     Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 1, 4);
@@ -274,6 +293,9 @@ namespace MNS
                     // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_L;
 
+                    // Включаем флаг основного индицируемого канала
+                    this.ChanalFlag = 1;
+
                     // Отправляем запрос на чтение регистров R 
                     Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 108, 1, 4);
                     break;
@@ -283,6 +305,9 @@ namespace MNS
                     // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_C;
 
+                    // Включаем флаг основного индицируемого канала
+                    this.ChanalFlag = 2;
+
                     // Отправляем запрос на чтение регистров R 
                     Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 112, 1, 4);
                     break;
@@ -291,6 +316,9 @@ namespace MNS
                 case 3:
                     // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
                     Modbus.ResponseReceived += this.Get_M;
+
+                    // Включаем флаг основного индицируемого канала
+                    this.ChanalFlag = 3;
 
                     // Отправляем запрос на чтение регистров R 
                     Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 116, 1, 4);
@@ -344,6 +372,11 @@ namespace MNS
 
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ F
             Display_F();
+
+            DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения
+
+            // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
+            DataManager.SaveDataRow(CreateDataRow());
         }
 
         private void Get_L(byte[] buffer)
@@ -385,7 +418,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_C;
 
             // Получаем значение емкости
-            this.Сapacity = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+            this.Capacity = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ C
             Display_C();
@@ -532,7 +565,7 @@ namespace MNS
             Timer.Change(100, CurrentModbusRTUSettings.PollingInterval * 1000); // Возобновляем вызов метода GetSlaveState
         }
 
-        private void DisplayMesResultsInactive()
+        private void DisplayInactiveMesResults()
         {
             ValueSymbol_textBlock.Text = "X:";
             Value_textBlock.Text = "---";
@@ -751,12 +784,12 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (Value_textBlock.CheckAccess())
             {
-                Value_textBlock.Text = Сapacity.ToString() + " Ф";
+                Value_textBlock.Text = Capacity.ToString() + " Ф";
             }
             //Поток не имеет доступ к потоку UI 
             else
             {
-                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Сapacity.ToString() + " Ф");
+                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Capacity.ToString() + " Ф");
             }
         }
 
@@ -856,9 +889,61 @@ namespace MNS
             }
         }
 
-        private void AddDataToFile()
+        private string CreateDataRow()
         {
+            string dataRow = "";
 
+            // ЗАПИСЫВАЕМ НАБОР ДАННЫХ
+            switch (this.ChanalFlag)
+            {
+                case 0:
+                    StringBuilder stringBuilder_0 = new StringBuilder();
+                    stringBuilder_0.Append(DataRowNumber + ";");
+                    stringBuilder_0.Append(DateTime.UtcNow + ";");
+                    stringBuilder_0.Append(EquivalentCircuit + ";");
+                    stringBuilder_0.Append(Frequency + ";");
+                    stringBuilder_0.Append(Resistance + ";");
+                    stringBuilder_0.Append(tg_R + ";");
+                    stringBuilder_0.Append(";;;;;;");
+                    dataRow = stringBuilder_0.ToString();
+                    break;
+                case 1:
+                    StringBuilder stringBuilder_1 = new StringBuilder();
+                    stringBuilder_1.Append(DataRowNumber + ";");
+                    stringBuilder_1.Append(DateTime.UtcNow + ";");
+                    stringBuilder_1.Append(EquivalentCircuit + ";");
+                    stringBuilder_1.Append(Frequency + ";");
+                    stringBuilder_1.Append(";;");
+                    stringBuilder_1.Append(Inductance + ";");
+                    stringBuilder_1.Append(tg_L + ";");
+                    stringBuilder_1.Append(";;;;");
+                    dataRow = stringBuilder_1.ToString();
+                    break;
+                case 2:
+                    StringBuilder stringBuilder_2 = new StringBuilder();
+                    stringBuilder_2.Append(DataRowNumber + ";");
+                    stringBuilder_2.Append(DateTime.UtcNow + ";");
+                    stringBuilder_2.Append(EquivalentCircuit + ";");
+                    stringBuilder_2.Append(Frequency + ";");
+                    stringBuilder_2.Append(";;;;");
+                    stringBuilder_2.Append(Capacity + ";");
+                    stringBuilder_2.Append(tg_C + ";");
+                    stringBuilder_2.Append(";;");
+                    dataRow = stringBuilder_2.ToString();
+                    break;
+                case 3:
+                    StringBuilder stringBuilder_3 = new StringBuilder();
+                    stringBuilder_3.Append(DataRowNumber + ";");
+                    stringBuilder_3.Append(DateTime.UtcNow + ";");
+                    stringBuilder_3.Append(EquivalentCircuit + ";");
+                    stringBuilder_3.Append(Frequency + ";");
+                    stringBuilder_3.Append(";;;;;;");
+                    stringBuilder_3.Append(MutualInductance + ";");
+                    stringBuilder_3.Append(tg_M + ";");
+                    dataRow = stringBuilder_3.ToString();
+                    break;
+            }
+            return dataRow;
         }
     }
 }
