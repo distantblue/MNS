@@ -73,12 +73,19 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DataManager.cs" />
+    <Compile Include="FileSaveWindow.xaml.cs">
+      <DependentUpon>FileSaveWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ModbusRTU.cs" />
     <Compile Include="ModbusRTUSettings.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="VisualEffects.cs" />
+    <Page Include="FileSaveWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

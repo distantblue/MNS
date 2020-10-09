@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO; // убрать потом если не будет filestream
 using System.IO.Ports;
 using System.Linq;
@@ -90,25 +91,67 @@ namespace MNS
         // Набор данных одиночного измерения (строка)
         string DataRow;
 
+        public static bool DataToSaveExists;
+
         public MainWindow()
         {
             InitializeComponent();
-            this.Loaded += MainWindow_Loaded;
+
+            // ДОБАВЛЯЕМ ОБРАБОТЧИКИ СОБЫТИЙ 
+            this.Loaded += MainWindow_Loaded; // Загружено и отрисовано окно
+            this.Closing += MainWindow_Closing; // При закрытии окна
+            this.Closed += MainWindow_Closed; // Окно закрыто
+            this.Unloaded += MainWindow_Closed; // Окно закрыто и освобождены все ресурсы
+
             this.ConsoleText = new string[10];
             this.DataRowNumber = 0;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            // ОТОБРАЖАЕМ ПУСТЫЕ РЕЗУЛЬТАТЫ ИЗМЕРЕНИЙ
             DisplayInactiveMesResults();
+
+            // УДАЛЯЕМ ФАЙЛ ДАННЫХ С ПРЕДЫДУЩЕГО ЗАПУСКА ПРОГРАММЫ 
             DataManager.ClearTempDirectory();
             DataManager.CreateNewDataFile();
+
+            //   
+
         }
 
-        private void MainWindow_Closing(object sender, RoutedEventArgs e)
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
-            Modbus.Close(); // Закрываем COM порт 
+            if (Modbus != null)
+            {
+                // ОСТАНОВКА ИЗМЕРЕНИЯ
+                Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
+                Modbus.Close(); // Закрываем COM порт
+            }
+
+            // ЕСЛИ ЕСТЬ ДАННЫЕ ДЛЯ СОХРАНЕНИЯ
+            if (DataToSaveExists == true)
+            {
+                e.Cancel = true; // Запрет закрытия окна
+
+                // Открытие диалогового окна
+                VisualEffects.ApplyBlurEffect(this);
+                FileSaveWindow fileSaveWindow = new FileSaveWindow(ref DataToSaveExists);
+                fileSaveWindow.ShowDialog();
+
+
+                VisualEffects.ClearBlurEffect(this); 
+            }
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MainWindow_Unloaded(object sender, EventArgs e)
+        {
+
         }
 
         private void StopMeasurement_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -282,7 +325,7 @@ namespace MNS
                     Modbus.ResponseReceived += this.Get_R;
 
                     // Включаем флаг основного индицируемого канала
-                    this.ChanalFlag = 0; 
+                    this.ChanalFlag = 0;
 
                     // Отправляем запрос на чтение регистров R 
                     Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 104, 1, 4);
@@ -377,6 +420,13 @@ namespace MNS
 
             // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
             DataManager.SaveDataRow(CreateDataRow());
+
+            // Указываем что данные появились
+            if (DataToSaveExists == false)
+            {
+                DataToSaveExists = true;
+            }
+
         }
 
         private void Get_L(byte[] buffer)

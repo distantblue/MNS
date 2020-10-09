@@ -1,0 +1,26 @@
+﻿<Window x:Class="MNS.FileSaveWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MNS"
+        mc:Ignorable="d"
+        Title="Сохранение данных" Height="240" Width="480" Background="DimGray">
+    <Grid>
+        <DockPanel>
+            <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
+                <StackPanel DockPanel.Dock="Left" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="СОХРАНИТЬ ИЗМЕРЯННЫЕ ДАННЫЕ:" Margin="0,0,0,15" FontWeight="Bold" Foreground="Black"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Да" x:Name="SaveDataFile_button" Width="100" Height="30" Margin="16,16,32,16"/>
+                        <Button Content="Нет" x:Name="CancelSavingDataFile_button" Width="100" Height="30" Margin="32,16,16,16" Background="Red" Foreground="White" BorderBrush="white" Click="cancelSavingDataFile_button_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
+        </DockPanel>
+    </Grid>
+</Window>
