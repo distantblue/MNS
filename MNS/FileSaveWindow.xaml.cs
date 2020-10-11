@@ -19,24 +19,20 @@ namespace MNS
     /// </summary>
     public partial class FileSaveWindow : Window
     {
-        bool DataToSaveExists;
+        public delegate void SaveFileHandler();
+        public event SaveFileHandler SavingCanceled;
+        public event SaveFileHandler SavingProcess;
 
-        public FileSaveWindow(ref bool dataToSaveExists)
+        public FileSaveWindow()
         {
             InitializeComponent();
-            this.DataToSaveExists = dataToSaveExists;
+
         }
 
         private void CancelSavingDataFile_button_Click(object sender, RoutedEventArgs e)
         {
             DataManager.ClearTempDirectory();
-            DataToSaveExists = false;
-            ChangeDataToSaveExists();
-        }
-
-        private void ChangeDataToSaveExists(ref bool dataToSaveExists)
-        {
-            dataToSaveExists = this.DataToSaveExists;
+            SavingCanceled?.Invoke();
         }
     }
 }

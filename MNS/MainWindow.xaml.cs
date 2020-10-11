@@ -136,7 +136,7 @@ namespace MNS
 
                 // Открытие диалогового окна
                 VisualEffects.ApplyBlurEffect(this);
-                FileSaveWindow fileSaveWindow = new FileSaveWindow(ref DataToSaveExists);
+                FileSaveWindow fileSaveWindow = new FileSaveWindow(out MainWindow.DataToSaveExists);
                 fileSaveWindow.ShowDialog();
 
 
