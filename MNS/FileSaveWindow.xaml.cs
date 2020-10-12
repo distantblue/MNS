@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,20 +22,61 @@ namespace MNS
     /// </summary>
     public partial class FileSaveWindow : Window
     {
-        public delegate void SaveFileHandler();
-        public event SaveFileHandler SavingCanceled;
-        public event SaveFileHandler SavingProcess;
+        MainWindow MainWindow;
 
-        public FileSaveWindow()
+        public FileSaveWindow(MainWindow mainWindow)
         {
             InitializeComponent();
+            this.MainWindow = mainWindow;
+
+            // ДОБАВЛЯЕМ ОБРАБОТЧИКИ СОБЫТИЙ 
+            this.Loaded += FileSaveWindow_Loaded; // Загружено и отрисовано окно
+            this.Closing += FileSaveWindow_Closing; // При закрытии окна
+            this.Closed += FileSaveWindow_Closed; // Окно закрыто
+            this.Unloaded += FileSaveWindow_Unloaded; // Окно закрыто и освобождены все ресурсы
+        }
+
+        private void FileSaveWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void FileSaveWindow_Closing(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void FileSaveWindow_Closed(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FileSaveWindow_Unloaded(object sender, RoutedEventArgs e)
+        {
 
         }
 
         private void CancelSavingDataFile_button_Click(object sender, RoutedEventArgs e)
         {
+            this.Close();
+            MainWindow.Close_program();
             DataManager.ClearTempDirectory();
-            SavingCanceled?.Invoke();
+        }
+
+        private void SaveDataFile_button_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder pathStringBuilder= new StringBuilder();
+            pathStringBuilder.Append(Directory.GetCurrentDirectory());
+            pathStringBuilder.Append(@"\");
+            pathStringBuilder.Append(DataManager.DataFileName);
+
+            string filePath = pathStringBuilder.ToString();
+            saveFileDialog.Title = "Сохранение массива измерянных данных";
+            saveFileDialog.FileName = $"{filePath}";
+            saveFileDialog.ShowDialog();
+
         }
     }
 }

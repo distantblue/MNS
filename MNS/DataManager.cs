@@ -9,8 +9,8 @@ namespace MNS
 {
     static class DataManager
     {
-        static string DataFilePath = @"Temp";
-        static string DataFileName = @"Data.csv";
+        public static string DataFilePath = @"Temp";
+        public static string DataFileName = @"Data.csv";
 
         public static void CreateNewDataFile()
         {
