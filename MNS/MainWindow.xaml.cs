@@ -92,7 +92,9 @@ namespace MNS
         string DataRow;
 
         public bool DataToSaveExists;
-        
+
+        public bool DataToSaveExistsTraining = true;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -102,7 +104,9 @@ namespace MNS
             this.Closing += MainWindow_Closing; // При закрытии окна
             this.Closed += MainWindow_Closed; // Окно закрыто
             this.Unloaded += MainWindow_Unloaded; // Окно закрыто и освобождены все ресурсы
-            this.ConsoleText = new string[10];
+
+            // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
+            this.ConsoleText = new string[16];
             this.DataRowNumber = 0;
         }
         
@@ -118,7 +122,7 @@ namespace MNS
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (DataToSaveExists == true)
+            if (DataToSaveExistsTraining == true) // if (DataToSaveExists == true)
             {
                 e.Cancel = true; // Запрет закрытия окна
 
@@ -130,8 +134,10 @@ namespace MNS
             }
             else
             {
+                Stop_measurement();
+
                 e.Cancel = false; // Разрешение на закрытие окна
-                this.Close();
+                //this.Close();
             }
         }
 
@@ -495,8 +501,8 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_tgC;
             Modbus.ResponseReceived -= this.Get_tgM;
 
-            Modbus.ResponseReceived -= this.DisplayMessageInConsole;
-            Modbus.RequestSent -= this.DisplayMessageInConsole;
+            Modbus.ResponseReceived -= this.DisplayResponseMessageInConsole;
+            Modbus.RequestSent -= this.DisplayRequestMessageInConsole;
             Modbus.CRC_Error -= this.ProcessMissedResult;
             Modbus.SlaveError -= this.ProcessMissedResult;
             Modbus.DeviceNotRespondingError -= this.ProcessMissedResult;
@@ -506,15 +512,44 @@ namespace MNS
 
             MessageBox.Show(errorMessage, "Ошибка!");
         }
-
-        private void DisplayMessageInConsole(byte[] message)
+        
+        private void DisplayRequestMessageInConsole(byte[] message)
         {
-            //byte[] message
             for (int i = 0; i < ConsoleText.Length - 1; i++)
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    REQUEST    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+
+            string displStr = "";
+            foreach (var item in ConsoleText)
+            {
+                if (item != null)
+                {
+                    displStr += $"\n{item}";
+                }
+            }
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (statusTextBlock.CheckAccess())
+            {
+                statusTextBlock.Text = displStr;
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = displStr);
+            }
+        }
+
+        private void DisplayResponseMessageInConsole(byte[] message)
+        {
+            for (int i = 0; i < ConsoleText.Length - 1; i++)
+            {
+                ConsoleText[i] = ConsoleText[i + 1];
+            }
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    RESPONSE    <---    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -954,8 +989,8 @@ namespace MNS
 
                 // Modbus.DeviceNotRespondingError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Устройство не отвечает" 
                 Modbus.SerialPortOpeningError += this.DisplayErrorOccurred; // Подписываемся на обработчик события "Ошибка открытия порта"
-                Modbus.RequestSent += this.DisplayMessageInConsole; // Подписываемся на обработчик события "Отправлена команда"
-                Modbus.ResponseReceived += this.DisplayMessageInConsole; // Подписываемся на обработчик события "Получен ответ"
+                Modbus.RequestSent += this.DisplayRequestMessageInConsole; // Подписываемся на обработчик события "Отправлена команда"
+                Modbus.ResponseReceived += this.DisplayResponseMessageInConsole; // Подписываемся на обработчик события "Получен ответ"
                 Modbus.CRC_Error += this.ProcessMissedResult;
                 Modbus.SlaveError += this.ProcessMissedResult;
                 Modbus.DeviceNotRespondingError += this.ProcessMissedResult;
@@ -980,8 +1015,8 @@ namespace MNS
                 Modbus.ResponseReceived -= this.Get_tgL;
                 Modbus.ResponseReceived -= this.Get_tgC;
                 Modbus.ResponseReceived -= this.Get_tgM;
-                Modbus.ResponseReceived -= this.DisplayMessageInConsole;
-                Modbus.RequestSent -= this.DisplayMessageInConsole;
+                Modbus.ResponseReceived -= this.DisplayResponseMessageInConsole;
+                Modbus.RequestSent -= this.DisplayRequestMessageInConsole;
                 Modbus.CRC_Error -= this.ProcessMissedResult;
                 Modbus.SlaveError -= this.ProcessMissedResult;
                 Modbus.DeviceNotRespondingError -= this.ProcessMissedResult;
@@ -1000,8 +1035,13 @@ namespace MNS
         public void Close_program()
         {
             Stop_measurement();
-            DataToSaveExists = false;
-            this.Close();
+            DataToSaveExistsTraining = false; // DataToSaveExists = false;
+            //this.Close();
+        }
+
+        private void AboutApp_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

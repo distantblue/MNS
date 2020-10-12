@@ -58,7 +58,7 @@ namespace MNS
 
         private void CancelSavingDataFile_button_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            //this.Close();
             MainWindow.Close_program();
             DataManager.ClearTempDirectory();
         }
@@ -66,11 +66,17 @@ namespace MNS
         private void SaveDataFile_button_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
+            //saveFileDialog.Filter = "*.csv";
+
             StringBuilder stringBuilder = new StringBuilder();
             StringBuilder pathStringBuilder= new StringBuilder();
             pathStringBuilder.Append(Directory.GetCurrentDirectory());
             pathStringBuilder.Append(@"\");
+            pathStringBuilder.Append(DataManager.DataFilePath);
+            pathStringBuilder.Append(@"\");
             pathStringBuilder.Append(DataManager.DataFileName);
+            pathStringBuilder.Append("_");
+            pathStringBuilder.Append(DateTime.UtcNow.ToString(("MM_dd_yyyy_h-mm_tt")));
 
             string filePath = pathStringBuilder.ToString();
             saveFileDialog.Title = "Сохранение массива измерянных данных";

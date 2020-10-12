@@ -9,8 +9,10 @@ namespace MNS
 {
     static class DataManager
     {
-        public static string DataFilePath = @"Temp";
-        public static string DataFileName = @"Data.csv";
+        public static string DataFilePath = @"AppData";
+        public static string DataFileName = @"MeasData";
+        public static string TempDataFilePath = @"Temp";
+        public static string TempDataFileName = @"Data.csv";
 
         public static void CreateNewDataFile()
         {
@@ -22,7 +24,7 @@ namespace MNS
             }
             // СОЗДАЕМ ФАЙЛ 
             //File.Create(DataFilePath + @"\" + DataFileName);
-            File.Create(DataFilePath + @"\" + DataFileName).Dispose(); // Освобождаем все ресурсы
+            File.Create(DataFilePath + @"\" + TempDataFileName).Dispose(); // Освобождаем все ресурсы
 
             // Составляем строку колонок в файле
             StringBuilder stringBuilder = new StringBuilder();
@@ -44,7 +46,7 @@ namespace MNS
             // Вписываем в файл заголовоки колонок
             try
             {
-                StreamWriter streamWriter = new StreamWriter(DataFilePath + @"\" + DataFileName, true, Encoding.ASCII);
+                StreamWriter streamWriter = new StreamWriter(TempDataFilePath + @"\" + TempDataFileName, true, Encoding.ASCII);
                 streamWriter.WriteLine(title);
                 streamWriter.Dispose();
             }
@@ -56,7 +58,7 @@ namespace MNS
 
         public static void ClearTempDirectory()
         {
-            File.Delete(DataFilePath + @"\" + DataFileName);
+            File.Delete(TempDataFilePath + @"\" + TempDataFileName);
         }
 
         public static void SaveDataRow(string dataRow)
@@ -64,7 +66,7 @@ namespace MNS
             // Вписываем в файл заголовоки колонок
             try
             {
-                StreamWriter streamWriter = new StreamWriter(DataFilePath + @"\" + DataFileName, true, Encoding.ASCII);
+                StreamWriter streamWriter = new StreamWriter(TempDataFilePath + @"\" + TempDataFileName, true, Encoding.ASCII);
                 streamWriter.WriteLine(dataRow);
                 streamWriter.Dispose();
             }

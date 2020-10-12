@@ -6,16 +6,17 @@
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
         Title="МНС 1100 - Измерительная система для ПК. Версия v1.0" MinHeight="600" MinWidth="900" Height="800" Width="1200" Background="Gray" WindowStartupLocation="CenterScreen">
-    <Grid ShowGridLines="False">
+    <Grid ShowGridLines="False" Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="53"/>
             <RowDefinition Height="120"/>
             <RowDefinition Height="120"/>
             <RowDefinition Height="120"/>
-            <RowDefinition Height="120"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="110"/>
-            <RowDefinition Height="110"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="490"/>
@@ -23,7 +24,7 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Row="0" Grid.ColumnSpan="3" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
-            <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" >
+            <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" Foreground="Black">
                 <MenuItem Header="Управление">
                     <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click"/>
                     <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
@@ -34,7 +35,7 @@
                     <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
                 </MenuItem>
                 <MenuItem Header="О программе">
-                    <MenuItem Header="Информация о ПО"/>
+                    <MenuItem Header="Информация о ПО" Click="AboutApp_MenuItem_Click"/>/>
                     <MenuItem Header="Техническая поддержка"/>
                 </MenuItem>
             </Menu>
@@ -61,7 +62,7 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="6" Grid.Column="1"  Grid.RowSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
+        <Border Grid.Row="7" Grid.Column="1"  Grid.RowSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                 
                 <StackPanel Orientation="Horizontal" Margin="32,16,0,2" >
@@ -96,13 +97,15 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="5" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" Grid.ColumnSpan="2">
+        <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="6" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" Grid.ColumnSpan="2">
             <Canvas Margin="8" VerticalAlignment="Stretch"/>
         </Border>
 
 
-        <Border Grid.Row="6" Grid.Column="0" Grid.RowSpan="2" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
-            <TextBlock Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="326" Height="170" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" FontWeight="Regular" />
+        <Border Grid.Row="6" Grid.Column="0" Grid.RowSpan="3" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
+            
+                <TextBlock  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="440" Height="265" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
+            
         </Border>
 
     </Grid>
