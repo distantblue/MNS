@@ -91,10 +91,9 @@ namespace MNS
         // Набор данных одиночного измерения (строка)
         string DataRow;
 
+        // Флаг - данные для сохранения существуют
         public bool DataToSaveExists;
-
-        public bool DataToSaveExistsTraining = true;
-
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -122,7 +121,7 @@ namespace MNS
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (DataToSaveExistsTraining == true) // if (DataToSaveExists == true)
+            if (DataToSaveExists == true) 
             {
                 e.Cancel = true; // Запрет закрытия окна
 
@@ -130,14 +129,17 @@ namespace MNS
                 VisualEffects.ApplyBlurEffect(this);
                 FileSaveWindow fileSaveWindow = new FileSaveWindow(this);
                 fileSaveWindow.ShowDialog();
-                VisualEffects.ClearBlurEffect(this); 
+                VisualEffects.ClearBlurEffect(this);
+                if (DataToSaveExists == false)
+                {
+                    e.Cancel = false;
+                }
             }
             else
             {
                 Stop_measurement();
 
                 e.Cancel = false; // Разрешение на закрытие окна
-                //this.Close();
             }
         }
 
@@ -519,7 +521,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    REQUEST    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    REQUEST      --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -549,7 +551,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    RESPONSE    <---    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    RESPONSE    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -717,12 +719,12 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (tg_textBlock.CheckAccess())
             {
-                tg_textBlock.Text = tg_R.ToString();
+                tg_textBlock.Text = tg_R.ToString("0.######");
             }
             //Поток не имеет доступ к потоку UI 
             else
             {
-                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_R.ToString());
+                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_R.ToString("0.######"));
             }
         }
 
@@ -1035,8 +1037,7 @@ namespace MNS
         public void Close_program()
         {
             Stop_measurement();
-            DataToSaveExistsTraining = false; // DataToSaveExists = false;
-            //this.Close();
+            DataToSaveExists = false;
         }
 
         private void AboutApp_MenuItem_Click(object sender, RoutedEventArgs e)

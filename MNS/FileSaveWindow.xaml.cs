@@ -30,37 +30,20 @@ namespace MNS
             this.MainWindow = mainWindow;
 
             // ДОБАВЛЯЕМ ОБРАБОТЧИКИ СОБЫТИЙ 
-            this.Loaded += FileSaveWindow_Loaded; // Загружено и отрисовано окно
             this.Closing += FileSaveWindow_Closing; // При закрытии окна
-            this.Closed += FileSaveWindow_Closed; // Окно закрыто
-            this.Unloaded += FileSaveWindow_Unloaded; // Окно закрыто и освобождены все ресурсы
         }
-
-        private void FileSaveWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
+        
         private void FileSaveWindow_Closing(object sender, CancelEventArgs e)
         {
 
         }
-
-        private void FileSaveWindow_Closed(object sender, EventArgs e)
-        {
-
-        }
-
-        private void FileSaveWindow_Unloaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
+        
         private void CancelSavingDataFile_button_Click(object sender, RoutedEventArgs e)
         {
-            //this.Close();
+            
             MainWindow.Close_program();
             DataManager.ClearTempDirectory();
+            this.Close();
         }
 
         private void SaveDataFile_button_Click(object sender, RoutedEventArgs e)
@@ -76,7 +59,7 @@ namespace MNS
             pathStringBuilder.Append(@"\");
             pathStringBuilder.Append(DataManager.DataFileName);
             pathStringBuilder.Append("_");
-            pathStringBuilder.Append(DateTime.UtcNow.ToString(("MM_dd_yyyy_h-mm_tt")));
+            pathStringBuilder.Append(DateTime.UtcNow.ToString(("MM_dd_yyyy_h-mmtt")));
 
             string filePath = pathStringBuilder.ToString();
             saveFileDialog.Title = "Сохранение массива измерянных данных";
