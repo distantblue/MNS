@@ -24,17 +24,17 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Row="0" Grid.ColumnSpan="3" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
-            <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" Foreground="Black">
-                <MenuItem Header="Управление">
-                    <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click"/>
+            <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" FontSize="16" FontWeight="Bold" FontFamily="Arial">
+                <MenuItem Header="УПРАВЛЕНИЕ">
+                    <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click" />
                     <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
                     <MenuItem Header="Сохранить данные"/>
                     <MenuItem Header="Выход"/>
                 </MenuItem>
-                <MenuItem Header="Настройки">
+                <MenuItem Header="НАСТРОЙКИ">
                     <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
                 </MenuItem>
-                <MenuItem Header="О программе">
+                <MenuItem Header="О ПРОГРАММЕ">
                     <MenuItem Header="Информация о ПО" Click="AboutApp_MenuItem_Click"/>/>
                     <MenuItem Header="Техническая поддержка"/>
                 </MenuItem>

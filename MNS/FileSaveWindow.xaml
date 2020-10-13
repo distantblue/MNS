@@ -11,7 +11,7 @@
             <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
                 <StackPanel DockPanel.Dock="Left" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
-                        <Label Content="СОХРАНИТЬ МАССИВ ДАННЫХ ПЕРЕД ВЫХОДОМ:" Margin="0,0,0,15" FontWeight="Bold" Foreground="Black"/>
+                        <Label Content="СОХРАНИТЬ МАССИВ ДАННЫХ ПЕРЕД ВЫХОДОМ:" Margin="0,0,0,15" FontSize="16" FontWeight="Bold" Foreground="Black" FontFamily="Arial"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

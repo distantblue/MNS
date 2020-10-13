@@ -930,7 +930,7 @@ namespace MNS
                 case 0:
                     StringBuilder stringBuilder_0 = new StringBuilder();
                     stringBuilder_0.Append(DataRowNumber + ";");
-                    stringBuilder_0.Append(DateTime.UtcNow + ";");
+                    stringBuilder_0.Append(DateTime.Now + ";");
                     stringBuilder_0.Append(EquivalentCircuit + ";");
                     stringBuilder_0.Append(Frequency + ";");
                     stringBuilder_0.Append(Resistance + ";");
@@ -941,7 +941,7 @@ namespace MNS
                 case 1:
                     StringBuilder stringBuilder_1 = new StringBuilder();
                     stringBuilder_1.Append(DataRowNumber + ";");
-                    stringBuilder_1.Append(DateTime.UtcNow + ";");
+                    stringBuilder_1.Append(DateTime.Now + ";");
                     stringBuilder_1.Append(EquivalentCircuit + ";");
                     stringBuilder_1.Append(Frequency + ";");
                     stringBuilder_1.Append(";;");
@@ -953,7 +953,7 @@ namespace MNS
                 case 2:
                     StringBuilder stringBuilder_2 = new StringBuilder();
                     stringBuilder_2.Append(DataRowNumber + ";");
-                    stringBuilder_2.Append(DateTime.UtcNow + ";");
+                    stringBuilder_2.Append(DateTime.Now + ";");
                     stringBuilder_2.Append(EquivalentCircuit + ";");
                     stringBuilder_2.Append(Frequency + ";");
                     stringBuilder_2.Append(";;;;");
@@ -965,7 +965,7 @@ namespace MNS
                 case 3:
                     StringBuilder stringBuilder_3 = new StringBuilder();
                     stringBuilder_3.Append(DataRowNumber + ";");
-                    stringBuilder_3.Append(DateTime.UtcNow + ";");
+                    stringBuilder_3.Append(DateTime.Now + ";");
                     stringBuilder_3.Append(EquivalentCircuit + ";");
                     stringBuilder_3.Append(Frequency + ";");
                     stringBuilder_3.Append(";;;;;;");

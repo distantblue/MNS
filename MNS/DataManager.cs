@@ -9,22 +9,23 @@ namespace MNS
 {
     static class DataManager
     {
-        public static string DataFilePath = @"AppData";
-        public static string DataFileName = @"MeasData";
-        public static string TempDataFilePath = @"Temp";
-        public static string TempDataFileName = @"Data.csv";
+        public static string DataDirectoryName = @"AppData";
+        public static string DataFileName = @"Measuring_data";
+        public static string DataFileExt = @"csv";
+        public static string TempDirectoryName = @"Temp";
+        public static string TempDataFileName = @"Data";
 
         public static void CreateNewDataFile()
         {
             // СОЗДАЕМ КАТАЛОГ ГДЕ ХРАНИТСЯ ФАЙЛ ДАННЫХ
-            DirectoryInfo directoryInfo = new DirectoryInfo(DataFilePath);
+            DirectoryInfo directoryInfo = new DirectoryInfo(TempDirectoryName);
             if (!directoryInfo.Exists)
             {
                 directoryInfo.Create();
             }
-            // СОЗДАЕМ ФАЙЛ 
-            //File.Create(DataFilePath + @"\" + DataFileName);
-            File.Create(DataFilePath + @"\" + TempDataFileName).Dispose(); // Освобождаем все ресурсы
+
+            // СОЗДАЕМ ФАЙЛ
+            File.Create(TempDirectoryName + @"\" + TempDataFileName + "." + DataFileExt).Dispose(); // Освобождаем все ресурсы
 
             // Составляем строку колонок в файле
             StringBuilder stringBuilder = new StringBuilder();
@@ -46,7 +47,7 @@ namespace MNS
             // Вписываем в файл заголовоки колонок
             try
             {
-                StreamWriter streamWriter = new StreamWriter(TempDataFilePath + @"\" + TempDataFileName, true, Encoding.ASCII);
+                StreamWriter streamWriter = new StreamWriter(TempDirectoryName + @"\" + TempDataFileName + "." + DataFileExt, true, Encoding.ASCII);
                 streamWriter.WriteLine(title);
                 streamWriter.Dispose();
             }
@@ -58,7 +59,7 @@ namespace MNS
 
         public static void ClearTempDirectory()
         {
-            File.Delete(TempDataFilePath + @"\" + TempDataFileName);
+            File.Delete(TempDirectoryName + @"\" + TempDataFileName + "." + DataFileExt);
         }
 
         public static void SaveDataRow(string dataRow)
@@ -66,7 +67,7 @@ namespace MNS
             // Вписываем в файл заголовоки колонок
             try
             {
-                StreamWriter streamWriter = new StreamWriter(TempDataFilePath + @"\" + TempDataFileName, true, Encoding.ASCII);
+                StreamWriter streamWriter = new StreamWriter(TempDirectoryName + @"\" + TempDataFileName + "."+DataFileExt, true, Encoding.ASCII);
                 streamWriter.WriteLine(dataRow);
                 streamWriter.Dispose();
             }

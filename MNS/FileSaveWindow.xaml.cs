@@ -32,40 +32,60 @@ namespace MNS
             // ДОБАВЛЯЕМ ОБРАБОТЧИКИ СОБЫТИЙ 
             this.Closing += FileSaveWindow_Closing; // При закрытии окна
         }
-        
+
         private void FileSaveWindow_Closing(object sender, CancelEventArgs e)
         {
 
         }
-        
+
         private void CancelSavingDataFile_button_Click(object sender, RoutedEventArgs e)
         {
-            
+
             MainWindow.Close_program();
-            DataManager.ClearTempDirectory();
             this.Close();
         }
 
         private void SaveDataFile_button_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            //saveFileDialog.Filter = "*.csv";
-
+            // СОЗДАНИЕ ОТНОСИТЕЛЬНОГО ПУТИ СОХРАНЕНИЯ ФАЙЛА
             StringBuilder stringBuilder = new StringBuilder();
-            StringBuilder pathStringBuilder= new StringBuilder();
+            StringBuilder pathStringBuilder = new StringBuilder();
             pathStringBuilder.Append(Directory.GetCurrentDirectory());
             pathStringBuilder.Append(@"\");
-            pathStringBuilder.Append(DataManager.DataFilePath);
+            pathStringBuilder.Append(DataManager.DataDirectoryName);
             pathStringBuilder.Append(@"\");
             pathStringBuilder.Append(DataManager.DataFileName);
             pathStringBuilder.Append("_");
-            pathStringBuilder.Append(DateTime.UtcNow.ToString(("MM_dd_yyyy_h-mmtt")));
-
+            pathStringBuilder.Append(DateTime.Now.ToString(("dd_MM_yyyy_hh-mmtt")));
             string filePath = pathStringBuilder.ToString();
+
+            // КОНФИГУРИРОВАНИЕ SaveFileDialog
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Title = "Сохранение массива измерянных данных";
             saveFileDialog.FileName = $"{filePath}";
-            saveFileDialog.ShowDialog();
+            saveFileDialog.InitialDirectory = $"{filePath}";
+            saveFileDialog.OverwritePrompt = true;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.DefaultExt = "csv";
+            saveFileDialog.AddExtension = true;
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                // ОСТАНОВКА ИЗМЕРЕНИЯ
+                MainWindow.Stop_measurement();
 
+                // КОПИРОВАНИЕ ФАЙЛА "Data.csv" ИЗ ПАПКИ "Temp"
+                File.Copy($"{DataManager.TempDirectoryName}" + @"\" + $"{DataManager.TempDataFileName}" + "." + $"{DataManager.DataFileExt}", saveFileDialog.FileName, true);
+
+                // ЗАКРЫТИЕ ОКНА "FileSaveWindow"
+                this.Close();
+                MainWindow.DataToSaveExists = false;
+            }
+            else
+            {
+                this.Close();
+            }
         }
     }
+    
 }
