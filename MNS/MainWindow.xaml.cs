@@ -1044,5 +1044,10 @@ namespace MNS
         {
 
         }
+
+        private void TechnicalAssistance_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

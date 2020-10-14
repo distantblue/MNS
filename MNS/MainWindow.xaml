@@ -35,8 +35,8 @@
                     <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
                 </MenuItem>
                 <MenuItem Header="О ПРОГРАММЕ">
-                    <MenuItem Header="Информация о ПО" Click="AboutApp_MenuItem_Click"/>/>
-                    <MenuItem Header="Техническая поддержка"/>
+                    <MenuItem Header="Информация о ПО" Click="AboutApp_MenuItem_Click"/>
+                    <MenuItem Header="Техническая поддержка" Click="TechnicalAssistance_MenuItem_Click"/>
                 </MenuItem>
             </Menu>
         </Border>
