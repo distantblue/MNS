@@ -28,14 +28,15 @@
                 <MenuItem Header="УПРАВЛЕНИЕ">
                     <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click" />
                     <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
-                    <MenuItem Header="Сохранить данные"/>
-                    <MenuItem Header="Выход"/>
+                    <MenuItem Header="Сохранить данные" Click="SaveMeasurementData_MenuItem_Click"/>
+                    <MenuItem Header="Выход" Click="Exit_MenuItem_Click"/>
                 </MenuItem>
                 <MenuItem Header="НАСТРОЙКИ">
                     <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
                 </MenuItem>
-                <MenuItem Header="О ПРОГРАММЕ">
-                    <MenuItem Header="Информация о ПО" Click="AboutApp_MenuItem_Click"/>
+                <MenuItem Header="СПРАВКА">
+                    <MenuItem Header="О программе" Click="AboutApp_MenuItem_Click"/>
+                    <MenuItem Header="О файле данных" Click="AboutApp_MenuItem_Click"/>
                     <MenuItem Header="Техническая поддержка" Click="TechnicalAssistance_MenuItem_Click"/>
                 </MenuItem>
             </Menu>
@@ -64,7 +65,7 @@
 
         <Border Grid.Row="7" Grid.Column="1"  Grid.RowSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                
+
                 <StackPanel Orientation="Horizontal" Margin="32,16,0,2" >
                     <TextBlock VerticalAlignment="Center"  Text="Эквивалентная схема замещения:" TextWrapping="Wrap" Width="350" x:Name="EquivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="18" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="420" x:Name="EquivalentCircuit_textBlock" Foreground="Black" FontSize="18" FontWeight="Bold"/>
@@ -103,9 +104,7 @@
 
 
         <Border Grid.Row="6" Grid.Column="0" Grid.RowSpan="3" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
-            
-                <TextBlock  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="440" Height="265" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
-            
+            <TextBlock  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="440" Height="265" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
         </Border>
 
     </Grid>

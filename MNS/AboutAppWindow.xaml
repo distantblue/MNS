@@ -1,0 +1,41 @@
+﻿<Window x:Class="MNS.AboutAppWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MNS"
+        mc:Ignorable="d"
+        Title="Информация о сборке" Width="640" Height="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
+    <Grid>
+        <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="8">
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Width="150" FontWeight="Bold">Имя сборки:</Label>
+                    <Label x:Name="assemblyTitle_label"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Width="150" FontWeight="Bold">Версия:</Label>
+                    <Label x:Name="assemblyVersion_label"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Width="150" FontWeight="Bold">Описание:</Label>
+                    <Label x:Name="assemblyDescription_label"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Width="150" FontWeight="Bold">Информация о сборке:</Label>
+                    <Label x:Name="assemblyProduct_label"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Width="150" FontWeight="Bold">Компания:</Label>
+                    <Label x:Name="assemblyCompany_label"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Width="150" FontWeight="Bold">Авторские права:</Label>
+                    <Label x:Name="assemblyCopyright_label"></Label>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
+

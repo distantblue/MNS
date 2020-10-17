@@ -60,7 +60,6 @@ namespace MNS
             string filePath = pathStringBuilder.ToString();
 
             // КОНФИГУРИРОВАНИЕ SaveFileDialog
-
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Title = "Сохранение массива измерянных данных";
             saveFileDialog.FileName = $"{filePath}";

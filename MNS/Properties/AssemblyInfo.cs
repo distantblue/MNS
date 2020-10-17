@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -7,12 +8,12 @@ using System.Windows;
 // Общие сведения об этой сборке предоставляются следующим набором
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("MNS v1.0")]
-[assembly: AssemblyDescription("Измерительная система для ПК")]
+[assembly: AssemblyTitle("MNS-1100 application")]
+[assembly: AssemblyDescription("Целевая платформа Windows версия .NET Framework 4.6.1")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Промикс")]
-[assembly: AssemblyProduct("MNS 1100")]
-[assembly: AssemblyCopyright("Стенник А.Ю. Copyright ©  2020")]
+[assembly: AssemblyCompany("ГП УКРМЕТРТЕСТСТАНДАРТ, г. Киев")]
+[assembly: AssemblyProduct("Программное обеспечение для сопряжения импедансметра МНС-1100 с ПК")]
+[assembly: AssemblyCopyright("Copyright © Oleksii Stennik 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

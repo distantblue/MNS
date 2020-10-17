@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO; // убрать потом если не будет filestream
@@ -117,11 +118,15 @@ namespace MNS
             // УДАЛЯЕМ ФАЙЛ ДАННЫХ С ПРЕДЫДУЩЕГО ЗАПУСКА ПРОГРАММЫ 
             DataManager.ClearTempDirectory();
             DataManager.CreateNewDataFile();
+
             /*
-            // ВРЕМЕННОЕ СОЗДАНИЯ ФАЙЛА НАСТРОЕК
+            // ВРЕМЕННОЕ СЕРИАЛИЗАЦИЯ ФАЙЛА НАСТРОЕК
             CurrentModbusRTUSettings = new ModbusRTUSettings("COM1",1);
             CurrentModbusRTUSettings.SaveSettings(CurrentModbusRTUSettings, CurrentModbusRTUSettings.ModbusRTUSettingsFilePath);
             */
+
+            // ВРЕМЕННАЯ СИМУЛЯЦИЯ НАЛИЧИЯ ДАННЫХ ДЛЯ СОХРАНЕНИЯ
+            DataToSaveExists = true;
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -1048,14 +1053,63 @@ namespace MNS
             DataToSaveExists = false;
         }
 
+        private void SaveMeasurementData_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataToSaveExists == true)
+            {
+                // СОЗДАНИЕ ОТНОСИТЕЛЬНОГО ПУТИ СОХРАНЕНИЯ ФАЙЛА
+                StringBuilder stringBuilder = new StringBuilder();
+                StringBuilder pathStringBuilder = new StringBuilder();
+                pathStringBuilder.Append(Directory.GetCurrentDirectory());
+                pathStringBuilder.Append(@"\");
+                pathStringBuilder.Append(DataManager.DataDirectoryName);
+                pathStringBuilder.Append(@"\");
+                pathStringBuilder.Append(DataManager.DataFileName);
+                pathStringBuilder.Append("_");
+                pathStringBuilder.Append(DateTime.Now.ToString(("dd_MM_yyyy_hh-mmtt")));
+                string filePath = pathStringBuilder.ToString();
+
+                // КОНФИГУРИРОВАНИЕ SaveFileDialog
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Title = "Сохранение массива измерянных данных";
+                saveFileDialog.FileName = $"{filePath}";
+                saveFileDialog.InitialDirectory = $"{filePath}";
+                saveFileDialog.OverwritePrompt = true;
+                saveFileDialog.RestoreDirectory = true;
+                saveFileDialog.DefaultExt = "csv";
+                saveFileDialog.AddExtension = true;
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    // ОСТАНОВКА ИЗМЕРЕНИЯ
+                    Stop_measurement();
+
+                    // КОПИРОВАНИЕ ФАЙЛА "Data.csv" ИЗ ПАПКИ "Temp"
+                    File.Copy($"{DataManager.TempDirectoryName}" + @"\" + $"{DataManager.TempDataFileName}" + "." + $"{DataManager.DataFileExt}", saveFileDialog.FileName, true);
+
+                    // ПРОДОЛЖЕНИЕ ИЗМЕРЕНИЯ
+                    Start_measurement();
+                }
+            }
+
+        }
+
         private void AboutApp_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-
+            VisualEffects.ApplyBlurEffect(this);
+            AboutAppWindow aboutAppWindow = new AboutAppWindow();
+            aboutAppWindow.ShowDialog();
+            VisualEffects.ClearBlurEffect(this);
         }
 
         private void TechnicalAssistance_MenuItem_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Exit_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Stop_measurement();
+            this.Close();
         }
     }
 }
