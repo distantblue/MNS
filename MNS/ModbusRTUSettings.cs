@@ -18,9 +18,13 @@ namespace MNS
         // ИНТЕРВАЛ ОПРОСА
         public int PollingInterval { get; set; }
 
+        // ИМЯ ФАЙЛА НАСТРОЕК
+        [NonSerialized]
+        public readonly string ModbusRTUSettingsFileName = @"ModbusRTUSettings.dat";
+
         // ПУТЬ к ФАЙЛУ НАСТРОЕК
         [NonSerialized]
-        public readonly string ModbusRTUSettingsFilePath = @"ModbusRTUSettings.dat";
+        public readonly string ModbusRTUSettingsFilePath;
 
         // НАСТРОЙКИ Modbus
         [NonSerialized]
@@ -61,20 +65,35 @@ namespace MNS
         // Обявляю событие "ошибка при чтении файла настроек"
         public event ModbusRTUSettingsErrorHandler SettingsFileReadingError;
 
-        public ModbusRTUSettings() // Инициализируем переменные значениями по умолчанию, чтоб не ссылались в null
+        public ModbusRTUSettings()
         {
-            this.SilentInterval = GetSilentInterval(); 
-            this.PortName = "COM1"; 
+            // Инициализируем переменные значениями по умолчанию, чтоб не ссылались в null
+            this.SilentInterval = GetSilentInterval();
+            this.PortName = "COM1";
             this.PollingInterval = 1;
-        }
 
+            // Формирование пути к файлу настроек
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("Settings");
+            stringBuilder.Append(@"\");
+            stringBuilder.Append($"{ModbusRTUSettingsFileName}");
+            ModbusRTUSettingsFilePath = stringBuilder.ToString();
+        }
+        
         public ModbusRTUSettings(string portName, int pollingInterval)
         {
             this.PortName = portName;
             this.PollingInterval = pollingInterval;
             this.SilentInterval = GetSilentInterval();
-        }
 
+            // Формирование пути к файлу настроек
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("Settings");
+            stringBuilder.Append(@"\");
+            stringBuilder.Append($"{ModbusRTUSettingsFileName}");
+            ModbusRTUSettingsFilePath = stringBuilder.ToString();
+        }
+        
         public void GetCurrentSettings()
         {
             ModbusRTUSettings currentSettings = GetCurrentSettings(this.ModbusRTUSettingsFilePath);
@@ -95,18 +114,15 @@ namespace MNS
             }
             catch (FileNotFoundException exception)
             {
-                SettingsFileNotFoundError?.Invoke($"В директории где расположен исполняемый файл программы отсутствует файл настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
-                //MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+                SettingsFileNotFoundError?.Invoke($"В директории \"Settings\" отсутствует файл настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
             }
             catch (System.Runtime.Serialization.SerializationException exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при десериализации объекта настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
-                //MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при десериализации объекта настроек программы из файла настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
             }
             catch (Exception exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при считывании настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
-                //MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при считывании настроек программы из файла настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
             }
 
             return currentSettings;
@@ -124,13 +140,11 @@ namespace MNS
             }
             catch (System.Runtime.Serialization.SerializationException exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при десериализации объекта настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
-                //MessageBox.Show("В директории где расположен исполняемый файл программы отсутствует файл настроек ModbusRTUSettings.dat" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при сериализации объекта настроек программы в файл настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
             }
             catch (Exception exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при считывании настроек программы из файла настроек {ModbusRTUSettingsFilePath} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
-                //MessageBox.Show("Возникла ошибка при попытке считать настройки подключения программы" + "\n\n" + "Exception message: " + exception.Message, "Ошибка!");
+                SettingsFileReadingError?.Invoke($"Возникла ошибка при сериализации объекта настроек программы в файл настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
             }
         }
 

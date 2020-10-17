@@ -93,7 +93,7 @@ namespace MNS
 
         // Флаг - данные для сохранения существуют
         public bool DataToSaveExists;
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -108,7 +108,7 @@ namespace MNS
             this.ConsoleText = new string[16];
             this.DataRowNumber = 0;
         }
-        
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // ОТОБРАЖАЕМ ПУСТЫЕ РЕЗУЛЬТАТЫ ИЗМЕРЕНИЙ
@@ -117,11 +117,16 @@ namespace MNS
             // УДАЛЯЕМ ФАЙЛ ДАННЫХ С ПРЕДЫДУЩЕГО ЗАПУСКА ПРОГРАММЫ 
             DataManager.ClearTempDirectory();
             DataManager.CreateNewDataFile();
+            /*
+            // ВРЕМЕННОЕ СОЗДАНИЯ ФАЙЛА НАСТРОЕК
+            CurrentModbusRTUSettings = new ModbusRTUSettings("COM1",1);
+            CurrentModbusRTUSettings.SaveSettings(CurrentModbusRTUSettings, CurrentModbusRTUSettings.ModbusRTUSettingsFilePath);
+            */
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (DataToSaveExists == true) 
+            if (DataToSaveExists == true)
             {
                 e.Cancel = true; // Запрет закрытия окна
 
@@ -489,32 +494,35 @@ namespace MNS
 
         private void DisplayErrorOccurred(string errorMessage)
         {
-            Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
+            if (Timer != null && Modbus != null)
+            {
+                Timer.Change(Timeout.Infinite, 0); // Приостанавливаем измерение
 
-            // ОТПИСЫВАЕМСЯ ОТ ОБРАБОТЧИКОВ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.IdentifyStatus;
-            Modbus.ResponseReceived -= this.Get_R;
-            Modbus.ResponseReceived -= this.Get_L;
-            Modbus.ResponseReceived -= this.Get_C;
-            Modbus.ResponseReceived -= this.Get_M;
-            Modbus.ResponseReceived -= this.Get_F;
-            Modbus.ResponseReceived -= this.Get_tgR;
-            Modbus.ResponseReceived -= this.Get_tgL;
-            Modbus.ResponseReceived -= this.Get_tgC;
-            Modbus.ResponseReceived -= this.Get_tgM;
+                // ОТПИСЫВАЕМСЯ ОТ ОБРАБОТЧИКОВ СОБЫТИЯ ResposeReceived
+                Modbus.ResponseReceived -= this.IdentifyStatus;
+                Modbus.ResponseReceived -= this.Get_R;
+                Modbus.ResponseReceived -= this.Get_L;
+                Modbus.ResponseReceived -= this.Get_C;
+                Modbus.ResponseReceived -= this.Get_M;
+                Modbus.ResponseReceived -= this.Get_F;
+                Modbus.ResponseReceived -= this.Get_tgR;
+                Modbus.ResponseReceived -= this.Get_tgL;
+                Modbus.ResponseReceived -= this.Get_tgC;
+                Modbus.ResponseReceived -= this.Get_tgM;
 
-            Modbus.ResponseReceived -= this.DisplayResponseMessageInConsole;
-            Modbus.RequestSent -= this.DisplayRequestMessageInConsole;
-            Modbus.CRC_Error -= this.ProcessMissedResult;
-            Modbus.SlaveError -= this.ProcessMissedResult;
-            Modbus.DeviceNotRespondingError -= this.ProcessMissedResult;
-            //Modbus.DeviceNotRespondingError -= this.DisplayErrorOccurred;
+                Modbus.ResponseReceived -= this.DisplayResponseMessageInConsole;
+                Modbus.RequestSent -= this.DisplayRequestMessageInConsole;
+                Modbus.CRC_Error -= this.ProcessMissedResult;
+                Modbus.SlaveError -= this.ProcessMissedResult;
+                Modbus.DeviceNotRespondingError -= this.ProcessMissedResult;
+                //Modbus.DeviceNotRespondingError -= this.DisplayErrorOccurred;
 
-            Modbus.Close(); // Закрываем COM порт
+                Modbus.Close(); // Закрываем COM порт
+            }
 
             MessageBox.Show(errorMessage, "Ошибка!");
         }
-        
+
         private void DisplayRequestMessageInConsole(byte[] message)
         {
             for (int i = 0; i < ConsoleText.Length - 1; i++)
