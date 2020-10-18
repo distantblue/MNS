@@ -36,7 +36,7 @@
                 </MenuItem>
                 <MenuItem Header="СПРАВКА">
                     <MenuItem Header="О программе" Click="AboutApp_MenuItem_Click"/>
-                    <MenuItem Header="О файле данных" Click="AboutApp_MenuItem_Click"/>
+                    <MenuItem Header="О файле данных" Click="AboutDataFile_MenuItem_Click"/>
                     <MenuItem Header="Техническая поддержка" Click="TechnicalAssistance_MenuItem_Click"/>
                 </MenuItem>
             </Menu>

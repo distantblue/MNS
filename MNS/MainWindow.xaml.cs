@@ -1111,5 +1111,13 @@ namespace MNS
             Stop_measurement();
             this.Close();
         }
+
+        private void AboutDataFile_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            VisualEffects.ApplyBlurEffect(this);
+            AboutDataFileWindow aboutDataFileWindow = new AboutDataFileWindow();
+            aboutDataFileWindow.ShowDialog();
+            VisualEffects.ClearBlurEffect(this);
+        }
     }
 }
