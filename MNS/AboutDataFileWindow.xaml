@@ -21,8 +21,8 @@
                 </StackPanel>
                 
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="8">
-                    <Image Source="Icon_good_data.png" Width="661" Margin="0,0,0,8"/>
-                    <Image Source="Icon_bad_data.png" Width="661" Margin="0,8,0,8"/>
+                    <Image Source="Icon_bad_data.png" Width="662" Margin="0,0,0,8"/>
+                    <Image Source="Icon_good_data.png" Width="662" Margin="0,8,0,8"/>
                 </StackPanel>
                 <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"

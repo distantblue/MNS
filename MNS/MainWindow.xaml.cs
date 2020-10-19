@@ -1085,9 +1085,6 @@ namespace MNS
 
                     // КОПИРОВАНИЕ ФАЙЛА "Data.csv" ИЗ ПАПКИ "Temp"
                     File.Copy($"{DataManager.TempDirectoryName}" + @"\" + $"{DataManager.TempDataFileName}" + "." + $"{DataManager.DataFileExt}", saveFileDialog.FileName, true);
-
-                    // ПРОДОЛЖЕНИЕ ИЗМЕРЕНИЯ
-                    Start_measurement();
                 }
             }
 
