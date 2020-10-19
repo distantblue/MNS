@@ -10,7 +10,7 @@
         <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
             <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="8" Width="700">
                 
-                <Label Content="Файл данных" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <Label Content="Файл данных" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                     <Image Source="Icon_csv_file.png" Height="100" Margin="32,8,8,8"/>
                     <TextBlock TextWrapping="WrapWithOverflow" Margin="32,16,0,0" Width="530">В качестве формата файла данных программа использует текстовый формат &quot;Comma-separated values&quot; (*.CSV), 
@@ -24,7 +24,7 @@
                     <Image Source="Icon_good_data.png" Width="661" Margin="0,0,0,8"/>
                     <Image Source="Icon_bad_data.png" Width="661" Margin="0,8,0,8"/>
                 </StackPanel>
-                <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"
                 </TextBlock>
                 
