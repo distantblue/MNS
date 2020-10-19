@@ -948,7 +948,7 @@ namespace MNS
                     stringBuilder_0.Append(Frequency + ";");
                     stringBuilder_0.Append(Resistance + ";");
                     stringBuilder_0.Append(tg_R + ";");
-                    stringBuilder_0.Append(";;;;;;");
+                    //stringBuilder_0.Append(";;;;;;");
                     dataRow = stringBuilder_0.ToString();
                     break;
                 case 1:
@@ -960,7 +960,7 @@ namespace MNS
                     stringBuilder_1.Append(";;");
                     stringBuilder_1.Append(Inductance + ";");
                     stringBuilder_1.Append(tg_L + ";");
-                    stringBuilder_1.Append(";;;;");
+                    //stringBuilder_1.Append(";;;;");
                     dataRow = stringBuilder_1.ToString();
                     break;
                 case 2:
@@ -972,7 +972,7 @@ namespace MNS
                     stringBuilder_2.Append(";;;;");
                     stringBuilder_2.Append(Capacity + ";");
                     stringBuilder_2.Append(tg_C + ";");
-                    stringBuilder_2.Append(";;");
+                    //stringBuilder_2.Append(";;");
                     dataRow = stringBuilder_2.ToString();
                     break;
                 case 3:

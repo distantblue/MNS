@@ -32,7 +32,7 @@ namespace MNS
             stringBuilder.Append("#;");
             stringBuilder.Append("Time;");
             stringBuilder.Append("Equiv. circuit;");
-            stringBuilder.Append("Frequency [Hz];");
+            stringBuilder.Append("Freq. [Hz];");
             stringBuilder.Append("R [Ohm];");
             stringBuilder.Append("tg R;"); //+  +
             stringBuilder.Append("L [H];");

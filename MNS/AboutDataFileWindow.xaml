@@ -5,23 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-         Title="Информация о файле данных" Width="640" Height="480" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
+         Title="Информация о файле данных" Width="760" Height="590" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
-            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="8">
-                <Image Source="Icon_csv_file.png" Height="100"/>
-                <Label Content="Файл данных" FontWeight="Bold"/>
-                <TextBlock TextWrapping="WrapWithOverflow" Margin="5">В качестве формата файла данных программа использует текстовый формат &quot;Comma-separated values&quot; (*.CSV). 
-                    Где в качестве разделителя полей использует символ &quot;;&quot;. Каждое единичное измерение представлено строкой данных разделенных &quot;;&quot;. 
+            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="8" Width="700">
+                
+                <Label Content="Файл данных" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                    <Image Source="Icon_csv_file.png" Height="100" Margin="32,8,8,8"/>
+                    <TextBlock TextWrapping="WrapWithOverflow" Margin="32,16,0,0" Width="530">В качестве формата файла данных программа использует текстовый формат &quot;Comma-separated values&quot; (*.CSV), 
+                    где в качестве разделителя полей использует символ &quot;;&quot;. Каждое единичное измерение представлено строкой данных разделенных &quot;;&quot;. 
                     При открытии файла данных с помощью Microsoft Excel, если в региональных настройках системы Windows в качестве разделителя указан &quot;;&quot; - 
                     данные в файле будут отображены в виде таблицы.
                 </TextBlock>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Image Margin="0,0,75,0" Source="Icon_csv_file.png" Height="128"/>
-                    <Image Margin="75,0,0,0" Source="Icon_csv_file.png" Height="128"/>
                 </StackPanel>
-                <Label Content="Изменение настроек" FontWeight="Bold"/>
-                <TextBlock TextWrapping="WrapWithOverflow" Margin="5">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"
+                
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="8">
+                    <Image Source="Icon_good_data.png" Width="661" Margin="0,0,0,8"/>
+                    <Image Source="Icon_bad_data.png" Width="661" Margin="0,8,0,8"/>
+                </StackPanel>
+                <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"
                 </TextBlock>
                 
             </StackPanel>

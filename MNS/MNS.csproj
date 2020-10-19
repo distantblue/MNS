@@ -173,5 +173,9 @@
   <ItemGroup>
     <Resource Include="Icon_csv_file.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon_bad_data.png" />
+    <Resource Include="Icon_good_data.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
