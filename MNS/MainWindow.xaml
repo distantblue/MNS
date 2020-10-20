@@ -99,7 +99,8 @@
         </Border>
 
         <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="6" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" Grid.ColumnSpan="2">
-            <Canvas Margin="8" VerticalAlignment="Stretch"/>
+            
+                <WpfPlot Name="plot_R" Margin="8"/>
         </Border>
 
 
