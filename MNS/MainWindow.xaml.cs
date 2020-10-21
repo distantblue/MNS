@@ -113,9 +113,6 @@ namespace MNS
         // Порядковый номер ыизмерения
         int DataRowNumber;
 
-        // Набор данных одиночного измерения (строка)
-        string DataRow;
-
         // Флаг - данные для сохранения существуют
         public bool DataToSaveExists;
 
@@ -140,6 +137,9 @@ namespace MNS
             this.L_OADate_list = new List<double>();
             this.C_OADate_list = new List<double>();
             this.M_OADate_list = new List<double>();
+
+            //plot_R.plt.PlotScatter(R_OADate_list.ToArray(), R_list.ToArray(), System.Drawing.Color.Blue, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid, label: "Resistance");
+            plot_R.plt.Title("R = f(time)");
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -233,7 +233,7 @@ namespace MNS
                     break;
             }
             // Отображаем результат
-            DisplayEquivalentCircuitResult();
+            CheckAccessAndDisplayOnTextBlock(EquivalentCircuit_textBlock, EquivalentCircuit);
 
             // УЗНАЕМ НАЛИЧИЕ ИНТЕГРИРОВАНИЯ
             ushort integrationValue = (ushort)(SlaveState & 0x10); // Накладываем битовую маску 00000000 00010000 чтобы получить значение 5го бита 
@@ -247,7 +247,7 @@ namespace MNS
                     break;
             }
             // Отображаем результат
-            DisplayIntegrationResult();
+            CheckAccessAndDisplayOnTextBlock(integrationValue_textBlock, Integration);
 
             // УЗНАЕМ НАЛИЧИЕ УСРЕДНЕНИЯ
             ushort averagingValue = (ushort)(SlaveState & 0x200); // Накладываем битовую маску 00000010 00000000 чтобы получить значение 9го бита 
@@ -261,7 +261,7 @@ namespace MNS
                     break;
             }
             // Отображаем результат
-            DisplayAveragingResult();
+            CheckAccessAndDisplayOnTextBlock(averagingValue_textBlock, Averaging);
 
             // УЗНАЕМ ФИКСИРОВАН ЛИ ИНТЕРВАЛ ДИАПАЗОНА ИЗМЕРЕНИЯ
             ushort fixedMeasIntervalValue = (ushort)(SlaveState & 0x100); // Накладываем битовую маску 00000001 00000000 чтобы получить значение 9го бита 
@@ -275,7 +275,7 @@ namespace MNS
                     break;
             }
             // Отображаем результат
-            DisplayFixedMeasIntervalResult();
+            CheckAccessAndDisplayOnTextBlock(fixedMeasIntervalValue_textBlock, FixedMeasInterval);
 
             // УЗНАЕМ НОМЕР КАНАЛА ИЗМЕРЕНИЯ
             ushort chanalNumber = (ushort)(SlaveState & 0x7); // Накладываем битовую маску 00000000 00000111 чтобы получить значение первых 3х битов
@@ -425,7 +425,7 @@ namespace MNS
             AddResultsToCollection();
 
             // ОТОБРАЖАЕМ НА ГРАФИКЕ
-            DisplayGraph();
+            DisplayGraphAcync();
         }
 
         private void Get_L(byte[] buffer)
@@ -582,17 +582,8 @@ namespace MNS
                 }
             }
 
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (statusTextBlock.CheckAccess())
-            {
-                statusTextBlock.Text = displStr;
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = displStr);
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(statusTextBlock, displStr);
         }
 
         private void DisplayResponseMessageInConsole(byte[] message)
@@ -612,17 +603,8 @@ namespace MNS
                 }
             }
 
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (statusTextBlock.CheckAccess())
-            {
-                statusTextBlock.Text = displStr;
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => statusTextBlock.Text = displStr);
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(statusTextBlock, displStr);
         }
 
         private void ProcessMissedResult(string errorMessage)
@@ -664,310 +646,73 @@ namespace MNS
             chanalNumber_textBlock.Text = "---";
         }
 
-        private void DisplayEquivalentCircuitResult()
-        {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (EquivalentCircuit_textBlock.CheckAccess())
-            {
-                EquivalentCircuit_textBlock.Text = EquivalentCircuit;
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => EquivalentCircuit_textBlock.Text = EquivalentCircuit);
-            }
-        }
-
-        private void DisplayIntegrationResult()
-        {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (integrationValue_textBlock.CheckAccess())
-            {
-                integrationValue_textBlock.Text = Integration;
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => integrationValue_textBlock.Text = Integration);
-            }
-        }
-
-        private void DisplayAveragingResult()
-        {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (averagingValue_textBlock.CheckAccess())
-            {
-                averagingValue_textBlock.Text = Averaging;
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => averagingValue_textBlock.Text = Averaging);
-            }
-        }
-
-        private void DisplayFixedMeasIntervalResult()
-        {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (fixedMeasIntervalValue_textBlock.CheckAccess())
-            {
-                fixedMeasIntervalValue_textBlock.Text = FixedMeasInterval;
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                statusTextBlock.Dispatcher.InvokeAsync(() => fixedMeasIntervalValue_textBlock.Text = FixedMeasInterval);
-            }
-        }
 
         private void Display_R()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (ValueSymbol_textBlock.CheckAccess())
-            {
-                ValueSymbol_textBlock.Text = "R:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "R:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (Value_textBlock.CheckAccess())
-            {
-                Value_textBlock.Text = Resistance.ToString() + " Ом";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Resistance.ToString() + " Ом");
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "R:");
+            CheckAccessAndDisplayOnTextBlock(Value_textBlock, Resistance.ToString() + " Ом");
         }
 
         private void Display_tgR()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tgSymbol_textBlock.CheckAccess())
-            {
-                tgSymbol_textBlock.Text = "tg" + "\u03B4:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03B4:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tg_textBlock.CheckAccess())
-            {
-                tg_textBlock.Text = tg_R.ToString("0.######");
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_R.ToString("0.######"));
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03B4:");
+            CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_R.ToString("0.######"));
         }
 
         private void Display_F()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (F_textBlock.CheckAccess())
-            {
-                F_textBlock.Text = Frequency.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                F_textBlock.Dispatcher.InvokeAsync(() => F_textBlock.Text = Frequency.ToString() + " Гц");
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(F_textBlock, Frequency.ToString() + " Гц");
         }
 
         private void Display_L()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (ValueSymbol_textBlock.CheckAccess())
-            {
-                ValueSymbol_textBlock.Text = "L:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "L:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (Value_textBlock.CheckAccess())
-            {
-                Value_textBlock.Text = Inductance.ToString() + " Гн";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Inductance.ToString() + " Гн");
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "L:");
+            CheckAccessAndDisplayOnTextBlock(Value_textBlock, Inductance.ToString() + " Гн");
         }
 
         private void Display_tgL()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tgSymbol_textBlock.CheckAccess())
-            {
-                tgSymbol_textBlock.Text = "tg" + "\u03C6:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03C6:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tg_textBlock.CheckAccess())
-            {
-                tg_textBlock.Text = tg_L.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_L.ToString());
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03C6:");
+            CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_L.ToString("0.######"));
         }
 
         private void Display_C()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (ValueSymbol_textBlock.CheckAccess())
-            {
-                ValueSymbol_textBlock.Text = "C:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "C:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (Value_textBlock.CheckAccess())
-            {
-                Value_textBlock.Text = Capacity.ToString() + " Ф";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = Capacity.ToString() + " Ф");
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "C:");
+            CheckAccessAndDisplayOnTextBlock(Value_textBlock, Capacity.ToString() + " Ф");
         }
 
         private void Display_tgC()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tgSymbol_textBlock.CheckAccess())
-            {
-                tgSymbol_textBlock.Text = "tg" + "\u03B4:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03B4:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tg_textBlock.CheckAccess())
-            {
-                tg_textBlock.Text = tg_C.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_C.ToString());
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03B4:");
+            CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_C.ToString("0.######"));
         }
 
         private void Display_M()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (ValueSymbol_textBlock.CheckAccess())
-            {
-                ValueSymbol_textBlock.Text = "M:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                ValueSymbol_textBlock.Dispatcher.InvokeAsync(() => ValueSymbol_textBlock.Text = "M:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (Value_textBlock.CheckAccess())
-            {
-                Value_textBlock.Text = MutualInductance.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                Value_textBlock.Dispatcher.InvokeAsync(() => Value_textBlock.Text = MutualInductance.ToString());
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "M:");
+            CheckAccessAndDisplayOnTextBlock(Value_textBlock, MutualInductance.ToString());
         }
 
         private void Display_tgM()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tgSymbol_textBlock.CheckAccess())
-            {
-                tgSymbol_textBlock.Text = "tg" + "\u03C6:";
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tgSymbol_textBlock.Dispatcher.InvokeAsync(() => tgSymbol_textBlock.Text = "tg" + "\u03C6:");
-            }
-
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (tg_textBlock.CheckAccess())
-            {
-                tg_textBlock.Text = tg_M.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                tg_textBlock.Dispatcher.InvokeAsync(() => tg_textBlock.Text = tg_M.ToString());
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03C6:");
+            CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_M.ToString("0.######"));
         }
 
         private void DisplayChanalNumber()
         {
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
-            if (chanalNumber_textBlock.CheckAccess())
-            {
-                chanalNumber_textBlock.Text = ChanalNumber.ToString();
-            }
-            //Поток не имеет доступ к потоку UI 
-            else
-            {
-                chanalNumber_textBlock.Dispatcher.InvokeAsync(() => chanalNumber_textBlock.Text = ChanalNumber.ToString());
-            }
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(chanalNumber_textBlock, ChanalNumber.ToString());
         }
 
         private string CreateDataRow()
@@ -985,7 +730,6 @@ namespace MNS
                     stringBuilder_0.Append(Frequency + ";");
                     stringBuilder_0.Append(Resistance + ";");
                     stringBuilder_0.Append(tg_R + ";");
-                    //stringBuilder_0.Append(";;;;;;");
                     dataRow = stringBuilder_0.ToString();
                     break;
                 case 1:
@@ -997,7 +741,6 @@ namespace MNS
                     stringBuilder_1.Append(";;");
                     stringBuilder_1.Append(Inductance + ";");
                     stringBuilder_1.Append(tg_L + ";");
-                    //stringBuilder_1.Append(";;;;");
                     dataRow = stringBuilder_1.ToString();
                     break;
                 case 2:
@@ -1009,7 +752,6 @@ namespace MNS
                     stringBuilder_2.Append(";;;;");
                     stringBuilder_2.Append(Capacity + ";");
                     stringBuilder_2.Append(tg_C + ";");
-                    //stringBuilder_2.Append(";;");
                     dataRow = stringBuilder_2.ToString();
                     break;
                 case 3:
@@ -1180,35 +922,20 @@ namespace MNS
             }
         }
 
+        private async void DisplayGraphAcync()
+        {
+            // Вызываем метод в асинхронном режиме
+            await Task.Run(() => DisplayGraph());
+        }
 
         private void DisplayGraph()
         {
             switch (ChanalFlag)
             {
                 case 0:
-                    plot_R.plt.PlotScatter(R_OADate_list.ToArray(), R_list.ToArray(),System.Drawing.Color.Blue, lineWidth:1);
-                    plot_R.plt.Ticks(dateTimeX: true);
-                    plot_R.plt.Title("R = f(time)");
-                    plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]");
-                    plot_R.plt.XLabel("Время");
-                    plot_R.plt.AxisAuto();
-                    plot_R.plt.SaveFig("SaveFig.png");
-                    plot_R.plt.Legend()
-                    //
-
-
-                    //Проверяем имеет ли вызывающий поток доступ к потоку UI
-                    // Поток имеет доступ к потоку UI
-                    if (plot_R.CheckAccess())
-                    {
-                        plot_R.Render();
-                    }
-                    //Поток не имеет доступ к потоку UI 
-                    else
-                    {
-                        plot_R.Dispatcher.InvokeAsync(() => plot_R.Render());
-                    }
-
+                    plot_R.plt.PlotScatter(R_OADate_list.ToArray(), R_list.ToArray(), System.Drawing.Color.Black, lineWidth: 3, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
+                    //plot_R.plt.Title("R = f(time)" );
+                    CheckAccessAndDisplayGraph(plot_R);
                     break;
                 case 1:
                     //plot_L.plt.PlotScatter(L_OADate_list.ToArray(), L_list.ToArray());
@@ -1230,6 +957,60 @@ namespace MNS
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void CheckAccessAndDisplayGraph(object wpfElement)
+        {
+            plot_R = wpfElement as ScottPlot.WpfPlot;
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (plot_R.CheckAccess())
+            {
+                plot_R.plt.Ticks(dateTimeX: true);
+
+                plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
+                plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
+                plot_R.plt.AxisAuto();
+                plot_R.plt.SaveFig("SaveFig.png");
+                plot_R.plt.Legend(enableLegend: false);
+                //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
+                plot_R.Render();
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                plot_R.Dispatcher.InvokeAsync(() =>
+                {
+
+                    plot_R.plt.Ticks(dateTimeX: true);
+                    plot_R.plt.Title("R = f(time)");
+                    plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
+                    plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
+                    plot_R.plt.AxisAuto();
+                    plot_R.plt.SaveFig("SaveFig.png");
+                    plot_R.plt.Legend(enableLegend: false);
+                    //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg: System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
+                    plot_R.Render();
+                });
+            }
+        }
+
+        private void CheckAccessAndDisplayOnTextBlock(object wpfElement, string displayedString)
+        {
+            TextBlock textBlock = wpfElement as TextBlock;
+
+            //Проверяем имеет ли вызывающий поток доступ к потоку UI
+            // Поток имеет доступ к потоку UI
+            if (textBlock.CheckAccess())
+            {
+                textBlock.Text = displayedString;
+            }
+            //Поток не имеет доступ к потоку UI 
+            else
+            {
+                textBlock.Dispatcher.InvokeAsync(() => textBlock.Text = displayedString);
             }
         }
     }
