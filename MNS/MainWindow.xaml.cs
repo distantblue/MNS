@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO; // убрать потом если не будет filestream
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -60,10 +60,10 @@ namespace MNS
         float Resistance;
 
         // Коллекция R
-        double[] R_list;
+        double[] R_array;
 
         // Коллекция времени измерений R
-        double[] R_OADate_list;
+        double[] R_OADate_array;
 
         // Тангенс R
         float tg_R;
@@ -75,10 +75,10 @@ namespace MNS
         float Inductance;
 
         // Коллекция L
-        double[] L_list;
+        double[] L_array;
 
         // Коллекция времени измерений L
-        double[] L_OADate_list;
+        double[] L_OADate_array;
 
         // Тангенс L
         float tg_L;
@@ -87,10 +87,10 @@ namespace MNS
         float Capacity;
 
         // Коллекция C
-        double[] C_list;
+        double[] C_array;
 
         // Коллекция времени измерений C
-        double[] C_OADate_list;
+        double[] C_OADate_array;
 
         // Тангенс С
         float tg_C;
@@ -99,10 +99,10 @@ namespace MNS
         float MutualInductance;
 
         // Коллекция M
-        double[] M_list;
+        double[] M_array;
 
         // Коллекция времени измерений M
-        double[] M_OADate_list;
+        double[] M_OADate_array;
 
         // Тангенс M
         float tg_M;
@@ -110,11 +110,18 @@ namespace MNS
         // Флаг основного индицируемого канала
         int ChanalFlag;
 
-        // Порядковый номер ыизмерения
+        // Порядковый номер измерения
         int DataRowNumber;
 
         // Флаг - данные для сохранения существуют
         public bool DataToSaveExists;
+
+        // X,Y- ЗНАЧЕНИЯ ДЛЯ ГРАФИКА
+        double[] X_array;
+        double[] Y_array;
+
+        public delegate void GrafHandler();
+        public event GrafHandler GraphUpdate;
 
         public MainWindow()
         {
@@ -125,27 +132,31 @@ namespace MNS
             this.Closing += MainWindow_Closing; // При закрытии окна
             this.Closed += MainWindow_Closed; // Окно закрыто
             this.Unloaded += MainWindow_Unloaded; // Окно закрыто и освобождены все ресурсы
+            this.GraphUpdate += UpdateGraph;
+
+
 
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
             this.ConsoleText = new string[16];
             this.DataRowNumber = 0;
 
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ДЛЯ ГРАФИКА
-            //this.X_array = new double[1] { 0 }; // Переменная будет хранить начальное значение X=0 для постройки графика
-            //this.Y_array = new double[1] { 0 }; // Переменная будет хранить начальное значение Y=0 для постройки графика
-
-            //this.R_array = new double[] { };
-            //this.L_array = new double[] { };
-            //this.C_array = new double[] { };
-            //this.M_array = new double[] { };
-            //this.R_OADate_array = new double[] { };
-            //this.L_OADate_array = new double[] { };
-            //this.C_OADate_array = new double[] { };
-            //this.M_OADate_array = new double[] { };
+            this.X_array = new double[1] { 0 }; // Переменная будет хранить начальное значение X=0 для постройки графика
+            this.Y_array = new double[1] { 0 }; // Переменная будет хранить начальное значение Y=0 для постройки графика
+            /*
+            this.R_array = new double[1] { 0 };
+            this.L_array = new double[] { };
+            this.C_array = new double[] { };
+            this.M_array = new double[] { };
+            this.R_OADate_array = new double[1] { DateTime.Now.ToOADate() };
+            this.L_OADate_array = new double[] { };
+            this.C_OADate_array = new double[] { };
+            this.M_OADate_array = new double[] { };
+            */
 
             // СОЗДАЕМ ДИАГРАММУ РАССЕЯНИЯ
-            //plot_R.plt.PlotScatter(Y_array, X_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
-            //plot_R.plt.Title("Диаграмма рассеяния");
+            plot_R.plt.PlotScatter(Y_array, X_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
+            plot_R.plt.Title("Диаграмма рассеяния");
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -418,6 +429,7 @@ namespace MNS
 
             DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения
 
+            // ВСЕ 4 КАНАЛА ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
             // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
             DataManager.SaveDataRow(CreateDataRow());
 
@@ -426,13 +438,13 @@ namespace MNS
             {
                 DataToSaveExists = true;
             }
-
-            // ВСЕ 4 КАНАЛА ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
+            
             // Добавляем значение R, L, C или M, а также соответствующее время измерения в коллекции 
-            AddResultsToCollection();
+            AddResultsToCollections();
 
             // ОТОБРАЖАЕМ НА ГРАФИКЕ
-            DisplayGraphAcync();
+            //DisplayGraphAcync();
+            //DisplayGraph();
         }
 
         private void Get_L(byte[] buffer)
@@ -904,11 +916,25 @@ namespace MNS
         }
 
 
-        private void AddResultsToCollection()
+        private void AddResultsToCollections()
         {
             switch (ChanalFlag)
             {
                 case 0:
+                    List<double> tempValueList = new List<double>();
+                    tempValueList.Add(this.Resistance);
+                    this.R_array = tempValueList.ToArray();
+                    //tempValueList = null;
+                    this.Y_array = R_array;
+
+                    List<double> tempTimeList = new List<double>();
+                    tempTimeList.Add(DateTime.Now.ToOADate());
+                    this.R_OADate_array = tempTimeList.ToArray();
+                    //tempTimeList = null;
+                    this.X_array = R_OADate_array;
+
+                    GraphUpdate?.Invoke();
+
                     break;
                 case 1:
                     break;
@@ -932,8 +958,7 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-                    plot_R.plt.PlotScatter(R_OADate_list.ToArray(), R_list.ToArray(), System.Drawing.Color.Black, lineWidth: 3, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
-                    plot_R.plt.Title("R = f(time)");
+                    
                     CheckAccessAndDisplayGraph(plot_R);
                     break;
                 case 1:
@@ -958,14 +983,12 @@ namespace MNS
             // Поток имеет доступ к потоку UI
             if (plot_R.CheckAccess())
             {
-                plot_R.plt.Ticks(dateTimeX: true);
-
+                //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
+                plot_R.plt.Title("R = f(time)");
                 plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
                 plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
+                plot_R.plt.Ticks(dateTimeX: true);
                 plot_R.plt.AxisAuto();
-                plot_R.plt.SaveFig("SaveFig.png");
-                plot_R.plt.Legend(enableLegend: false);
-                //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
                 plot_R.Render();
             }
             //Поток не имеет доступ к потоку UI 
@@ -973,15 +996,13 @@ namespace MNS
             {
                 plot_R.Dispatcher.InvokeAsync(() =>
                 {
-
-                    plot_R.plt.Ticks(dateTimeX: true);
+                    //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
                     plot_R.plt.Title("R = f(time)");
                     plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
                     plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
+                    plot_R.plt.Ticks(dateTimeX: true);
                     plot_R.plt.AxisAuto();
-                    plot_R.plt.SaveFig("SaveFig.png");
                     plot_R.plt.Legend(enableLegend: false);
-                    //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg: System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
                     plot_R.Render();
                 });
             }
@@ -1002,6 +1023,11 @@ namespace MNS
             {
                 textBlock.Dispatcher.InvokeAsync(() => textBlock.Text = displayedString);
             }
+        }
+
+        private void UpdateGraph()
+        {
+            CheckAccessAndDisplayGraph(plot_R);
         }
     }
 }
