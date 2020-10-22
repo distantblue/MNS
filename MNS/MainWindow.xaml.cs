@@ -60,10 +60,10 @@ namespace MNS
         float Resistance;
 
         // Коллекция R
-        List<double> R_list;
+        double[] R_list;
 
         // Коллекция времени измерений R
-        List<double> R_OADate_list;
+        double[] R_OADate_list;
 
         // Тангенс R
         float tg_R;
@@ -75,10 +75,10 @@ namespace MNS
         float Inductance;
 
         // Коллекция L
-        List<double> L_list;
+        double[] L_list;
 
         // Коллекция времени измерений L
-        List<double> L_OADate_list;
+        double[] L_OADate_list;
 
         // Тангенс L
         float tg_L;
@@ -87,10 +87,10 @@ namespace MNS
         float Capacity;
 
         // Коллекция C
-        List<double> C_list;
+        double[] C_list;
 
         // Коллекция времени измерений C
-        List<double> C_OADate_list;
+        double[] C_OADate_list;
 
         // Тангенс С
         float tg_C;
@@ -99,10 +99,10 @@ namespace MNS
         float MutualInductance;
 
         // Коллекция M
-        List<double> M_list;
+        double[] M_list;
 
         // Коллекция времени измерений M
-        List<double> M_OADate_list;
+        double[] M_OADate_list;
 
         // Тангенс M
         float tg_M;
@@ -129,17 +129,23 @@ namespace MNS
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
             this.ConsoleText = new string[16];
             this.DataRowNumber = 0;
-            this.R_list = new List<double>();
-            this.L_list = new List<double>();
-            this.C_list = new List<double>();
-            this.M_list = new List<double>();
-            this.R_OADate_list = new List<double>();
-            this.L_OADate_list = new List<double>();
-            this.C_OADate_list = new List<double>();
-            this.M_OADate_list = new List<double>();
 
-            //plot_R.plt.PlotScatter(R_OADate_list.ToArray(), R_list.ToArray(), System.Drawing.Color.Blue, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid, label: "Resistance");
-            plot_R.plt.Title("R = f(time)");
+            // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ДЛЯ ГРАФИКА
+            //this.X_array = new double[1] { 0 }; // Переменная будет хранить начальное значение X=0 для постройки графика
+            //this.Y_array = new double[1] { 0 }; // Переменная будет хранить начальное значение Y=0 для постройки графика
+
+            //this.R_array = new double[] { };
+            //this.L_array = new double[] { };
+            //this.C_array = new double[] { };
+            //this.M_array = new double[] { };
+            //this.R_OADate_array = new double[] { };
+            //this.L_OADate_array = new double[] { };
+            //this.C_OADate_array = new double[] { };
+            //this.M_OADate_array = new double[] { };
+
+            // СОЗДАЕМ ДИАГРАММУ РАССЕЯНИЯ
+            //plot_R.plt.PlotScatter(Y_array, X_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
+            //plot_R.plt.Title("Диаграмма рассеяния");
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -421,7 +427,8 @@ namespace MNS
                 DataToSaveExists = true;
             }
 
-            // Добавляем значение R или L или C а также соответствующее время измерения в коллекции 
+            // ВСЕ 4 КАНАЛА ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
+            // Добавляем значение R, L, C или M, а также соответствующее время измерения в коллекции 
             AddResultsToCollection();
 
             // ОТОБРАЖАЕМ НА ГРАФИКЕ
@@ -902,20 +909,12 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-                    R_list.Add(Resistance);
-                    R_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 case 1:
-                    L_list.Add(Inductance);
-                    L_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 case 2:
-                    C_list.Add(Capacity);
-                    C_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 case 3:
-                    M_list.Add(MutualInductance);
-                    M_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 default:
                     break;
@@ -934,26 +933,17 @@ namespace MNS
             {
                 case 0:
                     plot_R.plt.PlotScatter(R_OADate_list.ToArray(), R_list.ToArray(), System.Drawing.Color.Black, lineWidth: 3, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
-                    //plot_R.plt.Title("R = f(time)" );
+                    plot_R.plt.Title("R = f(time)");
                     CheckAccessAndDisplayGraph(plot_R);
                     break;
                 case 1:
-                    //plot_L.plt.PlotScatter(L_OADate_list.ToArray(), L_list.ToArray());
-                    //plot_L.plt.plt.Ticks(dateTimeX: true);
-                    //plot_L.plt.Title("График изменения величины во времени L = f(time)");
-                    //plot_L.Render();
+                    //
                     break;
                 case 2:
-                    //plot_C.plt.PlotScatter(C_OADate_list.ToArray(), C_list.ToArray());
-                    //plot_C.plt.Ticks(dateTimeX: true);
-                    //plot_C.plt.Title("График изменения величины во времени C = f(time)");
-                    //plot_C.Render();
+                    //
                     break;
                 case 3:
-                    //plot_M.plt.PlotScatter(M_OADate_list.ToArray(), M_list.ToArray());
-                    //plot_M.plt.Ticks(dateTimeX: true);
-                    //plot_M.plt.Title("График изменения величины во времени M = f(time)");
-                    //plot_M.Render();
+                    //
                     break;
                 default:
                     break;
