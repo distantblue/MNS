@@ -120,8 +120,8 @@ namespace MNS
         double[] X_array;
         double[] Y_array;
 
-        public delegate void GrafHandler();
-        public event GrafHandler GraphUpdate;
+        //public delegate void GrafHandler();
+        //public event GrafHandler GraphUpdate;
 
         public MainWindow()
         {
@@ -132,7 +132,7 @@ namespace MNS
             this.Closing += MainWindow_Closing; // При закрытии окна
             this.Closed += MainWindow_Closed; // Окно закрыто
             this.Unloaded += MainWindow_Unloaded; // Окно закрыто и освобождены все ресурсы
-            this.GraphUpdate += UpdateGraph;
+            //this.GraphUpdate += UpdateGraph;
 
 
 
@@ -140,9 +140,7 @@ namespace MNS
             this.ConsoleText = new string[16];
             this.DataRowNumber = 0;
 
-            // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ДЛЯ ГРАФИКА
-            this.X_array = new double[1] { 0 }; // Переменная будет хранить начальное значение X=0 для постройки графика
-            this.Y_array = new double[1] { 0 }; // Переменная будет хранить начальное значение Y=0 для постройки графика
+
             /*
             this.R_array = new double[1] { 0 };
             this.L_array = new double[] { };
@@ -153,10 +151,7 @@ namespace MNS
             this.C_OADate_array = new double[] { };
             this.M_OADate_array = new double[] { };
             */
-
-            // СОЗДАЕМ ДИАГРАММУ РАССЕЯНИЯ
-            plot_R.plt.PlotScatter(Y_array, X_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
-            plot_R.plt.Title("Диаграмма рассеяния");
+            
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -438,13 +433,13 @@ namespace MNS
             {
                 DataToSaveExists = true;
             }
-            
+
             // Добавляем значение R, L, C или M, а также соответствующее время измерения в коллекции 
             AddResultsToCollections();
 
             // ОТОБРАЖАЕМ НА ГРАФИКЕ
             //DisplayGraphAcync();
-            //DisplayGraph();
+            DisplayGraph();
         }
 
         private void Get_L(byte[] buffer)
@@ -810,6 +805,15 @@ namespace MNS
 
                 // Создаем функцию обратного вызова по таймеру
                 Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
+
+                // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ДЛЯ ГРАФИКА
+                this.X_array = new double[1] { 0 }; // Переменная будет хранить начальное значение X=0 для постройки графика
+                this.Y_array = new double[1] { 0 }; // Переменная будет хранить начальное значение Y=0 для постройки графика
+                
+                // СОЗДАЕМ ДИАГРАММУ РАССЕЯНИЯ
+                plot_R.plt.PlotScatter(Y_array, X_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
+                plot_R.plt.Title("Диаграмма рассеяния");
+                //plot_R.Render();
             }
         }
 
@@ -842,6 +846,9 @@ namespace MNS
                 Modbus = null; // Ссылка в null
 
                 DisplayInactiveMesResults();
+
+                // ОЧИЩАЕМ ДИАГРАММУ РАССЕЯНИЯ
+                plot_R.plt.Clear();
             }
         }
 
@@ -933,7 +940,7 @@ namespace MNS
                     //tempTimeList = null;
                     this.X_array = R_OADate_array;
 
-                    GraphUpdate?.Invoke();
+                    //GraphUpdate?.Invoke();
 
                     break;
                 case 1:
@@ -1024,10 +1031,10 @@ namespace MNS
                 textBlock.Dispatcher.InvokeAsync(() => textBlock.Text = displayedString);
             }
         }
-
+        /*
         private void UpdateGraph()
         {
             CheckAccessAndDisplayGraph(plot_R);
-        }
+        }*/
     }
 }
