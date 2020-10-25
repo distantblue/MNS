@@ -100,6 +100,9 @@
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TechnicalAssistanceWindow.xaml.cs">
+      <DependentUpon>TechnicalAssistanceWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="VisualEffects.cs" />
     <Page Include="AboutAppWindow.xaml">
       <SubType>Designer</SubType>
@@ -122,6 +125,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TechnicalAssistanceWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -178,6 +185,15 @@
   <ItemGroup>
     <Resource Include="Icon_bad_data.png" />
     <Resource Include="Icon_good_data.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon_user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon_fb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon_email.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

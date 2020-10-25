@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Информация о сборке" Width="640" Height="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
     <Grid>
-        <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
+        <Border BorderBrush="Black" BorderThickness="2" Margin="8" CornerRadius="12">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="8">
 
                 <StackPanel Orientation="Horizontal">
