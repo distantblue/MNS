@@ -18,13 +18,17 @@
                     </Border>
                 </StackPanel>
                 <StackPanel VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                         <Image Source="Icon_email.png" Width="48" Margin="4"/>
-                        <Label x:Name="email_label" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold">
+                            metrology@protonmail.com
+                        </TextBlock>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                         <Image Source="Icon_fb.png" Width="56"/>
-                        <Label x:Name="facebook_label" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold">
+                            <Hyperlink NavigateUri="https://facebook.com/stennikoleksii" RequestNavigate="Hyperlink_RequestNavigate">http://facebook.com/stennikoleksii</Hyperlink>
+                        </TextBlock>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
