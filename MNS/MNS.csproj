@@ -187,13 +187,13 @@
     <Resource Include="Icon_good_data.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icon_user.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Icon_fb.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icon_email.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon_developer.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

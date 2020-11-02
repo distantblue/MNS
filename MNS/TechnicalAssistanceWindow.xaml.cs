@@ -30,11 +30,13 @@ namespace MNS
 
         private void TechnicalAssistanceWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            /*
             BitmapImage facebookPicture = new BitmapImage();
             facebookPicture.BeginInit();
-            facebookPicture.UriSource = new Uri("https://m.facebook.com/photo.php?fbid=272945110594059&id=100036357166804&set=a.107164550505450&source=11&refid=17");
+            facebookPicture.UriSource = new Uri("https://scontent.fplv1-2.fna.fbcdn.net/v/t1.0-9/107378585_272945113927392_7722781237965778963_o.jpg?_nc_cat=108&ccb=2&_nc_sid=09cbfe&_nc_ohc=oGhvZte8Q_4AX9s0v0k&_nc_ht=scontent.fplv1-2.fna&oh=cc5fee0048bca2aa32cb7e3b5b5df5d7&oe=5FC64134");
             facebookPicture.EndInit(); 
             facebookPicture_image.Source = facebookPicture;
+            */
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

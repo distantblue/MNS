@@ -5,28 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-       Title="Техподдержка" Width="640" Height="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="WhiteSmoke">
+       Title="Техподдержка" Width="640" Height="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="White">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="2" Margin="8" CornerRadius="12">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="8">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left"  >
                 <StackPanel Orientation="Horizontal">
-                    <Border BorderBrush="White" BorderThickness="4" CornerRadius="80" Margin="24,0,32,0">
+                    <Border VerticalAlignment="Center">
                         <Grid>
-                            <Image Source="Icon_user.png" Width="120" />
-                            <Image x:Name="facebookPicture_image" Width="120" />
+                            <Image Source="Icon_developer.jpg" Width="250" />
                         </Grid>
                     </Border>
                 </StackPanel>
                 <StackPanel VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                         <Image Source="Icon_email.png" Width="48" Margin="4"/>
-                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold">
+                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="16">
                             metrology@protonmail.com
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                         <Image Source="Icon_fb.png" Width="56"/>
-                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold">
+                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="16">
                             <Hyperlink NavigateUri="https://facebook.com/stennikoleksii" RequestNavigate="Hyperlink_RequestNavigate">http://facebook.com/stennikoleksii</Hyperlink>
                         </TextBlock>
                     </StackPanel>
