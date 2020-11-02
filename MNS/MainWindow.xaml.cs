@@ -941,13 +941,14 @@ namespace MNS
                         if (R_ScatterIsBuilt == false)
                         {
                             // СОЗДАЕМ ДИАГРАММУ РАССЕЯНИЯ
-                            plot_R.plt.PlotScatter(R_array, R_OADate_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
-                            plot_R.plt.Title("Диаграмма рассеяния");
-                            plot_R.plt.Title("R = f(time)");
-                            plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
-                            plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
-                            plot_R.plt.Ticks(dateTimeX: true);
-                            plot_R.plt.AxisAuto();
+                            var plot_R = new ScottPlot.Plot();
+
+                            plot_R.PlotSignalXY(R_array, R_OADate_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
+                            plot_R.Title("Диаграмма рассеяния");
+                            plot_R.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
+                            plot_R.XLabel("Время", fontSize: 18, bold: true);
+                            //plot_R.Ticks(dateTimeX: true);
+                            plot_R.AxisAuto();
 
 
                             R_ScatterIsBuilt = true;
@@ -960,29 +961,6 @@ namespace MNS
                     {
                         Stop_measurement();
                     }
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void BuildAndUpdateScatter()
-        {
-            switch (ChanalFlag)
-            {
-                case 0:
-                    // 
-                    if (R_ScatterIsBuilt)
-                    {
-
-                    }
-
                     break;
                 case 1:
                     break;
