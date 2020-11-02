@@ -18,8 +18,8 @@
                 </StackPanel>
                 <StackPanel VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <Image Source="Icon_email.png" Width="48" Margin="4"/>
-                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="16">
+                        <Image Source="Icon_email.png" Width="41" Margin="8"/>
+                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="16" >
                             metrology@protonmail.com
                         </TextBlock>
                     </StackPanel>
