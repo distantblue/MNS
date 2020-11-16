@@ -5,27 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-        Title="МНС 1100 - Измерительная система для ПК. Версия v1.0" MinWidth="1280" MinHeight="800"  Width="1280" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
+        Title="МНС 1100 - Измерительная система для ПК. Версия v1.0" MinWidth="1360" MinHeight="800"  Width="1360" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
     <Grid ShowGridLines="False" Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="53"/>
             <RowDefinition Height="120"/>
-            <RowDefinition Height="120"/>
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="240"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="90"/>
             <RowDefinition Height="100"/>
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="240"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="490"/>
-            <ColumnDefinition Width="0.6*"/>
-            <ColumnDefinition Width="0.6*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="440"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="440"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="440"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.ColumnSpan="3" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
+        <Border Grid.Row="0" Grid.ColumnSpan="7" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
             <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" FontSize="16" FontWeight="Bold" FontFamily="Arial">
                 <MenuItem Header="УПРАВЛЕНИЕ">
                     <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click" />
@@ -45,77 +46,84 @@
             </Menu>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="0" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+        <Border Grid.Row="1" Grid.Column="1" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
             <StackPanel Orientation="Horizontal">
                 <TextBlock VerticalAlignment="Center" Text="X:" Margin="16,0,0,0" TextWrapping="Wrap" Width="110" x:Name="ValueSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
                 <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="Value_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="0" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+        <Border Grid.Row="1" Grid.Column="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
             <StackPanel Orientation="Horizontal">
                 <TextBlock VerticalAlignment="Center" Text="tg:" Margin="16,0,0,0" TextWrapping="Wrap" Width="110" x:Name="tgSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
                 <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="tg_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="3" Grid.Column="0" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+        <Border Grid.Row="1" Grid.Column="5" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
             <StackPanel Orientation="Horizontal">
                 <TextBlock VerticalAlignment="Center" Text="F:" Margin="16,0,0,0" TextWrapping="Wrap" Width="110" x:Name="FSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
                 <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="F_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="6" Grid.Column="1"  Grid.RowSpan="4" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
+        <Border Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="3" Grid.RowSpan="4" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="6" Grid.Column="2"  Grid.RowSpan="4" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 
                 <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
-                    <TextBlock VerticalAlignment="Center"  Text="Номер поддиапазона изм.:" TextWrapping="Wrap" Width="250" x:Name="rangeIntervalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Номер поддиапазона измерения:" TextWrapping="Wrap" Width="320" x:Name="rangeIntervalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="rangeIntervalNumber_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
-                    
                 </StackPanel>
-                
-                <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
-                    <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="rangeInterval_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
+
+                <StackPanel Orientation="Horizontal" Margin="32,0,0,2">
+                    <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="350" x:Name="rangeInterval_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
-                
-                <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
-                    <TextBlock VerticalAlignment="Center"  Text="Экв. схема замещения:" TextWrapping="Wrap" Width="250" x:Name="EquivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+
+                <StackPanel Orientation="Horizontal" Margin="32,0,0,2">
+                    <TextBlock VerticalAlignment="Center"  Text="Эквивалентная схема замещения:" TextWrapping="Wrap" Width="320" x:Name="EquivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="EquivalentCircuit_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
-                    <TextBlock VerticalAlignment="Center"  Text="Фикс. интервал диапазона:" TextWrapping="Wrap" Width="250" x:Name="fixedMeasIntervalValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Фиксированный интервал диапазона:" TextWrapping="Wrap" Width="320" x:Name="fixedMeasIntervalValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="fixedMeasIntervalValue_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
-                    <TextBlock VerticalAlignment="Center"  Text="Интегрирование:" TextWrapping="Wrap" Width="250" x:Name="integrationValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Интегрирование:" TextWrapping="Wrap" Width="320" x:Name="integrationValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="55" x:Name="integrationValue_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
-                    <TextBlock VerticalAlignment="Center"  Text="Усреднение измерений:" TextWrapping="Wrap" Width="250" x:Name="averagingValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Усреднение измерений:" TextWrapping="Wrap" Width="320" x:Name="averagingValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="55" x:Name="averagingValue_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,16" >
-                    <TextBlock VerticalAlignment="Center"  Text="Номер канала измерения:" TextWrapping="Wrap" Width="250" x:Name="chanalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Номер канала измерения:" TextWrapping="Wrap" Width="320" x:Name="chanalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="55" x:Name="chanalNumber_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="4" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
-            <WpfPlot Name="value_plot" Margin="16"/>
-        </Border>
-
-        <Border Grid.Row="5" Grid.Column="2" Grid.RowSpan="5" Grid.ColumnSpan="1" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
+        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
             <WpfPlot Name="probability_plot" Margin="16"/>
         </Border>
 
-        <Border Grid.Row="6" Grid.Column="0" Grid.RowSpan="4" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
-            <TextBlock  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Width="440" Height="265" x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
+        <Border Grid.Row="2" Grid.Column="2" Grid.RowSpan="4" Grid.ColumnSpan="5" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
+            <WpfPlot Name="value_plot" Margin="16"/>
+        </Border>
+
+        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Width="400" Height="200" Margin="16,0,0,0"  x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
+            </StackPanel>
         </Border>
 
     </Grid>

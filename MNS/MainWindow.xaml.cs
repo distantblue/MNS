@@ -150,7 +150,7 @@ namespace MNS
                                                   //this.GraphUpdate += UpdateGraph;
 
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
-            this.ConsoleText = new string[16];
+            this.ConsoleText = new string[12];
             this.DataRowNumber = 0;
             this.Index_R = 0;
             this.R_ScatterIsBuilt = false;
