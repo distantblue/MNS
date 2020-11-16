@@ -41,6 +41,15 @@ namespace MNS
         // СТАТУС ПРИБОРА
         ushort SlaveState;
 
+        // РЕГИСТР ДИАПАЗОНА ИЗМЕРЕНИЯ
+        ushort RangeIntervalRegister;
+
+        // НОМЕР ИНТЕРВАЛА ИЗМЕРЕНИЯ (ПОДДИАПАЗОНА)
+        int RangeIntervalNumber;
+
+        // ИНТЕРВАЛ ДИАПАЗОНА (ОТ...ДО)
+        string RangeInterval;
+
         // СХЕМА ЗАМЕЩЕНИЯ
         string EquivalentCircuit;
 
@@ -437,12 +446,112 @@ namespace MNS
                 DataToSaveExists = true;
             }
 
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.IdentifyRangeInterval;
+
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 201, 1, 2); // Команда (0x03) на чтение 201-го регистра статуса, считываем 1 регистр 16 бит
+        }
+
+        private void IdentifyRangeInterval(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.IdentifyRangeInterval;
+
+            // ПОЛУЧАЕМ 16 БИТРОЕ ЗНАЧЕНИЕ ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
+            this.RangeIntervalRegister = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
+            ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0xF); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4ех последних битов 
+
+            // УЗНАЕМ НОМЕР ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
+            switch (rangeIntervalValue)
+            {
+                case 0:
+                    this.RangeIntervalNumber = 1;
+                    if (ChanalFlag == 0) RangeInterval = "от 10^-5 до 1 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 10^-10 до 16*10^-5 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-5 до 10 Ф";
+
+                    break;
+                case 1:
+                    this.RangeIntervalNumber = 2;
+                    if (ChanalFlag == 0) RangeInterval = "от 1 до 10 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-5 до 16*10^-4 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-5 до 16*10^-4 Ф";
+                    break;
+                case 2:
+                    this.RangeIntervalNumber = 3;
+                    if (ChanalFlag == 0) RangeInterval = "от 10 до 100 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-4 до 16*10^-3 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-9 до 16*10^-4 Ф";
+                    break;
+                case 3:
+                    this.RangeIntervalNumber = 4;
+                    if (ChanalFlag == 0) RangeInterval = "от 100 до 1000 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-3 до 16*10^-2 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-9 до 16*10^-8 Ф";
+                    break;
+                case 4:
+                    this.RangeIntervalNumber = 5;
+                    if (ChanalFlag == 0) RangeInterval = "от 1000 до 10^4 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-2 до 1,6 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-8 до 16*10^-7 Ф";
+                    break;
+                case 5:
+                    this.RangeIntervalNumber = 6;
+                    if (ChanalFlag == 0) RangeInterval = "от 10^4 до 10^5 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 1,6 до 16 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-12 до 16*10^-7 Ф";
+                    break;
+                case 6:
+                    this.RangeIntervalNumber = 7;
+                    if (ChanalFlag == 0) RangeInterval = "от 10^5 до 10^6 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16 до 160 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-12 до 16*10^-11 Ф";
+
+                    break;
+                case 7:
+                    this.RangeIntervalNumber = 8;
+                    if (ChanalFlag == 0) RangeInterval = "от 10^6 до 10^7 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 160 до 16*10^2 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-11 до 16*10^-10 Ф";
+                    break;
+                case 8:
+                    this.RangeIntervalNumber = 9;
+                    if (ChanalFlag == 0) RangeInterval = "от 10^7 до 10^8 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16*10^2 до 16*10^3 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-15 до 16*10^-10 Ф";
+                    break;
+                case 9:
+                    this.RangeIntervalNumber = 10;
+                    if (ChanalFlag == 0) RangeInterval = "от 10^8 до 10^11 Ом";
+                    if (ChanalFlag == 1) RangeInterval = "от 16*10^3 до 1*10^8 Гн";
+                    if (ChanalFlag == 2) RangeInterval = "от 1*10^-16 до 16*10^-15 Ф";
+                    break;
+            }
+            // Отображаем результат
+            DisplayRangeInterval();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.IdentifyStatus;
+
+            // Отправляем запрос на чтение регистра F
+            //Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1, 2);
+
+            // ========================= Опрос всех каналов окончен
+            
+            
+
+            // Отображаем результат
+            //CheckAccessAndDisplayOnTextBlock(EquivalentCircuit_textBlock, EquivalentCircuit);
+
+            //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             // Добавляем значение R, L, C или M, а также соответствующее время измерения в коллекции 
-            AddResultsToCollections();
+            //AddResultsToCollections();
 
             // ОТОБРАЖАЕМ НА ГРАФИКЕ
             //DisplayGraphAcync();
-            DisplayGraph();
+
+            //DisplayGraph();
+            //==========================================================================================================================
         }
 
         private void Get_L(byte[] buffer)
@@ -564,6 +673,7 @@ namespace MNS
                 Modbus.ResponseReceived -= this.Get_C;
                 Modbus.ResponseReceived -= this.Get_M;
                 Modbus.ResponseReceived -= this.Get_F;
+                Modbus.ResponseReceived -= this.IdentifyRangeInterval;
                 Modbus.ResponseReceived -= this.Get_tgR;
                 Modbus.ResponseReceived -= this.Get_tgL;
                 Modbus.ResponseReceived -= this.Get_tgC;
@@ -636,6 +746,7 @@ namespace MNS
             Modbus.ResponseReceived -= this.Get_C;
             Modbus.ResponseReceived -= this.Get_M;
             Modbus.ResponseReceived -= this.Get_F;
+            Modbus.ResponseReceived -= this.IdentifyRangeInterval;
             Modbus.ResponseReceived -= this.Get_tgR;
             Modbus.ResponseReceived -= this.Get_tgL;
             Modbus.ResponseReceived -= this.Get_tgC;
@@ -730,6 +841,13 @@ namespace MNS
         {
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
             CheckAccessAndDisplayOnTextBlock(chanalNumber_textBlock, ChanalNumber.ToString());
+        }
+
+        private void DisplayRangeInterval()
+        {
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+            CheckAccessAndDisplayOnTextBlock(rangeIntervalNumber_textBlock, RangeIntervalNumber.ToString());
+            CheckAccessAndDisplayOnTextBlock(rangeInterval_textBlock, this.RangeInterval);
         }
 
         private string CreateDataRow()
@@ -827,6 +945,7 @@ namespace MNS
                 Modbus.ResponseReceived -= this.Get_C;
                 Modbus.ResponseReceived -= this.Get_M;
                 Modbus.ResponseReceived -= this.Get_F;
+                Modbus.ResponseReceived -= this.IdentifyRangeInterval;
                 Modbus.ResponseReceived -= this.Get_tgR;
                 Modbus.ResponseReceived -= this.Get_tgL;
                 Modbus.ResponseReceived -= this.Get_tgC;

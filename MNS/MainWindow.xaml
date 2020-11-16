@@ -69,7 +69,17 @@
         <Border Grid.Row="6" Grid.Column="1"  Grid.RowSpan="4" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 
-                <StackPanel Orientation="Horizontal" Margin="32,16,0,2" >
+                <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
+                    <TextBlock VerticalAlignment="Center"  Text="Номер поддиапазона изм.:" TextWrapping="Wrap" Width="250" x:Name="rangeIntervalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="rangeIntervalNumber_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
+                    
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
+                    <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="rangeInterval_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
                     <TextBlock VerticalAlignment="Center"  Text="Экв. схема замещения:" TextWrapping="Wrap" Width="250" x:Name="EquivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="EquivalentCircuit_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
