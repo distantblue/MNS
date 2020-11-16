@@ -257,7 +257,7 @@ namespace MNS
                     break;
             }
             // Отображаем результат
-            CheckAccessAndDisplayOnTextBlock(EquivalentCircuit_textBlock, EquivalentCircuit);
+            CheckAccessAndDisplayOnTextBlock(equivalentCircuit_textBlock, EquivalentCircuit);
 
             // УЗНАЕМ НАЛИЧИЕ ИНТЕГРИРОВАНИЯ
             ushort integrationValue = (ushort)(SlaveState & 0x10); // Накладываем битовую маску 00000000 00010000 чтобы получить значение 5го бита 
@@ -433,22 +433,11 @@ namespace MNS
 
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ F
             Display_F();
-
-            DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения программы
-
-            // ВСЕ 4 КАНАЛА ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
-            // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
-            DataManager.SaveDataRow(CreateDataRow());
-
-            // Указываем что данные появились
-            if (DataToSaveExists == false)
-            {
-                DataToSaveExists = true;
-            }
-
+            
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyRangeInterval;
 
+            // Отправляем запрос на чтение регистра пределов измерения
             Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 201, 1, 2); // Команда (0x03) на чтение 201-го регистра статуса, считываем 1 регистр 16 бит
         }
 
@@ -461,7 +450,7 @@ namespace MNS
             this.RangeIntervalRegister = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
             ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0xF); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4ех последних битов 
 
-            // УЗНАЕМ НОМЕР ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
+            // УЗНАЕМ НОМЕР ПОДДИАПАЗОНА ИЗМЕРЕНИЯ И ИНТЕРВАЛ
             switch (rangeIntervalValue)
             {
                 case 0:
@@ -527,22 +516,22 @@ namespace MNS
                     if (ChanalFlag == 2) RangeInterval = "от 1*10^-16 до 16*10^-15 Ф";
                     break;
             }
-            // Отображаем результат
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ ПРЕДЕЛОВ ИЗМЕРЕНИЙ
             DisplayRangeInterval();
 
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.IdentifyStatus;
+            DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения программы
 
-            // Отправляем запрос на чтение регистра F
-            //Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1, 2);
+            // ВСЕ 5 КАНАЛОВ ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
+            // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
+            DataManager.SaveDataRow(CreateDataRow());
 
-            // ========================= Опрос всех каналов окончен
-            
-            
-
-            // Отображаем результат
-            //CheckAccessAndDisplayOnTextBlock(EquivalentCircuit_textBlock, EquivalentCircuit);
-
+            // Указываем что данные появились
+            if (DataToSaveExists == false)
+            {
+                DataToSaveExists = true;
+            }
+                  
             //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             // Добавляем значение R, L, C или M, а также соответствующее время измерения в коллекции 
             //AddResultsToCollections();
@@ -767,7 +756,8 @@ namespace MNS
             FSymbol_textBlock.Text = "F:";
             F_textBlock.Text = "---";
 
-            EquivalentCircuit_textBlock.Text = "---";
+            rangeIntervalNumber_textBlock.Text = "---";
+            equivalentCircuit_textBlock.Text = "---";
             fixedMeasIntervalValue_textBlock.Text = "---";
             integrationValue_textBlock.Text = "---";
             averagingValue_textBlock.Text = "---";
@@ -846,7 +836,7 @@ namespace MNS
         private void DisplayRangeInterval()
         {
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
-            CheckAccessAndDisplayOnTextBlock(rangeIntervalNumber_textBlock, RangeIntervalNumber.ToString());
+            CheckAccessAndDisplayOnTextBlock(rangeIntervalNumber_textBlock, this.RangeIntervalNumber.ToString());
             CheckAccessAndDisplayOnTextBlock(rangeInterval_textBlock, this.RangeInterval);
         }
 

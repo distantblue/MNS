@@ -67,7 +67,7 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="3" Grid.RowSpan="4" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+        <Border Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="3" Grid.RowSpan="4" BorderThickness="2" BorderBrush="Transparent" Margin="8" CornerRadius="16" Background="Transparent">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 
             </StackPanel>
@@ -86,8 +86,8 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,0,0,2">
-                    <TextBlock VerticalAlignment="Center"  Text="Эквивалентная схема замещения:" TextWrapping="Wrap" Width="320" x:Name="EquivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
-                    <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="EquivalentCircuit_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock VerticalAlignment="Center"  Text="Эквивалентная схема замещения:" TextWrapping="Wrap" Width="320" x:Name="equivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="equivalentCircuit_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
@@ -112,17 +112,17 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
+        <Border Grid.Row="2" Grid.Column="4" Grid.RowSpan="4" Grid.ColumnSpan="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
             <WpfPlot Name="probability_plot" Margin="16"/>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="2" Grid.RowSpan="4" Grid.ColumnSpan="5" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
+        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="4" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
             <WpfPlot Name="value_plot" Margin="16"/>
         </Border>
 
         <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Width="400" Height="200" Margin="16,0,0,0"  x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Width="380" Height="200" Margin="24,0,5,0"  x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
             </StackPanel>
         </Border>
 
