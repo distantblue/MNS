@@ -241,10 +241,10 @@ namespace MNS
             switch (equivalentCircuit)
             {
                 case 8:
-                    this.EquivalentCircuit = "S";
+                    this.EquivalentCircuit = "Посл.";
                     break;
                 case 0:
-                    this.EquivalentCircuit = "P";
+                    this.EquivalentCircuit = "Парал.";
                     break;
             }
             // Отображаем результат
@@ -588,7 +588,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    REQUEST      --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    ЗАПРОС    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -609,7 +609,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    RESPONSE    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    ОТВЕТ       --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -847,7 +847,7 @@ namespace MNS
                 DisplayInactiveMesResults();
 
                 // ОЧИЩАЕМ ДИАГРАММУ РАССЕЯНИЯ
-                plot_R.plt.Clear();
+                value_plot.plt.Clear();
             }
         }
 
@@ -985,7 +985,7 @@ namespace MNS
             {
                 case 0:
 
-                    CheckAccessAndDisplayGraph(plot_R);
+                    CheckAccessAndDisplayGraph(value_plot);
                     break;
                 case 1:
                     //
@@ -1003,11 +1003,11 @@ namespace MNS
 
         private void CheckAccessAndDisplayGraph(object wpfElement)
         {
-            plot_R = wpfElement as ScottPlot.WpfPlot;
+            value_plot = wpfElement as ScottPlot.WpfPlot;
 
             //Проверяем имеет ли вызывающий поток доступ к потоку UI
             // Поток имеет доступ к потоку UI
-            if (plot_R.CheckAccess())
+            if (value_plot.CheckAccess())
             {
                 //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
                 //plot_R.plt.Title("R = f(time)");
@@ -1015,21 +1015,21 @@ namespace MNS
                 //plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
                 //plot_R.plt.Ticks(dateTimeX: true);
                 //plot_R.plt.AxisAuto();
-                plot_R.Render();
+                value_plot.Render();
             }
             //Поток не имеет доступ к потоку UI 
             else
             {
-                plot_R.Dispatcher.InvokeAsync(() =>
+                value_plot.Dispatcher.InvokeAsync(() =>
                 {
                     //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
-                   // plot_R.plt.Title("R = f(time)");
-                   // plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
-                   // plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
+                    // plot_R.plt.Title("R = f(time)");
+                    // plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
+                    // plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
                     //plot_R.plt.Ticks(dateTimeX: true);
-                   // plot_R.plt.AxisAuto();
+                    // plot_R.plt.AxisAuto();
                     //plot_R.plt.Legend(enableLegend: false);
-                    plot_R.Render();
+                    value_plot.Render();
                 });
             }
         }
