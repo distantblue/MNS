@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -65,20 +66,17 @@ namespace MNS
         // НОМЕР КАНАЛА ИЗМЕРЕНИЯ
         ushort ChanalNumber;
 
+        // Порядковый номер измерения R (индекс массива)
+        //int Index_R;
+        
         // Сопротивление
         float Resistance;
 
         // Коллекция R
-        double[] R_array;
-
-        // Порядковый номер измерения R (индекс массива)
-        int Index_R;
-
-        // Построен ли график
-        bool R_ScatterIsBuilt;
+        List<double> R_array;
 
         // Коллекция времени измерений R
-        double[] R_OADate_array;
+        List<double> R_OADate_array;
 
         // Тангенс R
         float tg_R;
@@ -90,10 +88,10 @@ namespace MNS
         float Inductance;
 
         // Коллекция L
-        double[] L_array;
+        List<double> L_array;
 
         // Коллекция времени измерений L
-        double[] L_OADate_array;
+        List<double> L_OADate_array;
 
         // Тангенс L
         float tg_L;
@@ -102,10 +100,10 @@ namespace MNS
         float Capacity;
 
         // Коллекция C
-        double[] C_array;
+        List<double> C_array;
 
         // Коллекция времени измерений C
-        double[] C_OADate_array;
+        List<double> C_OADate_array;
 
         // Тангенс С
         float tg_C;
@@ -114,10 +112,10 @@ namespace MNS
         float MutualInductance;
 
         // Коллекция M
-        double[] M_array;
+        List<double> M_array;
 
         // Коллекция времени измерений M
-        double[] M_OADate_array;
+        List<double> M_OADate_array;
 
         // Тангенс M
         float tg_M;
@@ -131,13 +129,6 @@ namespace MNS
         // Флаг - данные для сохранения существуют
         public bool DataToSaveExists;
 
-        // X,Y- ЗНАЧЕНИЯ ДЛЯ ГРАФИКА
-        double[] X_array;
-        double[] Y_array;
-
-        //public delegate void GrafHandler();
-        //public event GrafHandler GraphUpdate;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -147,23 +138,22 @@ namespace MNS
             this.Closing += MainWindow_Closing; // При закрытии окна
             this.Closed += MainWindow_Closed; // Окно закрыто
             this.Unloaded += MainWindow_Unloaded; // Окно закрыто и освобождены все ресурсы
-                                                  //this.GraphUpdate += UpdateGraph;
 
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
             this.ConsoleText = new string[12];
-            this.DataRowNumber = 0;
-            this.Index_R = 0;
-            this.R_ScatterIsBuilt = false;
 
             // ИНИЦИАЛИЗИРУЕМ МАССИВЫ ДАННЫХ ДЛЯ ГРАФИКОВ
-            this.R_array = new double[172800];
-            this.L_array = new double[172800];
-            this.C_array = new double[172800];
-            this.M_array = new double[172800];
-            this.R_OADate_array = new double[172800];
-            this.L_OADate_array = new double[172800];
-            this.C_OADate_array = new double[172800];
-            this.M_OADate_array = new double[172800];
+            this.R_array = new List<double>();
+            this.L_array = new List<double>();
+            this.C_array = new List<double>();
+            this.M_array = new List<double>();
+            this.R_OADate_array = new List<double>();
+            this.L_OADate_array = new List<double>();
+            this.C_OADate_array = new List<double>();
+            this.M_OADate_array = new List<double>();
+
+            // ОТРИСОВЫВАЕМ ДИАГРАММЫ (ЧТО НЕ БУДЕТ МЕНЯТЬСЯ ПРИ РАБОТЕ ИЛИ БУДЕТ ИЗНАЧАЛЬНО)
+            StylePlots();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -234,6 +224,7 @@ namespace MNS
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyStatus;
 
+            // Отправляем запрос на чтение регистра статуса
             Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 200, 1, 2); // Команда (0x03) на чтение 200-го регистра статуса, считываем 1 регистр 16 бит
         }
 
@@ -250,10 +241,10 @@ namespace MNS
             switch (equivalentCircuit)
             {
                 case 8:
-                    this.EquivalentCircuit = "Посл.";
+                    this.EquivalentCircuit = "S";
                     break;
                 case 0:
-                    this.EquivalentCircuit = "Парал.";
+                    this.EquivalentCircuit = "P";
                     break;
             }
             // Отображаем результат
@@ -433,7 +424,7 @@ namespace MNS
 
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ F
             Display_F();
-            
+
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.IdentifyRangeInterval;
 
@@ -448,72 +439,71 @@ namespace MNS
 
             // ПОЛУЧАЕМ 16 БИТРОЕ ЗНАЧЕНИЕ ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
             this.RangeIntervalRegister = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
-            ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0xF); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4ех последних битов 
+            ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0xF); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4-ох последних битов 
 
             // УЗНАЕМ НОМЕР ПОДДИАПАЗОНА ИЗМЕРЕНИЯ И ИНТЕРВАЛ
             switch (rangeIntervalValue)
             {
                 case 0:
                     this.RangeIntervalNumber = 1;
-                    if (ChanalFlag == 0) RangeInterval = "от 10^-5 до 1 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 10^-10 до 16*10^-5 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-5 до 10 Ф";
-
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10^-5 до 1 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 10^-10 до 16*10^-5 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-5 до 10 Ф";
                     break;
                 case 1:
                     this.RangeIntervalNumber = 2;
-                    if (ChanalFlag == 0) RangeInterval = "от 1 до 10 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-5 до 16*10^-4 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-5 до 16*10^-4 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 1 до 10 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-5 до 16*10^-4 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-5 до 16*10^-4 Ф";
                     break;
                 case 2:
                     this.RangeIntervalNumber = 3;
-                    if (ChanalFlag == 0) RangeInterval = "от 10 до 100 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-4 до 16*10^-3 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-9 до 16*10^-4 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10 до 100 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-4 до 16*10^-3 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-9 до 16*10^-4 Ф";
                     break;
                 case 3:
                     this.RangeIntervalNumber = 4;
-                    if (ChanalFlag == 0) RangeInterval = "от 100 до 1000 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-3 до 16*10^-2 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-9 до 16*10^-8 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 100 до 1000 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-3 до 16*10^-2 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-9 до 16*10^-8 Ф";
                     break;
                 case 4:
                     this.RangeIntervalNumber = 5;
-                    if (ChanalFlag == 0) RangeInterval = "от 1000 до 10^4 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16*10^-2 до 1,6 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-8 до 16*10^-7 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 1000 до 10^4 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-2 до 1,6 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-8 до 16*10^-7 Ф";
                     break;
                 case 5:
                     this.RangeIntervalNumber = 6;
-                    if (ChanalFlag == 0) RangeInterval = "от 10^4 до 10^5 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 1,6 до 16 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-12 до 16*10^-7 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10^4 до 10^5 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 1,6 до 16 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-12 до 16*10^-7 Ф";
                     break;
                 case 6:
                     this.RangeIntervalNumber = 7;
-                    if (ChanalFlag == 0) RangeInterval = "от 10^5 до 10^6 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16 до 160 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-12 до 16*10^-11 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10^5 до 10^6 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16 до 160 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-12 до 16*10^-11 Ф";
 
                     break;
                 case 7:
                     this.RangeIntervalNumber = 8;
-                    if (ChanalFlag == 0) RangeInterval = "от 10^6 до 10^7 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 160 до 16*10^2 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-11 до 16*10^-10 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10^6 до 10^7 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 160 до 16*10^2 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-11 до 16*10^-10 Ф";
                     break;
                 case 8:
                     this.RangeIntervalNumber = 9;
-                    if (ChanalFlag == 0) RangeInterval = "от 10^7 до 10^8 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16*10^2 до 16*10^3 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 16*10^-15 до 16*10^-10 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10^7 до 10^8 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^2 до 16*10^3 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-15 до 16*10^-10 Ф";
                     break;
                 case 9:
                     this.RangeIntervalNumber = 10;
-                    if (ChanalFlag == 0) RangeInterval = "от 10^8 до 10^11 Ом";
-                    if (ChanalFlag == 1) RangeInterval = "от 16*10^3 до 1*10^8 Гн";
-                    if (ChanalFlag == 2) RangeInterval = "от 1*10^-16 до 16*10^-15 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "от 10^8 до 10^11 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^3 до 1*10^8 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "от 1*10^-16 до 16*10^-15 Ф";
                     break;
             }
 
@@ -531,16 +521,12 @@ namespace MNS
             {
                 DataToSaveExists = true;
             }
-                  
-            //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            // Добавляем значение R, L, C или M, а также соответствующее время измерения в коллекции 
-            //AddResultsToCollections();
 
-            // ОТОБРАЖАЕМ НА ГРАФИКЕ
-            //DisplayGraphAcync();
+            // ДОБАВЛЯЕМ ЗНАЧЕНИЯ R, L, C или M, А ТАКЖЕ СООТВЕТСТВУЮЩЕЕ ВРЕМЯ ИЗМЕРЕНИЯ В КОЛЛЕКЦИИ 
+            AddResultsToCollections();
 
-            //DisplayGraph();
-            //==========================================================================================================================
+            // СТРОИМ ГРАФИКИ           
+            BuildGraphes();
         }
 
         private void Get_L(byte[] buffer)
@@ -1033,68 +1019,103 @@ namespace MNS
             VisualEffects.ClearBlurEffect(this);
         }
 
+        private void StylePlots()
+        {
+            // НАСТРОЙКИ ГРАФИКОВ ПРИ ИХ ПОСТРОЕНИИ (до рендеринга)
+            // Scatter
+            value_plot.plt.Title("Диаграмма рассеяния"); // Заголовок
+            value_plot.plt.YLabel("Значение", bold: true); // Надпись у оси Y
+            value_plot.plt.XLabel("Время", bold: true); // Надпись у оси X
+            value_plot.plt.Ticks(dateTimeX: true); // Используем на оси X - формат времени
+            value_plot.plt.Ticks(displayTickLabelsX: false); // Не показываем значения у делений на оси X
+            value_plot.plt.Ticks(displayTickLabelsY: false); // Не показываем значения у делений на оси Y
+
+
+            // Population
+            probability_plot.plt.Title("Оценка среднего"); // Заголовок
+            probability_plot.plt.XLabel("Значение", bold: true); // Надпись у оси Y
+            probability_plot.plt.Ticks(displayTicksY: false); // Не показываем главные деления оси Y
+            probability_plot.plt.Ticks(displayTickLabelsY: false); // Не показываем значения у делений на оси Y
+            probability_plot.plt.Ticks(displayTicksYminor: false); // Не показываем дополнительные деления оси Y
+            probability_plot.plt.Ticks(displayTickLabelsX: false); // Не показываем значения у делений на оси X
+            probability_plot.plt.Ticks(numericFormatStringX: "E5"); // используем форматирование 
+            probability_plot.plt.Grid(lineStyle: ScottPlot.LineStyle.Dot);
+        }
 
         private void AddResultsToCollections()
         {
             switch (ChanalFlag)
             {
                 case 0:
-
-                    if (Index_R < R_array.Length) // Проверка переполнения массива
-                    {
-                        this.R_array[Index_R] = this.Resistance;
-                        this.R_OADate_array[Index_R] = DateTime.Now.ToOADate();
-                        Index_R++; // Увеличиваем значение индекса массива
-
-                        // ЕСЛИ ГРАФИК НЕ ПОСТРОЕН
-                        if (R_ScatterIsBuilt == false)
-                        {
-                            // СОЗДАЕМ ДИАГРАММУ РАССЕЯНИЯ
-                            var plot_R = new ScottPlot.Plot();
-
-                            plot_R.PlotSignalXY(R_array, R_OADate_array, System.Drawing.Color.Black, lineWidth: 1, markerSize: 0, lineStyle: ScottPlot.LineStyle.Solid);
-                            plot_R.Title("Диаграмма рассеяния");
-                            plot_R.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
-                            plot_R.XLabel("Время", fontSize: 18, bold: true);
-                            //plot_R.Ticks(dateTimeX: true);
-                            plot_R.AxisAuto();
-
-
-                            R_ScatterIsBuilt = true;
-                        }
-
-                        //plot_R.Render();
-                        //BuildAndUpdateScatter();
-                    }
-                    else
-                    {
-                        Stop_measurement();
-                    }
+                    R_array.Add(this.Resistance);
+                    R_OADate_array.Add(DateTime.Now.ToOADate());
                     break;
                 case 1:
+                    L_array.Add(this.Inductance);
+                    L_OADate_array.Add(DateTime.Now.ToOADate());
                     break;
                 case 2:
+                    C_array.Add(this.Capacity);
+                    C_OADate_array.Add(DateTime.Now.ToOADate());
                     break;
                 case 3:
+                    M_array.Add(this.MutualInductance);
+                    M_OADate_array.Add(DateTime.Now.ToOADate());
                     break;
                 default:
                     break;
             }
         }
 
-        private async void DisplayGraphAcync()
-        {
-            // Вызываем метод в асинхронном режиме
-            await Task.Run(() => DisplayGraph());
-        }
-
-        private void DisplayGraph()
+        private void BuildGraphes()
         {
             switch (ChanalFlag)
             {
                 case 0:
+                    // create new double arrays to use for plotting
+                    double[] allValues = R_array.ToArray();
+                    double[] allDates = R_OADate_array.ToArray();
 
-                    CheckAccessAndDisplayGraph(value_plot);
+                    // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
+                    // Scatter
+                    value_plot.plt.Clear();
+                    value_plot.plt.PlotScatter(allDates, allValues);
+                    value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
+                    value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
+                    value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
+                    value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
+                    value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                    value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
+                    value_plot.plt.Ticks(numericFormatStringY: "E5"); // используем форматирование 
+
+                    // Population
+                    var pop = new ScottPlot.Statistics.Population(allValues);
+                    double[] curveXs = ScottPlot.DataGen.Range(pop.minus3stDev, pop.plus3stDev, .01); // График плотности вероятности
+                    double[] curveYs = pop.GetDistribution(curveXs); // График плотности вероятности
+
+                    if (curveXs.Length > 1)
+                    {
+                        probability_plot.plt.Clear();
+
+                        // Creating an Ys scatter of values on a plot
+                        Random rand = new Random(0);
+                        double[] ys = ScottPlot.DataGen.RandomNormal(rand, pop.values.Length, stdDev: .15);
+
+                        probability_plot.plt.PlotScatter(allValues, ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0);
+                        probability_plot.plt.PlotScatter(curveXs, curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
+                        probability_plot.plt.Axis(x1: pop.minus3stDev, x2: pop.plus3stDev, y1: -0.05, y2: 1.2); //probability_plot.plt.Axis(x1: pop.minus3stDev, x2: pop.plus3stDev, y1: pop.minus3stDev, y2: pop.plus3stDev);
+                        probability_plot.plt.Title($"Оценка среднего: ({pop.mean:0.000} " + "\u00B1" + $" {pop.stDev:0.000}) Ом, n={pop.n}");
+                        probability_plot.plt.PlotVLine(pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
+                        probability_plot.plt.PlotVLine(pop.mean - pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
+                        probability_plot.plt.PlotVLine(pop.mean + pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
+                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                        probability_plot.plt.XLabel("Значение R, Ом", bold: true);
+                        probability_plot.plt.Ticks(displayTicksXminor: true); // используем дополнительные деления оси Х
+                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        probability_plot.plt.Ticks(numericFormatStringX: "E4"); // используем форматирование 
+                    }
+                    CheckAccessAndUpdate_value_plot(value_plot);
+                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 1:
                     //
@@ -1110,35 +1131,40 @@ namespace MNS
             }
         }
 
-        private void CheckAccessAndDisplayGraph(object wpfElement)
+        private void CheckAccessAndUpdate_value_plot(object wpfElement)
         {
             value_plot = wpfElement as ScottPlot.WpfPlot;
 
-            //Проверяем имеет ли вызывающий поток доступ к потоку UI
-            // Поток имеет доступ к потоку UI
             if (value_plot.CheckAccess())
             {
-                //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
-                //plot_R.plt.Title("R = f(time)");
-                //plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
-                //plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
-                //plot_R.plt.Ticks(dateTimeX: true);
-                //plot_R.plt.AxisAuto();
-                value_plot.Render();
+                //value_plot.plt.AxisAuto();
+                value_plot.Render(skipIfCurrentlyRendering: true);
             }
-            //Поток не имеет доступ к потоку UI 
             else
             {
                 value_plot.Dispatcher.InvokeAsync(() =>
                 {
-                    //plot_R.plt.Style(figBg: System.Drawing.Color.Black, tick: System.Drawing.Color.White, label: System.Drawing.Color.Yellow, dataBg:System.Drawing.Color.Black, grid: System.Drawing.Color.DimGray);
-                    // plot_R.plt.Title("R = f(time)");
-                    // plot_R.plt.YLabel("Активная составляющая сопротивления [Ом]", fontSize: 18, bold: true);
-                    // plot_R.plt.XLabel("Время", fontSize: 18, bold: true);
-                    //plot_R.plt.Ticks(dateTimeX: true);
-                    // plot_R.plt.AxisAuto();
-                    //plot_R.plt.Legend(enableLegend: false);
-                    value_plot.Render();
+                    //value_plot.plt.AxisAuto();
+                    value_plot.Render(skipIfCurrentlyRendering: true);
+                });
+            }
+        }
+
+        private void CheckAccessAndUpdate_probability_plot(object wpfElement)
+        {
+            probability_plot = wpfElement as ScottPlot.WpfPlot;
+
+            if (probability_plot.CheckAccess())
+            {
+                //probability_plot.plt.AxisAuto();
+                probability_plot.Render();
+            }
+            else
+            {
+                probability_plot.Dispatcher.InvokeAsync(() =>
+                {
+                    //probability_plot.plt.AxisAutoX();
+                    probability_plot.Render();
                 });
             }
         }
@@ -1164,10 +1190,5 @@ namespace MNS
         {
 
         }
-        /*
-        private void UpdateGraph()
-        {
-            CheckAccessAndDisplayGraph(plot_R);
-        }*/
     }
 }
