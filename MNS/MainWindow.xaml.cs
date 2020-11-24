@@ -512,6 +512,7 @@ namespace MNS
 
             DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения программы
 
+            //===============================================================================================================================================
             // ВСЕ 5 КАНАЛОВ ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
             // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
             DataManager.SaveDataRow(CreateDataRow());
@@ -1091,7 +1092,7 @@ namespace MNS
                     // Population
                     var pop = new ScottPlot.Statistics.Population(allValues);
                     double[] curveXs = ScottPlot.DataGen.Range(pop.minus3stDev, pop.plus3stDev, .01); // График плотности вероятности
-                    double[] curveYs = pop.GetDistribution(curveXs, true); // График плотности вероятности
+                    double[] curveYs = pop.GetDistribution(curveXs, false); // График плотности вероятности
 
                     if (curveXs.Length > 1)
                     {
@@ -1137,14 +1138,14 @@ namespace MNS
 
             if (value_plot.CheckAccess())
             {
-                //value_plot.plt.AxisAuto();
+                value_plot.plt.AxisAuto();
                 value_plot.Render(skipIfCurrentlyRendering: true);
             }
             else
             {
                 value_plot.Dispatcher.InvokeAsync(() =>
                 {
-                    //value_plot.plt.AxisAuto();
+                    value_plot.plt.AxisAuto();
                     value_plot.Render(skipIfCurrentlyRendering: true);
                 });
             }
@@ -1156,14 +1157,14 @@ namespace MNS
 
             if (probability_plot.CheckAccess())
             {
-                //probability_plot.plt.AxisAuto();
+                probability_plot.plt.AxisAuto();
                 probability_plot.Render();
             }
             else
             {
                 probability_plot.Dispatcher.InvokeAsync(() =>
                 {
-                    //probability_plot.plt.AxisAutoX();
+                    probability_plot.plt.AxisAutoX();
                     probability_plot.Render();
                 });
             }
