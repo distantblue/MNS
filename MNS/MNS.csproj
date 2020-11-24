@@ -52,11 +52,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ScottPlot, Version=4.0.42.0, Culture=neutral, PublicKeyToken=86698dc10387c39e, processorArchitecture=MSIL">
-      <HintPath>..\packages\ScottPlot.4.0.42\lib\netstandard2.0\ScottPlot.dll</HintPath>
+    <Reference Include="ScottPlot, Version=4.0.44.0, Culture=neutral, PublicKeyToken=86698dc10387c39e, processorArchitecture=MSIL">
+      <HintPath>..\packages\ScottPlot.4.0.44\lib\netstandard2.0\ScottPlot.dll</HintPath>
     </Reference>
-    <Reference Include="ScottPlot.WPF, Version=4.0.42.0, Culture=neutral, PublicKeyToken=e53b06131e34a3aa, processorArchitecture=MSIL">
-      <HintPath>..\packages\ScottPlot.WPF.4.0.42\lib\net461\ScottPlot.WPF.dll</HintPath>
+    <Reference Include="ScottPlot.WPF, Version=4.0.44.0, Culture=neutral, PublicKeyToken=e53b06131e34a3aa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ScottPlot.WPF.4.0.44\lib\net461\ScottPlot.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

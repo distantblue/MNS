@@ -1091,7 +1091,7 @@ namespace MNS
                     // Population
                     var pop = new ScottPlot.Statistics.Population(allValues);
                     double[] curveXs = ScottPlot.DataGen.Range(pop.minus3stDev, pop.plus3stDev, .01); // График плотности вероятности
-                    double[] curveYs = pop.GetDistribution(curveXs); // График плотности вероятности
+                    double[] curveYs = pop.GetDistribution(curveXs, true); // График плотности вероятности
 
                     if (curveXs.Length > 1)
                     {
