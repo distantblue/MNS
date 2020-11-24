@@ -1080,7 +1080,7 @@ namespace MNS
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
                     value_plot.plt.Clear();
-                    value_plot.plt.PlotScatter(allDates, allValues);
+                    value_plot.plt.PlotScatter(allDates, allValues, label: "Акт. сопротивление, Ом");
                     value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
                     value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
                     value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1088,6 +1088,7 @@ namespace MNS
                     value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                     value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                     value_plot.plt.Ticks(numericFormatStringY: "E5"); // используем форматирование 
+                    value_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
 
                     // Population
                     var pop = new ScottPlot.Statistics.Population(allValues);
