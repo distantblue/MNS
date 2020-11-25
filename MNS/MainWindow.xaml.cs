@@ -75,6 +75,9 @@ namespace MNS
         // Коллекция R
         List<double> R_array;
 
+        // Начальный индекс Коллекции R с которого будет отрисовываться диаграммы
+        int R_plot_index;
+
         // Коллекция времени измерений R
         List<double> R_OADate_array;
 
@@ -903,11 +906,6 @@ namespace MNS
 
                 // Создаем функцию обратного вызова по таймеру
                 Timer = new Timer(new TimerCallback(GetSlaveState), null, 0, CurrentModbusRTUSettings.PollingInterval * 1000);
-
-                // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ДЛЯ ГРАФИКА
-                //this.X_array = new double[1] { 0 }; // Переменная будет хранить начальное значение X=0 для постройки графика
-                //this.Y_array = new double[1] { 0 }; // Переменная будет хранить начальное значение Y=0 для постройки графика
-
             }
         }
 
@@ -1072,9 +1070,21 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
+
                     // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
-                    double[] allValues = R_array.ToArray();
-                    double[] allDates = R_OADate_array.ToArray();
+                    double[] allValues;
+                    double[] allDates;
+
+                    if (R_plot_index == 0)
+                    {
+                        allValues = R_array.ToArray();
+                        allDates = R_OADate_array.ToArray();
+                    }
+                    else
+                    {
+                        allValues = R_array.GetRange(R_plot_index, R_array.Count - R_plot_index).ToArray();
+                        allDates = R_OADate_array.GetRange(R_plot_index, R_OADate_array.Count - R_plot_index).ToArray();
+                    }
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
@@ -1192,7 +1202,18 @@ namespace MNS
 
         private void ClearScatterPlots_MenuItem_Click(object sender, RoutedEventArgs e)
         {
+            if (ChanalFlag == 0)
+            {
+                this.R_plot_index = R_array.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+            }
+        }
 
+        private void ClearPlots_button_Click(object sender, RoutedEventArgs e)
+        {
+            if (ChanalFlag == 0)
+            {
+                this.R_plot_index = R_array.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+            }
         }
     }
 }
