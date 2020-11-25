@@ -68,7 +68,7 @@ namespace MNS
 
         // Порядковый номер измерения R (индекс массива)
         //int Index_R;
-        
+
         // Сопротивление
         float Resistance;
 
@@ -1039,7 +1039,6 @@ namespace MNS
             probability_plot.plt.Ticks(displayTickLabelsY: false); // Не показываем значения у делений на оси Y
             probability_plot.plt.Ticks(displayTicksYminor: false); // Не показываем дополнительные деления оси Y
             probability_plot.plt.Ticks(displayTickLabelsX: false); // Не показываем значения у делений на оси X
-            probability_plot.plt.Ticks(numericFormatStringX: "E5"); // используем форматирование 
             probability_plot.plt.Grid(lineStyle: ScottPlot.LineStyle.Dot);
         }
 
@@ -1073,48 +1072,51 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-                    // create new double arrays to use for plotting
+                    // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
                     double[] allValues = R_array.ToArray();
                     double[] allDates = R_OADate_array.ToArray();
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
-                    value_plot.plt.Clear();
-                    value_plot.plt.PlotScatter(allDates, allValues, label: "Акт. сопротивление, Ом");
-                    value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
-                    value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
-                    value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
-                    value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
-                    value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                    value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
-                    value_plot.plt.Ticks(numericFormatStringY: "E5"); // используем форматирование 
-                    value_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                    if (allValues.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
+                    {
+                        value_plot.plt.Clear();
+                        value_plot.plt.PlotScatter(allDates, allValues, label: "Сопротивление, Ом");
+                        value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
+                        value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
+                        value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                    }
+
 
                     // Population
                     var pop = new ScottPlot.Statistics.Population(allValues);
-                    double[] curveXs = ScottPlot.DataGen.Range(pop.minus3stDev, pop.plus3stDev, .01); // График плотности вероятности
-                    double[] curveYs = pop.GetDistribution(curveXs, false); // График плотности вероятности
+                    double[] curveXs = ScottPlot.DataGen.Range(pop.minus3stDev, pop.plus3stDev, .00001); // Массив точек оси X графика плотности вероятности
+                    double[] curveYs = pop.GetDistribution(curveXs, false); // Массив точек оси Y графика плотности вероятности
 
                     if (curveXs.Length > 1)
                     {
-                        probability_plot.plt.Clear();
-
                         // Creating an Ys scatter of values on a plot
                         Random rand = new Random(0);
                         double[] ys = ScottPlot.DataGen.RandomNormal(rand, pop.values.Length, stdDev: .15);
 
-                        probability_plot.plt.PlotScatter(allValues, ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0);
+                        probability_plot.plt.Clear();
+                        probability_plot.plt.PlotScatter(allValues, ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
                         probability_plot.plt.PlotScatter(curveXs, curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
-                        probability_plot.plt.Axis(x1: pop.minus3stDev, x2: pop.plus3stDev, y1: -0.05, y2: 1.2); //probability_plot.plt.Axis(x1: pop.minus3stDev, x2: pop.plus3stDev, y1: pop.minus3stDev, y2: pop.plus3stDev);
-                        probability_plot.plt.Title($"Оценка среднего: ({pop.mean:0.000} " + "\u00B1" + $" {pop.stDev:0.000}) Ом, n={pop.n}");
+                        probability_plot.plt.Axis(x1: pop.minus3stDev, x2: pop.plus3stDev, y1: -0.05, y2: 1.2);
+                        probability_plot.plt.Title($"Оценка ср. R: ({pop.mean:0.0000} " + "\u00B1" + $" {pop.stDev:0.0000}) Ом, n={pop.n}");
                         probability_plot.plt.PlotVLine(pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
                         probability_plot.plt.PlotVLine(pop.mean - pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
                         probability_plot.plt.PlotVLine(pop.mean + pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
-                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
                         probability_plot.plt.XLabel("Значение R, Ом", bold: true);
-                        probability_plot.plt.Ticks(displayTicksXminor: true); // используем дополнительные деления оси Х
+                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
                         probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                        probability_plot.plt.Ticks(numericFormatStringX: "E4"); // используем форматирование 
+                        probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
                     }
                     CheckAccessAndUpdate_value_plot(value_plot);
                     CheckAccessAndUpdate_probability_plot(probability_plot);
@@ -1158,7 +1160,7 @@ namespace MNS
 
             if (probability_plot.CheckAccess())
             {
-                probability_plot.plt.AxisAuto();
+                probability_plot.plt.AxisAutoX();
                 probability_plot.Render();
             }
             else
