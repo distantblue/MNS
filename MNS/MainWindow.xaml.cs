@@ -66,20 +66,17 @@ namespace MNS
         // НОМЕР КАНАЛА ИЗМЕРЕНИЯ
         ushort ChanalNumber;
 
-        // Порядковый номер измерения R (индекс массива)
-        //int Index_R;
-
         // Сопротивление
         float Resistance;
 
         // Коллекция R
-        List<double> R_array;
+        List<double> R_list;
 
-        // Начальный индекс Коллекции R с которого будет отрисовываться диаграммы
+        // Начальный индекс коллекции R с которого будет отрисовываться диаграммы
         int R_plot_index;
 
         // Коллекция времени измерений R
-        List<double> R_OADate_array;
+        List<double> R_OADate_list;
 
         // Тангенс R
         float tg_R;
@@ -91,10 +88,13 @@ namespace MNS
         float Inductance;
 
         // Коллекция L
-        List<double> L_array;
+        List<double> L_list;
+
+        // Начальный индекс коллекции L с которого будет отрисовываться диаграммы
+        int L_plot_index;
 
         // Коллекция времени измерений L
-        List<double> L_OADate_array;
+        List<double> L_OADate_list;
 
         // Тангенс L
         float tg_L;
@@ -103,10 +103,13 @@ namespace MNS
         float Capacity;
 
         // Коллекция C
-        List<double> C_array;
+        List<double> C_list;
+
+        // Начальный индекс коллекции C с которого будет отрисовываться диаграммы
+        int C_plot_index;
 
         // Коллекция времени измерений C
-        List<double> C_OADate_array;
+        List<double> C_OADate_list;
 
         // Тангенс С
         float tg_C;
@@ -115,10 +118,13 @@ namespace MNS
         float MutualInductance;
 
         // Коллекция M
-        List<double> M_array;
+        List<double> M_list;
+
+        // Начальный индекс коллекции M с которого будет отрисовываться диаграммы
+        int M_plot_index;
 
         // Коллекция времени измерений M
-        List<double> M_OADate_array;
+        List<double> M_OADate_list;
 
         // Тангенс M
         float tg_M;
@@ -146,14 +152,14 @@ namespace MNS
             this.ConsoleText = new string[12];
 
             // ИНИЦИАЛИЗИРУЕМ МАССИВЫ ДАННЫХ ДЛЯ ГРАФИКОВ
-            this.R_array = new List<double>();
-            this.L_array = new List<double>();
-            this.C_array = new List<double>();
-            this.M_array = new List<double>();
-            this.R_OADate_array = new List<double>();
-            this.L_OADate_array = new List<double>();
-            this.C_OADate_array = new List<double>();
-            this.M_OADate_array = new List<double>();
+            this.R_list = new List<double>();
+            this.L_list = new List<double>();
+            this.C_list = new List<double>();
+            this.M_list = new List<double>();
+            this.R_OADate_list = new List<double>();
+            this.L_OADate_list = new List<double>();
+            this.C_OADate_list = new List<double>();
+            this.M_OADate_list = new List<double>();
 
             // ОТРИСОВЫВАЕМ ДИАГРАММЫ (ЧТО НЕ БУДЕТ МЕНЯТЬСЯ ПРИ РАБОТЕ ИЛИ БУДЕТ ИЗНАЧАЛЬНО)
             StylePlots();
@@ -417,6 +423,108 @@ namespace MNS
             Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1, 4);
         }
 
+        private void Get_L(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_L;
+
+            // Получаем значение индуктивности
+            this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ L
+            Display_L();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgL;
+
+            // Отправляем запрос на чтение регистра tgL
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 1, 4);
+        }
+
+        private void Get_tgL(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgL;
+
+            // Получаем значение tgL
+            this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgL
+            Display_tgL();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
+
+            // Отправляем запрос на чтение регистра F
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1, 4);
+        }
+
+        private void Get_C(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_C;
+
+            // Получаем значение емкости
+            this.Capacity = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ C
+            Display_C();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgC;
+        }
+
+        private void Get_tgC(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgC;
+
+            // Получаем значение емкости
+            this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgC
+            Display_tgC();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
+
+            // Отправляем запрос на чтение регистра F
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1, 4);
+        }
+
+        private void Get_M(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_M;
+
+            // Получаем значение взаимоиндуктивности
+            this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ М
+            Display_M();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.Get_tgM;
+        }
+
+        private void Get_tgM(byte[] buffer)
+        {
+            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived -= this.Get_tgM;
+
+            // Получаем значение емкости
+            this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
+
+            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgМ
+            Display_tgM();
+
+            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
+            Modbus.ResponseReceived += this.Get_F;
+
+            // Отправляем запрос на чтение регистра F
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 120, 1, 4);
+        }
+
         private void Get_F(byte[] buffer)
         {
             // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
@@ -533,98 +641,7 @@ namespace MNS
             BuildGraphes();
         }
 
-        private void Get_L(byte[] buffer)
-        {
-            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.Get_L;
-
-            // Получаем значение индуктивности
-            this.Inductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
-
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ L
-            Display_L();
-
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.Get_tgL;
-
-            // Отправляем запрос на чтение регистра tgL
-            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 110, 1, 4);
-        }
-
-        private void Get_tgL(byte[] buffer)
-        {
-            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.Get_tgL;
-
-            // Получаем значение tgL
-            this.tg_L = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
-
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgL
-            Display_tgL();
-
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.Get_F;
-        }
-
-        private void Get_C(byte[] buffer)
-        {
-            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.Get_C;
-
-            // Получаем значение емкости
-            this.Capacity = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
-
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ C
-            Display_C();
-
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.Get_tgC;
-        }
-
-        private void Get_tgC(byte[] buffer)
-        {
-            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.Get_tgC;
-
-            // Получаем значение емкости
-            this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
-
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgC
-            Display_tgC();
-
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.Get_F;
-        }
-
-        private void Get_M(byte[] buffer)
-        {
-            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.Get_M;
-
-            // Получаем значение взаимоиндуктивности
-            this.MutualInductance = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
-
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ М
-            Display_M();
-
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.Get_tgM;
-        }
-
-        private void Get_tgM(byte[] buffer)
-        {
-            // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived -= this.Get_tgM;
-
-            // Получаем значение емкости
-            this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
-
-            // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgМ
-            Display_tgM();
-
-            // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
-            Modbus.ResponseReceived += this.Get_F;
-        }
+        
 
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -765,7 +782,7 @@ namespace MNS
         private void Display_tgR()
         {
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
-            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03B4:");
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03C6:"); // "\u03B4:" сигма
             CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_R.ToString("0.######"));
         }
 
@@ -785,7 +802,7 @@ namespace MNS
         private void Display_tgL()
         {
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
-            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03C6:");
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03B4:"); 
             CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_L.ToString("0.######"));
         }
 
@@ -1045,20 +1062,20 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-                    R_array.Add(this.Resistance);
-                    R_OADate_array.Add(DateTime.Now.ToOADate());
+                    R_list.Add(this.Resistance);
+                    R_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 case 1:
-                    L_array.Add(this.Inductance);
-                    L_OADate_array.Add(DateTime.Now.ToOADate());
+                    L_list.Add(this.Inductance);
+                    L_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 case 2:
-                    C_array.Add(this.Capacity);
-                    C_OADate_array.Add(DateTime.Now.ToOADate());
+                    C_list.Add(this.Capacity);
+                    C_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 case 3:
-                    M_array.Add(this.MutualInductance);
-                    M_OADate_array.Add(DateTime.Now.ToOADate());
+                    M_list.Add(this.MutualInductance);
+                    M_OADate_list.Add(DateTime.Now.ToOADate());
                     break;
                 default:
                     break;
@@ -1070,28 +1087,27 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-
                     // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
-                    double[] allValues;
-                    double[] allDates;
+                    double[] R_values;
+                    double[] R_dates;
 
                     if (R_plot_index == 0)
                     {
-                        allValues = R_array.ToArray();
-                        allDates = R_OADate_array.ToArray();
+                        R_values = R_list.ToArray();
+                        R_dates = R_OADate_list.ToArray();
                     }
                     else
                     {
-                        allValues = R_array.GetRange(R_plot_index, R_array.Count - R_plot_index).ToArray();
-                        allDates = R_OADate_array.GetRange(R_plot_index, R_OADate_array.Count - R_plot_index).ToArray();
+                        R_values = R_list.GetRange(R_plot_index, R_list.Count - R_plot_index).ToArray();
+                        R_dates = R_OADate_list.GetRange(R_plot_index, R_OADate_list.Count - R_plot_index).ToArray();
                     }
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
-                    if (allValues.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
+                    if (R_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(allDates, allValues, label: "Сопротивление, Ом");
+                        value_plot.plt.PlotScatter(R_dates, R_values, label: "Сопротивление, Ом");
                         value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
                         value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1101,27 +1117,26 @@ namespace MNS
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
                         value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
                     }
-
-
+                    
                     // Population
-                    var pop = new ScottPlot.Statistics.Population(allValues);
-                    double[] curveXs = ScottPlot.DataGen.Range(pop.minus3stDev, pop.plus3stDev, .00001); // Массив точек оси X графика плотности вероятности
-                    double[] curveYs = pop.GetDistribution(curveXs, false); // Массив точек оси Y графика плотности вероятности
+                    var R_pop = new ScottPlot.Statistics.Population(R_values);
+                    double[] R_curveXs = ScottPlot.DataGen.Range(R_pop.minus3stDev, R_pop.plus3stDev, .00001); // Массив точек оси X графика плотности вероятности
+                    double[] R_curveYs = R_pop.GetDistribution(R_curveXs, false); // Массив точек оси Y графика плотности вероятности
 
-                    if (curveXs.Length > 1)
+                    if (R_curveXs.Length > 1)
                     {
                         // Creating an Ys scatter of values on a plot
                         Random rand = new Random(0);
-                        double[] ys = ScottPlot.DataGen.RandomNormal(rand, pop.values.Length, stdDev: .15);
+                        double[] R_ys = ScottPlot.DataGen.RandomNormal(rand, R_pop.values.Length, stdDev: .15);
 
                         probability_plot.plt.Clear();
-                        probability_plot.plt.PlotScatter(allValues, ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
-                        probability_plot.plt.PlotScatter(curveXs, curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
-                        probability_plot.plt.Axis(x1: pop.minus3stDev, x2: pop.plus3stDev, y1: -0.05, y2: 1.2);
-                        probability_plot.plt.Title($"Оценка ср. R: ({pop.mean:0.0000} " + "\u00B1" + $" {pop.stDev:0.0000}) Ом, n={pop.n}");
-                        probability_plot.plt.PlotVLine(pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
-                        probability_plot.plt.PlotVLine(pop.mean - pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
-                        probability_plot.plt.PlotVLine(pop.mean + pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
+                        probability_plot.plt.PlotScatter(R_values, R_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
+                        probability_plot.plt.PlotScatter(R_curveXs, R_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
+                        probability_plot.plt.Axis(x1: R_pop.minus3stDev, x2: R_pop.plus3stDev, y1: -0.05, y2: 1.2);
+                        probability_plot.plt.Title($"Оценка ср. R: ({R_pop.mean:0.0000} " + "\u00B1" + $" {R_pop.stDev:0.0000}) Ом, n={R_pop.n}");
+                        probability_plot.plt.PlotVLine(R_pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
+                        probability_plot.plt.PlotVLine(R_pop.mean - R_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
+                        probability_plot.plt.PlotVLine(R_pop.mean + R_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
                         probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
                         probability_plot.plt.XLabel("Значение R, Ом", bold: true);
                         probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
@@ -1132,7 +1147,64 @@ namespace MNS
                     CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 1:
-                    //
+                    // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
+                    double[] L_values;
+                    double[] L_dates;
+
+                    if (L_plot_index == 0)
+                    {
+                        L_values = L_list.ToArray();
+                        L_dates = L_OADate_list.ToArray();
+                    }
+                    else
+                    {
+                        L_values = L_list.GetRange(L_plot_index, L_list.Count - L_plot_index).ToArray();
+                        L_dates = L_OADate_list.GetRange(L_plot_index, L_OADate_list.Count - L_plot_index).ToArray();
+                    }
+
+                    // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
+                    // Scatter
+                    if (L_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
+                    {
+                        value_plot.plt.Clear();
+                        value_plot.plt.PlotScatter(L_dates, L_values, label: "Индуктивность, Гн");
+                        value_plot.plt.Title("Диаграмма рассеяния L"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значение L, Гн", bold: true); // Надпись у оси X
+                        value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
+                        value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                    }
+
+                    // Population
+                    var L_pop = new ScottPlot.Statistics.Population(L_values);
+                    double[] L_curveXs = ScottPlot.DataGen.Range(L_pop.minus3stDev, L_pop.plus3stDev, .00001); // Массив точек оси X графика плотности вероятности
+                    double[] L_curveYs = L_pop.GetDistribution(L_curveXs, false); // Массив точек оси Y графика плотности вероятности
+
+                    if (L_curveXs.Length > 1)
+                    {
+                        // Creating an Ys scatter of values on a plot
+                        Random rand = new Random(0);
+                        double[] L_ys = ScottPlot.DataGen.RandomNormal(rand, L_pop.values.Length, stdDev: .15);
+
+                        probability_plot.plt.Clear();
+                        probability_plot.plt.PlotScatter(L_values, L_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
+                        probability_plot.plt.PlotScatter(L_curveXs, L_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. L"); // График плотности вероятности
+                        probability_plot.plt.Axis(x1: L_pop.minus3stDev, x2: L_pop.plus3stDev, y1: -0.05, y2: 1.2);
+                        probability_plot.plt.Title($"Оценка ср. L: ({L_pop.mean:0.0000} " + "\u00B1" + $" {L_pop.stDev:0.0000}) Гн, n={L_pop.n}");
+                        probability_plot.plt.PlotVLine(L_pop.mean, label: "Ср. знач. L", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
+                        probability_plot.plt.PlotVLine(L_pop.mean - L_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
+                        probability_plot.plt.PlotVLine(L_pop.mean + L_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
+                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
+                        probability_plot.plt.XLabel("Значение L, Гн", bold: true);
+                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
+                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
+                    }
+                    CheckAccessAndUpdate_value_plot(value_plot);
+                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 2:
                     //
@@ -1204,7 +1276,22 @@ namespace MNS
         {
             if (ChanalFlag == 0)
             {
-                this.R_plot_index = R_array.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+                if (ChanalFlag == 0)
+                {
+                    this.R_plot_index = R_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+                }
+                if (ChanalFlag == 1)
+                {
+                    this.L_plot_index = L_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+                }
+                if (ChanalFlag == 2)
+                {
+                    this.C_plot_index = C_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+                }
+                if (ChanalFlag == 3)
+                {
+                    this.M_plot_index = M_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+                }
             }
         }
 
@@ -1212,7 +1299,19 @@ namespace MNS
         {
             if (ChanalFlag == 0)
             {
-                this.R_plot_index = R_array.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+                this.R_plot_index = R_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+            }
+            if (ChanalFlag == 1)
+            {
+                this.L_plot_index = L_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+            }
+            if (ChanalFlag == 2)
+            {
+                this.C_plot_index = C_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
+            }
+            if (ChanalFlag == 3)
+            {
+                this.M_plot_index = M_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
             }
         }
     }
