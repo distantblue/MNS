@@ -472,6 +472,9 @@ namespace MNS
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgC;
+
+            // Отправляем запрос на чтение регистра tgС
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 114, 1, 4);
         }
 
         private void Get_tgC(byte[] buffer)
@@ -479,7 +482,7 @@ namespace MNS
             // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived -= this.Get_tgC;
 
-            // Получаем значение емкости
+            // Получаем значение тангенса
             this.tg_C = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgC
@@ -505,6 +508,9 @@ namespace MNS
 
             // ПОДПИСЫВАЕМСЯ НА ОБРАБОТЧИК СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived += this.Get_tgM;
+
+            // Отправляем запрос на чтение регистра tgM
+            Modbus.SendCommandToReadRegisters(CurrentModbusRTUSettings.ModbusRTUSlaveAddress, 0x03, 118, 1, 4);
         }
 
         private void Get_tgM(byte[] buffer)
@@ -512,7 +518,7 @@ namespace MNS
             // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived -= this.Get_tgM;
 
-            // Получаем значение емкости
+            // Получаем значение тангенса
             this.tg_M = BitConverter.ToSingle(new byte[4] { buffer[6], buffer[5], buffer[4], buffer[3] }, 0);
 
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ tgМ
@@ -548,7 +554,7 @@ namespace MNS
             // ОТПИСЫВАЕМСЯ ОТ СОБЫТИЯ ResposeReceived
             Modbus.ResponseReceived -= this.IdentifyRangeInterval;
 
-            // ПОЛУЧАЕМ 16 БИТРОЕ ЗНАЧЕНИЕ ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
+            // ПОЛУЧАЕМ 16 БИТНОЕ ЗНАЧЕНИЕ ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
             this.RangeIntervalRegister = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
             ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0xF); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4-ох последних битов 
 
@@ -1180,7 +1186,7 @@ namespace MNS
 
                     // Population
                     var L_pop = new ScottPlot.Statistics.Population(L_values);
-                    double[] L_curveXs = ScottPlot.DataGen.Range(L_pop.minus3stDev, L_pop.plus3stDev, .00001); // Массив точек оси X графика плотности вероятности
+                    double[] L_curveXs = ScottPlot.DataGen.Range(L_pop.minus3stDev, L_pop.plus3stDev, .000000001); // Массив точек оси X графика плотности вероятности
                     double[] L_curveYs = L_pop.GetDistribution(L_curveXs, false); // Массив точек оси Y графика плотности вероятности
 
                     if (L_curveXs.Length > 1)
@@ -1207,7 +1213,64 @@ namespace MNS
                     CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 2:
-                    //
+                    // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
+                    double[] C_values;
+                    double[] C_dates;
+
+                    if (C_plot_index == 0)
+                    {
+                        C_values = C_list.ToArray();
+                        C_dates = C_OADate_list.ToArray();
+                    }
+                    else
+                    {
+                        C_values = C_list.GetRange(C_plot_index, C_list.Count - C_plot_index).ToArray();
+                        C_dates = C_OADate_list.GetRange(C_plot_index, C_OADate_list.Count - C_plot_index).ToArray();
+                    }
+
+                    // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
+                    // Scatter
+                    if (C_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
+                    {
+                        value_plot.plt.Clear();
+                        value_plot.plt.PlotScatter(C_dates, C_values, label: "Емкость, Ф");
+                        value_plot.plt.Title("Диаграмма рассеяния C"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значение C, Ф", bold: true); // Надпись у оси X
+                        value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
+                        value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                    }
+
+                    // Population
+                    var C_pop = new ScottPlot.Statistics.Population(C_values);
+                    double[] C_curveXs = ScottPlot.DataGen.Range(C_pop.minus3stDev, C_pop.plus3stDev, .000000000001); // Массив точек оси X графика плотности вероятности
+                    double[] C_curveYs = C_pop.GetDistribution(C_curveXs, false); // Массив точек оси Y графика плотности вероятности
+
+                    if (C_curveXs.Length > 1)
+                    {
+                        // Creating an Ys scatter of values on a plot
+                        Random rand = new Random(0);
+                        double[] C_ys = ScottPlot.DataGen.RandomNormal(rand, C_pop.values.Length, stdDev: .15);
+
+                        probability_plot.plt.Clear();
+                        probability_plot.plt.PlotScatter(C_values, C_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
+                        probability_plot.plt.PlotScatter(C_curveXs, C_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. C"); // График плотности вероятности
+                        probability_plot.plt.Axis(x1: C_pop.minus3stDev, x2: C_pop.plus3stDev, y1: -0.05, y2: 1.2);
+                        probability_plot.plt.Title($"Оценка ср. C: ({C_pop.mean:0.0000} " + "\u00B1" + $" {C_pop.stDev:0.0000}) Ф, n={C_pop.n}");
+                        probability_plot.plt.PlotVLine(C_pop.mean, label: "Ср. знач. C", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
+                        probability_plot.plt.PlotVLine(C_pop.mean - C_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
+                        probability_plot.plt.PlotVLine(C_pop.mean + C_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
+                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
+                        probability_plot.plt.XLabel("Значение C, Ф", bold: true);
+                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
+                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        probability_plot.plt.Ticks(numericFormatStringX: "E12"); // Используем форматирование чисел
+                    }
+                    CheckAccessAndUpdate_value_plot(value_plot);
+                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 3:
                     //
