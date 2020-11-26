@@ -48,7 +48,7 @@
 
         <Border Grid.Row="1" Grid.Column="1" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
             <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" Text="X:" Margin="16,0,0,0" TextWrapping="Wrap" Width="80" x:Name="ValueSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
+                <TextBlock VerticalAlignment="Center" Text="X:" Margin="16,0,0,0" TextWrapping="Wrap" Width="65" x:Name="ValueSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
                 <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="Value_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
             </StackPanel>
         </Border>

@@ -1273,7 +1273,64 @@ namespace MNS
                     CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 3:
-                    //
+                    // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
+                    double[] M_values;
+                    double[] M_dates;
+
+                    if (M_plot_index == 0)
+                    {
+                        M_values = M_list.ToArray();
+                        M_dates = M_OADate_list.ToArray();
+                    }
+                    else
+                    {
+                        M_values = M_list.GetRange(M_plot_index, M_list.Count - M_plot_index).ToArray();
+                        M_dates = M_OADate_list.GetRange(M_plot_index, M_OADate_list.Count - M_plot_index).ToArray();
+                    }
+
+                    // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
+                    // Scatter
+                    if (M_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
+                    {
+                        value_plot.plt.Clear();
+                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взаимоиндукция, Гн");
+                        value_plot.plt.Title("Диаграмма рассеяния M"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значение M, Гн", bold: true); // Надпись у оси X
+                        value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
+                        value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
+                        value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                    }
+
+                    // Population
+                    var M_pop = new ScottPlot.Statistics.Population(M_values);
+                    double[] M_curveXs = ScottPlot.DataGen.Range(M_pop.minus3stDev, M_pop.plus3stDev, .0000001); // Массив точек оси X графика плотности вероятности
+                    double[] M_curveYs = M_pop.GetDistribution(M_curveXs, false); // Массив точек оси Y графика плотности вероятности
+
+                    if (M_curveXs.Length > 1)
+                    {
+                        // Creating an Ys scatter of values on a plot
+                        Random rand = new Random(0);
+                        double[] M_ys = ScottPlot.DataGen.RandomNormal(rand, M_pop.values.Length, stdDev: .15);
+
+                        probability_plot.plt.Clear();
+                        probability_plot.plt.PlotScatter(M_values, M_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
+                        probability_plot.plt.PlotScatter(M_curveXs, M_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. M"); // График плотности вероятности
+                        probability_plot.plt.Axis(x1: M_pop.minus3stDev, x2: M_pop.plus3stDev, y1: -0.05, y2: 1.2);
+                        probability_plot.plt.Title($"Оценка ср. M: ({M_pop.mean:0.0000} " + "\u00B1" + $" {M_pop.stDev:0.0000}) Гн, n={M_pop.n}");
+                        probability_plot.plt.PlotVLine(M_pop.mean, label: "Ср. знач. M", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
+                        probability_plot.plt.PlotVLine(M_pop.mean - M_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
+                        probability_plot.plt.PlotVLine(M_pop.mean + M_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
+                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
+                        probability_plot.plt.XLabel("Значение M, Гн", bold: true);
+                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
+                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                        probability_plot.plt.Ticks(numericFormatStringX: "E5"); // Используем форматирование чисел
+                    }
+                    CheckAccessAndUpdate_value_plot(value_plot);
+                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 default:
                     break;
