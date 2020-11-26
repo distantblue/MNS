@@ -1246,7 +1246,7 @@ namespace MNS
 
                     // Population
                     var C_pop = new ScottPlot.Statistics.Population(C_values);
-                    double[] C_curveXs = ScottPlot.DataGen.Range(C_pop.minus3stDev, C_pop.plus3stDev, .000000000001); // Массив точек оси X графика плотности вероятности
+                    double[] C_curveXs = ScottPlot.DataGen.Range(C_pop.minus3stDev, C_pop.plus3stDev, .00000000000001); // Массив точек оси X графика плотности вероятности
                     double[] C_curveYs = C_pop.GetDistribution(C_curveXs, false); // Массив точек оси Y графика плотности вероятности
 
                     if (C_curveXs.Length > 1)
@@ -1267,7 +1267,7 @@ namespace MNS
                         probability_plot.plt.XLabel("Значение C, Ф", bold: true);
                         probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
                         probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                        probability_plot.plt.Ticks(numericFormatStringX: "E12"); // Используем форматирование чисел
+                        probability_plot.plt.Ticks(numericFormatStringX: "E5"); // Используем форматирование чисел
                     }
                     CheckAccessAndUpdate_value_plot(value_plot);
                     CheckAccessAndUpdate_probability_plot(probability_plot);
