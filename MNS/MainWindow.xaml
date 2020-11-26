@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
+        Icon="Icon_favicon.ico"
         Title="МНС 1100 - Измерительная система для ПК. Версия v1.0" MinWidth="1360" MinHeight="800"  Width="1360" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
     <Grid ShowGridLines="False" Margin="8">
         <Grid.RowDefinitions>
