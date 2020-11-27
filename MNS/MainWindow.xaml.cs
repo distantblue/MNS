@@ -46,7 +46,7 @@ namespace MNS
         ushort RangeIntervalRegister;
 
         // НОМЕР ИНТЕРВАЛА ИЗМЕРЕНИЯ (ПОДДИАПАЗОНА)
-        int RangeIntervalNumber;
+        byte RangeIntervalNumber;
 
         // ИНТЕРВАЛ ДИАПАЗОНА (ОТ...ДО)
         string RangeInterval;
@@ -64,7 +64,7 @@ namespace MNS
         string FixedMeasInterval;
 
         // НОМЕР КАНАЛА ИЗМЕРЕНИЯ
-        ushort ChanalNumber;
+        byte ChanalNumber;
 
         // Сопротивление
         float Resistance;
@@ -72,11 +72,14 @@ namespace MNS
         // Коллекция R
         List<double> R_list;
 
-        // Начальный индекс коллекции R с которого будет отрисовываться диаграммы
-        int R_plot_index;
-
         // Коллекция времени измерений R
         List<double> R_OADate_list;
+
+        // Массив значений R по которому будет проводиться оценка среднего
+        double[] R_population;
+
+        // Счетчик массива совокупности R
+        byte R_pop_counter;
 
         // Тангенс R
         float tg_R;
@@ -135,8 +138,14 @@ namespace MNS
         // Порядковый номер измерения
         int DataRowNumber;
 
+        // Колличество измерений по которым будет расчитываться оценка среднего
+        byte PopulationLength;
+
         // Флаг - данные для сохранения существуют
         public bool DataToSaveExists;
+
+        // Флаг - отрисовать оценку среднего
+        public bool PopulationArrayFilled;
 
         public MainWindow()
         {
@@ -150,16 +159,8 @@ namespace MNS
 
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
             this.ConsoleText = new string[12];
-
-            // ИНИЦИАЛИЗИРУЕМ МАССИВЫ ДАННЫХ ДЛЯ ГРАФИКОВ
-            this.R_list = new List<double>();
-            this.L_list = new List<double>();
-            this.C_list = new List<double>();
-            this.M_list = new List<double>();
-            this.R_OADate_list = new List<double>();
-            this.L_OADate_list = new List<double>();
-            this.C_OADate_list = new List<double>();
-            this.M_OADate_list = new List<double>();
+            this.PopulationLength = 12;
+            this.R_pop_counter = 0;
 
             // ОТРИСОВЫВАЕМ ДИАГРАММЫ (ЧТО НЕ БУДЕТ МЕНЯТЬСЯ ПРИ РАБОТЕ ИЛИ БУДЕТ ИЗНАЧАЛЬНО)
             StylePlots();
@@ -627,12 +628,14 @@ namespace MNS
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТ ПРЕДЕЛОВ ИЗМЕРЕНИЙ
             DisplayRangeInterval();
 
-            DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения программы
-
-            //===============================================================================================================================================
+            //=============================================================
             // ВСЕ 5 КАНАЛОВ ОПРОШЕНЫ - ЗАПЫСЫВАЕМ ДАННЫЕ В ПЕРЕМЕННЫЕ
             // СОСТАВЛЯЕМ И ЗАПИСЫВАЕМ СТРОКУ ДАННЫХ В ФАЙЛ
-            DataManager.SaveDataRow(CreateDataRow());
+            //=============================================================
+
+            DataRowNumber++; // Увеличиваем значение счетчика порядкового номера измерения программы
+
+            DataManager.SaveDataRow(CreateDataRow()); // Сохраняем данные
 
             // Указываем что данные появились
             if (DataToSaveExists == false)
@@ -647,7 +650,7 @@ namespace MNS
             BuildGraphes();
         }
 
-        
+
 
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -808,7 +811,7 @@ namespace MNS
         private void Display_tgL()
         {
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
-            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03B4:"); 
+            CheckAccessAndDisplayOnTextBlock(tgSymbol_textBlock, "tg" + "\u03B4:");
             CheckAccessAndDisplayOnTextBlock(tg_textBlock, tg_L.ToString("0.######"));
         }
 
@@ -962,9 +965,6 @@ namespace MNS
                 Modbus = null; // Ссылка в null
 
                 DisplayInactiveMesResults();
-
-                // ОЧИЩАЕМ ДИАГРАММУ РАССЕЯНИЯ
-                value_plot.plt.Clear();
             }
         }
 
@@ -1068,20 +1068,146 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-                    R_list.Add(this.Resistance);
-                    R_OADate_list.Add(DateTime.Now.ToOADate());
+                    // Ссылаем все остальные коллекции в null
+                    if (L_list != null)
+                    {
+                        L_list = null;
+                        L_OADate_list = null;
+                    }
+                    if (C_list != null)
+                    {
+                        C_list = null;
+                        C_OADate_list = null;
+                    }
+                    if (M_list != null)
+                    {
+                        M_list = null;
+                        M_OADate_list = null;
+                    }
+                    // Инициализируем и/или добавляем значения в коллекцию
+                    if (this.R_list != null)
+                    {
+                        this.R_list.Add(this.Resistance);
+                        this.R_OADate_list.Add(DateTime.Now.ToOADate());
+
+                        if (R_pop_counter < PopulationLength)
+                        {
+                            this.R_population[R_pop_counter] = this.Resistance;
+                            PopulationArrayFilled = false;
+
+                            if (R_population.Length == (R_pop_counter + 1))
+                            {
+                                PopulationArrayFilled = true;
+                                this.R_pop_counter = 0;
+                            }
+                            else
+                            {
+                                this.R_pop_counter++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.R_list = new List<double>();
+                        this.R_OADate_list = new List<double>();
+                        this.R_population = new double[PopulationLength];
+                        this.R_list.Add(this.Resistance);
+                        this.R_population[R_pop_counter] = this.Resistance;
+                        this.R_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
                     break;
                 case 1:
-                    L_list.Add(this.Inductance);
-                    L_OADate_list.Add(DateTime.Now.ToOADate());
+                    // Ссылаем все остальные коллекции в null
+                    if (R_list != null)
+                    {
+                        R_list = null;
+                        R_OADate_list = null;
+                    }
+                    if (C_list != null)
+                    {
+                        C_list = null;
+                        C_OADate_list = null;
+                    }
+                    if (M_list != null)
+                    {
+                        M_list = null;
+                        M_OADate_list = null;
+                    }
+                    // Инициализируем и/или добавляем значения в коллекцию
+                    if (this.L_list != null)
+                    {
+                        this.L_list.Add(this.Inductance);
+                        this.L_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
+                    else
+                    {
+                        this.L_list = new List<double>();
+                        this.L_OADate_list = new List<double>();
+                        this.L_list.Add(this.Inductance);
+                        this.L_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
                     break;
                 case 2:
-                    C_list.Add(this.Capacity);
-                    C_OADate_list.Add(DateTime.Now.ToOADate());
+                    // Ссылаем все остальные коллекции в null
+                    if (R_list != null)
+                    {
+                        R_list = null;
+                        R_OADate_list = null;
+                    }
+                    if (L_list != null)
+                    {
+                        L_list = null;
+                        L_OADate_list = null;
+                    }
+                    if (M_list != null)
+                    {
+                        M_list = null;
+                        M_OADate_list = null;
+                    }
+                    // Инициализируем и/или добавляем значения в коллекцию
+                    if (this.C_list != null)
+                    {
+                        this.C_list.Add(this.Capacity);
+                        this.C_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
+                    else
+                    {
+                        this.C_list = new List<double>();
+                        this.C_OADate_list = new List<double>();
+                        this.C_list.Add(this.Capacity);
+                        this.C_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
                     break;
                 case 3:
-                    M_list.Add(this.MutualInductance);
-                    M_OADate_list.Add(DateTime.Now.ToOADate());
+                    // Ссылаем все остальные коллекции в null
+                    if (R_list != null)
+                    {
+                        R_list = null;
+                        R_OADate_list = null;
+                    }
+                    if (L_list != null)
+                    {
+                        L_list = null;
+                        L_OADate_list = null;
+                    }
+                    if (C_list != null)
+                    {
+                        C_list = null;
+                        C_OADate_list = null;
+                    }
+                    // Инициализируем и/или добавляем значения в коллекцию
+                    if (this.M_list != null)
+                    {
+                        this.M_list.Add(this.MutualInductance);
+                        this.M_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
+                    else
+                    {
+                        this.M_list = new List<double>();
+                        this.M_OADate_list = new List<double>();
+                        this.M_list.Add(this.MutualInductance);
+                        this.M_OADate_list.Add(DateTime.Now.ToOADate());
+                    }
                     break;
                 default:
                     break;
@@ -1097,16 +1223,9 @@ namespace MNS
                     double[] R_values;
                     double[] R_dates;
 
-                    if (R_plot_index == 0)
-                    {
-                        R_values = R_list.ToArray();
-                        R_dates = R_OADate_list.ToArray();
-                    }
-                    else
-                    {
-                        R_values = R_list.GetRange(R_plot_index, R_list.Count - R_plot_index).ToArray();
-                        R_dates = R_OADate_list.GetRange(R_plot_index, R_OADate_list.Count - R_plot_index).ToArray();
-                    }
+                    R_values = R_list.ToArray();
+                    R_dates = R_OADate_list.ToArray();
+
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
@@ -1123,20 +1242,21 @@ namespace MNS
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
                         value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
                     }
-                    
-                    // Population
-                    var R_pop = new ScottPlot.Statistics.Population(R_values);
-                    double[] R_curveXs = ScottPlot.DataGen.Range(R_pop.minus3stDev, R_pop.plus3stDev, .00001); // Массив точек оси X графика плотности вероятности
-                    double[] R_curveYs = R_pop.GetDistribution(R_curveXs, false); // Массив точек оси Y графика плотности вероятности
 
-                    if (R_curveXs.Length > 1)
+                    if (PopulationArrayFilled)
                     {
+                        // Population
+                        var R_pop = new ScottPlot.Statistics.Population(R_population);
+                        double[] R_curveXs = ScottPlot.DataGen.Range(R_pop.minus3stDev, R_pop.plus3stDev, .1); // Массив точек оси X графика плотности вероятности
+                        double[] R_curveYs = R_pop.GetDistribution(R_curveXs, false); // Массив точек оси Y графика плотности вероятности
+
+
                         // Creating an Ys scatter of values on a plot
                         Random rand = new Random(0);
                         double[] R_ys = ScottPlot.DataGen.RandomNormal(rand, R_pop.values.Length, stdDev: .15);
 
                         probability_plot.plt.Clear();
-                        probability_plot.plt.PlotScatter(R_values, R_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
+                        probability_plot.plt.PlotScatter(R_population, R_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
                         probability_plot.plt.PlotScatter(R_curveXs, R_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
                         probability_plot.plt.Axis(x1: R_pop.minus3stDev, x2: R_pop.plus3stDev, y1: -0.05, y2: 1.2);
                         probability_plot.plt.Title($"Оценка ср. R: ({R_pop.mean:0.0000} " + "\u00B1" + $" {R_pop.stDev:0.0000}) Ом, n={R_pop.n}");
@@ -1148,9 +1268,10 @@ namespace MNS
                         probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
                         probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                         probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
+
+                        CheckAccessAndUpdate_probability_plot(probability_plot);
                     }
                     CheckAccessAndUpdate_value_plot(value_plot);
-                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 1:
                     // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
@@ -1394,45 +1515,27 @@ namespace MNS
 
         private void ClearScatterPlots_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (ChanalFlag == 0)
-            {
-                if (ChanalFlag == 0)
-                {
-                    this.R_plot_index = R_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-                }
-                if (ChanalFlag == 1)
-                {
-                    this.L_plot_index = L_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-                }
-                if (ChanalFlag == 2)
-                {
-                    this.C_plot_index = C_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-                }
-                if (ChanalFlag == 3)
-                {
-                    this.M_plot_index = M_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-                }
-            }
+           // тоже самое
         }
 
         private void ClearPlots_button_Click(object sender, RoutedEventArgs e)
         {
-            if (ChanalFlag == 0)
-            {
-                this.R_plot_index = R_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-            }
-            if (ChanalFlag == 1)
-            {
-                this.L_plot_index = L_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-            }
-            if (ChanalFlag == 2)
-            {
-                this.C_plot_index = C_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-            }
-            if (ChanalFlag == 3)
-            {
-                this.M_plot_index = M_list.Count; // Присваиваем индексу значение с которого будет отображаться график (отображение с последней точки в коллекции)
-            }
+            Stop_measurement();
+            this.R_list = null;
+            this.L_list = null;
+            this.C_list = null;
+            this.M_list = null;
+            this.R_OADate_list = null;
+            this.L_OADate_list = null;
+            this.C_OADate_list = null;
+            this.M_OADate_list = null;
+            this.R_population = null;
+
+            value_plot.plt.Clear();
+            probability_plot.plt.Clear();
+            CheckAccessAndUpdate_value_plot(value_plot);
+            CheckAccessAndUpdate_probability_plot(probability_plot);
+            Start_measurement();
         }
     }
 }
