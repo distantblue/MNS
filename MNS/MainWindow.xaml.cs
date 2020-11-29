@@ -66,86 +66,89 @@ namespace MNS
         // НОМЕР КАНАЛА ИЗМЕРЕНИЯ
         byte ChanalNumber;
 
-        // Сопротивление
+        // СОПРОТИВЛЕНИЕ
         float Resistance;
 
-        // Коллекция R
+        // КОЛЛЕКЦИЯ R
         List<double> R_list;
 
-        // Коллекция времени измерений R
+        // КОЛЛЕКЦИЯ ВРЕМЕНИ ИЗМЕРЕНИЙ R
         List<double> R_OADate_list;
 
-        // Массив значений R по которому будет проводиться оценка среднего
-        double[] R_population;
-
-        // Счетчик массива совокупности R
-        byte R_pop_counter;
-
-        // Тангенс R
+        // ТАНГЕНС R
         float tg_R;
 
-        // Частота
+        // ЧАСТОТА
         float Frequency;
 
-        // Индуктивность
+        // ИНДУКТИВНОСТЬ
         float Inductance;
 
-        // Коллекция L
+        // КОЛЛЕКЦИЯ L
         List<double> L_list;
+
+        // КОЛЛЕКЦИЯ ВРЕМЕНИ ИЗМЕРЕНИЙ L
+        List<double> L_OADate_list;
 
         // Начальный индекс коллекции L с которого будет отрисовываться диаграммы
         int L_plot_index;
 
-        // Коллекция времени измерений L
-        List<double> L_OADate_list;
-
-        // Тангенс L
+        // ТАНГЕНС L
         float tg_L;
 
-        // Емкость
+        // ЕМКОСТЬ
         float Capacity;
 
-        // Коллекция C
+        // КОЛЛЕКЦИЯ C
         List<double> C_list;
+
+        // КОЛЛЕКЦИЯ ВРЕМЕНИ ИЗМЕРЕНИЙ C
+        List<double> C_OADate_list;
+
+        // ТАНГЕНС С
+        float tg_C;
 
         // Начальный индекс коллекции C с которого будет отрисовываться диаграммы
         int C_plot_index;
 
-        // Коллекция времени измерений C
-        List<double> C_OADate_list;
-
-        // Тангенс С
-        float tg_C;
-
-        // Взаимоиндуктивность
+        // ВЗАИМОИНДУКТИВНОСТЬ
         float MutualInductance;
 
-        // Коллекция M
+        // КОЛЛЕКЦИЯ M
         List<double> M_list;
+
+        // КОЛЛЕКЦИЯ ВРЕМЕНИ ИЗМЕРЕНИЙ M
+        List<double> M_OADate_list;
+
+        // ТАНГЕНС M
+        float tg_M;
 
         // Начальный индекс коллекции M с которого будет отрисовываться диаграммы
         int M_plot_index;
 
-        // Коллекция времени измерений M
-        List<double> M_OADate_list;
-
-        // Тангенс M
-        float tg_M;
-
-        // Флаг основного индицируемого канала
+        // ФЛАГ ОСНОВНОГО ИНДИЦИРУЕМОГО КАНАЛА
         int ChanalFlag;
 
-        // Порядковый номер измерения
+        // ПОРЯДКОВЫЙ НОМЕР ИЗМЕРЕНИЯ
         int DataRowNumber;
 
-        // Колличество измерений по которым будет расчитываться оценка среднего
+        // МАССИВ ЗНАЧЕНИЙ (СОВОКУПНОСТЬ) ПО КОТОРОМУ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО 
+        double[] Population;
+
+        // КОЛЛИЧЕСТВО ИЗМЕРЕНИЙ (РАЗМЕР СОВОКУПНОСТИ) ПО КОТОРЫМ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО
         byte PopulationLength;
 
-        // Флаг - данные для сохранения существуют
+        // СЧЕТЧИК МАССИВА СОВОКУПНОСТИ
+        byte PopulationCounter;
+
+        // ФЛАГ - ЕСТЬ ДАННЫЕ ДЛЯ СОХРАНЕНИЯ
         public bool DataToSaveExists;
 
-        // Флаг - отрисовать оценку среднего
-        public bool PopulationArrayFilled;
+        // ФЛАГ - МАССИВ СОВОКУПНОСТИ ЗАПОЛНЕН
+        bool PopulationArrayFilled;
+
+        // Максимальное допустимое отклонение в массиве совокупности [доля единицы + 1]
+        float MaxPopulationDeviation;
 
         public MainWindow()
         {
@@ -160,7 +163,7 @@ namespace MNS
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
             this.ConsoleText = new string[12];
             this.PopulationLength = 12;
-            this.R_pop_counter = 0;
+            this.MaxPopulationDeviation = 1.01F;
 
             // ОТРИСОВЫВАЕМ ДИАГРАММЫ (ЧТО НЕ БУДЕТ МЕНЯТЬСЯ ПРИ РАБОТЕ ИЛИ БУДЕТ ИЗНАЧАЛЬНО)
             StylePlots();
@@ -1068,145 +1071,243 @@ namespace MNS
             switch (ChanalFlag)
             {
                 case 0:
-                    // Ссылаем все остальные коллекции в null
-                    if (L_list != null)
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.L_list != null)
                     {
-                        L_list = null;
-                        L_OADate_list = null;
+                        this.L_list = null;
+                        this.L_OADate_list = null;
                     }
-                    if (C_list != null)
+                    if (this.C_list != null)
                     {
-                        C_list = null;
-                        C_OADate_list = null;
+                        this.C_list = null;
+                        this.C_OADate_list = null;
                     }
-                    if (M_list != null)
+                    if (this.M_list != null)
                     {
-                        M_list = null;
-                        M_OADate_list = null;
+                        this.M_list = null;
+                        this.M_OADate_list = null;
                     }
-                    // Инициализируем и/или добавляем значения в коллекцию
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
                     if (this.R_list != null)
                     {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
                         this.R_list.Add(this.Resistance);
                         this.R_OADate_list.Add(DateTime.Now.ToOADate());
 
-                        if (R_pop_counter < PopulationLength)
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
                         {
-                            this.R_population[R_pop_counter] = this.Resistance;
-                            PopulationArrayFilled = false;
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.Resistance;
+                            this.PopulationArrayFilled = false;
 
-                            if (R_population.Length == (R_pop_counter + 1))
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
                             {
-                                PopulationArrayFilled = true;
-                                this.R_pop_counter = 0;
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
                             }
                             else
                             {
-                                this.R_pop_counter++;
+                                this.PopulationCounter++;
                             }
                         }
                     }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.R_list = new List<double>();
                         this.R_OADate_list = new List<double>();
-                        this.R_population = new double[PopulationLength];
+                        this.Population = new double[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
                         this.R_list.Add(this.Resistance);
-                        this.R_population[R_pop_counter] = this.Resistance;
                         this.R_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.Resistance;
                     }
                     break;
                 case 1:
-                    // Ссылаем все остальные коллекции в null
-                    if (R_list != null)
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.R_list != null)
                     {
-                        R_list = null;
-                        R_OADate_list = null;
+                        this.R_list = null;
+                        this.R_OADate_list = null;
                     }
-                    if (C_list != null)
+                    if (this.C_list != null)
                     {
-                        C_list = null;
-                        C_OADate_list = null;
+                        this.C_list = null;
+                        this.C_OADate_list = null;
                     }
-                    if (M_list != null)
+                    if (this.M_list != null)
                     {
-                        M_list = null;
-                        M_OADate_list = null;
+                        this.M_list = null;
+                        this.M_OADate_list = null;
                     }
-                    // Инициализируем и/или добавляем значения в коллекцию
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
                     if (this.L_list != null)
                     {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
                         this.L_list.Add(this.Inductance);
                         this.L_OADate_list.Add(DateTime.Now.ToOADate());
+
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
+                        {
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.Inductance;
+                            this.PopulationArrayFilled = false;
+
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
+                            {
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
+                            }
+                            else
+                            {
+                                this.PopulationCounter++;
+                            }
+                        }
                     }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.L_list = new List<double>();
                         this.L_OADate_list = new List<double>();
+                        this.Population = new double[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
                         this.L_list.Add(this.Inductance);
                         this.L_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.Inductance;
                     }
                     break;
                 case 2:
-                    // Ссылаем все остальные коллекции в null
-                    if (R_list != null)
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.R_list != null)
                     {
-                        R_list = null;
-                        R_OADate_list = null;
+                        this.R_list = null;
+                        this.R_OADate_list = null;
                     }
-                    if (L_list != null)
+                    if (this.L_list != null)
                     {
-                        L_list = null;
-                        L_OADate_list = null;
+                        this.L_list = null;
+                        this.L_OADate_list = null;
                     }
-                    if (M_list != null)
+                    if (this.M_list != null)
                     {
-                        M_list = null;
-                        M_OADate_list = null;
+                        this.M_list = null;
+                        this.M_OADate_list = null;
                     }
-                    // Инициализируем и/или добавляем значения в коллекцию
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
                     if (this.C_list != null)
                     {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
                         this.C_list.Add(this.Capacity);
                         this.C_OADate_list.Add(DateTime.Now.ToOADate());
+
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
+                        {
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.Capacity;
+                            this.PopulationArrayFilled = false;
+
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
+                            {
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
+                            }
+                            else
+                            {
+                                this.PopulationCounter++;
+                            }
+                        }
                     }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.C_list = new List<double>();
                         this.C_OADate_list = new List<double>();
+                        this.Population = new double[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
                         this.C_list.Add(this.Capacity);
                         this.C_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.Capacity;
                     }
                     break;
                 case 3:
-                    // Ссылаем все остальные коллекции в null
-                    if (R_list != null)
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.R_list != null)
                     {
-                        R_list = null;
-                        R_OADate_list = null;
+                        this.R_list = null;
+                        this.R_OADate_list = null;
                     }
-                    if (L_list != null)
+                    if (this.L_list != null)
                     {
-                        L_list = null;
-                        L_OADate_list = null;
+                        this.L_list = null;
+                        this.L_OADate_list = null;
                     }
-                    if (C_list != null)
+                    if (this.C_list != null)
                     {
-                        C_list = null;
-                        C_OADate_list = null;
+                        this.C_list = null;
+                        this.C_OADate_list = null;
                     }
-                    // Инициализируем и/или добавляем значения в коллекцию
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
                     if (this.M_list != null)
                     {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
                         this.M_list.Add(this.MutualInductance);
                         this.M_OADate_list.Add(DateTime.Now.ToOADate());
+
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
+                        {
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.MutualInductance;
+                            this.PopulationArrayFilled = false;
+
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
+                            {
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
+                            }
+                            else
+                            {
+                                this.PopulationCounter++;
+                            }
+                        }
                     }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.M_list = new List<double>();
                         this.M_OADate_list = new List<double>();
+                        this.Population = new double[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
                         this.M_list.Add(this.MutualInductance);
                         this.M_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.MutualInductance;
                     }
                     break;
                 default:
@@ -1225,8 +1326,7 @@ namespace MNS
 
                     R_values = R_list.ToArray();
                     R_dates = R_OADate_list.ToArray();
-
-
+                    
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
                     if (R_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
@@ -1241,37 +1341,41 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
                         value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+
+                        CheckAccessAndUpdate_value_plot(value_plot);
                     }
 
                     if (PopulationArrayFilled)
                     {
-                        // Population
-                        var R_pop = new ScottPlot.Statistics.Population(R_population);
-                        double[] R_curveXs = ScottPlot.DataGen.Range(R_pop.minus3stDev, R_pop.plus3stDev, .1); // Массив точек оси X графика плотности вероятности
-                        double[] R_curveYs = R_pop.GetDistribution(R_curveXs, false); // Массив точек оси Y графика плотности вероятности
+                        if (CheckPopulationIfFits(this.Population))
+                        {
+                            // Population
+                            var R_pop = new ScottPlot.Statistics.Population(Population);
+                            double[] R_curveXs = ScottPlot.DataGen.Range(R_pop.minus3stDev, R_pop.plus3stDev, .1); // Массив точек оси X графика плотности вероятности
+                            double[] R_curveYs = R_pop.GetDistribution(R_curveXs, false); // Массив точек оси Y графика плотности вероятности
 
 
-                        // Creating an Ys scatter of values on a plot
-                        Random rand = new Random(0);
-                        double[] R_ys = ScottPlot.DataGen.RandomNormal(rand, R_pop.values.Length, stdDev: .15);
+                            // Creating an Ys scatter of values on a plot
+                            Random rand = new Random(0);
+                            double[] R_ys = ScottPlot.DataGen.RandomNormal(rand, R_pop.values.Length, stdDev: .15);
 
-                        probability_plot.plt.Clear();
-                        probability_plot.plt.PlotScatter(R_population, R_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
-                        probability_plot.plt.PlotScatter(R_curveXs, R_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
-                        probability_plot.plt.Axis(x1: R_pop.minus3stDev, x2: R_pop.plus3stDev, y1: -0.05, y2: 1.2);
-                        probability_plot.plt.Title($"Оценка ср. R: ({R_pop.mean:0.0000} " + "\u00B1" + $" {R_pop.stDev:0.0000}) Ом, n={R_pop.n}");
-                        probability_plot.plt.PlotVLine(R_pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
-                        probability_plot.plt.PlotVLine(R_pop.mean - R_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
-                        probability_plot.plt.PlotVLine(R_pop.mean + R_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
-                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
-                        probability_plot.plt.XLabel("Значение R, Ом", bold: true);
-                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
-                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                        probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
+                            probability_plot.plt.Clear();
+                            probability_plot.plt.PlotScatter(Population, R_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
+                            probability_plot.plt.PlotScatter(R_curveXs, R_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
+                            probability_plot.plt.Axis(x1: R_pop.minus3stDev, x2: R_pop.plus3stDev, y1: -0.05, y2: 1.2);
+                            probability_plot.plt.Title($"Оценка ср. R: ({R_pop.mean:0.0000} " + "\u00B1" + $" {R_pop.stDev:0.0000}) Ом, n={R_pop.n}");
+                            probability_plot.plt.PlotVLine(R_pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
+                            probability_plot.plt.PlotVLine(R_pop.mean - R_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
+                            probability_plot.plt.PlotVLine(R_pop.mean + R_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
+                            probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
+                            probability_plot.plt.XLabel("Значение R, Ом", bold: true);
+                            probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
+                            probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
+                            probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
 
-                        CheckAccessAndUpdate_probability_plot(probability_plot);
+                            CheckAccessAndUpdate_probability_plot(probability_plot);
+                        }
                     }
-                    CheckAccessAndUpdate_value_plot(value_plot);
                     break;
                 case 1:
                     // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
@@ -1513,29 +1617,59 @@ namespace MNS
             }
         }
 
-        private void ClearScatterPlots_MenuItem_Click(object sender, RoutedEventArgs e)
+        private void ClearPlots_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-           // тоже самое
+            ClearPlots();
         }
 
         private void ClearPlots_button_Click(object sender, RoutedEventArgs e)
         {
+            ClearPlots();
+        }
+
+        private void ClearPlots()
+        {
             Stop_measurement();
+
             this.R_list = null;
             this.L_list = null;
             this.C_list = null;
             this.M_list = null;
+
             this.R_OADate_list = null;
             this.L_OADate_list = null;
             this.C_OADate_list = null;
             this.M_OADate_list = null;
-            this.R_population = null;
+
+            this.Population = null;
 
             value_plot.plt.Clear();
             probability_plot.plt.Clear();
+
             CheckAccessAndUpdate_value_plot(value_plot);
             CheckAccessAndUpdate_probability_plot(probability_plot);
+
             Start_measurement();
+        }
+
+        private bool CheckPopulationIfFits(double[] population)
+        {
+            bool res = false;
+            byte count = 0;
+
+            for (int i = 0; i < population.Length; i++)
+            {
+                if (Math.Abs(population[i]) > (Math.Abs(population[0]) * MaxPopulationDeviation))
+                {
+                    count++;
+                }
+            }
+
+            if (count == 0)
+            {
+                res = true;
+            }
+            return res;
         }
     }
 }
