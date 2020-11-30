@@ -90,9 +90,6 @@ namespace MNS
         // КОЛЛЕКЦИЯ ВРЕМЕНИ ИЗМЕРЕНИЙ L
         List<double> L_OADate_list;
 
-        // Начальный индекс коллекции L с которого будет отрисовываться диаграммы
-        int L_plot_index;
-
         // ТАНГЕНС L
         float tg_L;
 
@@ -108,9 +105,6 @@ namespace MNS
         // ТАНГЕНС С
         float tg_C;
 
-        // Начальный индекс коллекции C с которого будет отрисовываться диаграммы
-        int C_plot_index;
-
         // ВЗАИМОИНДУКТИВНОСТЬ
         float MutualInductance;
 
@@ -123,9 +117,6 @@ namespace MNS
         // ТАНГЕНС M
         float tg_M;
 
-        // Начальный индекс коллекции M с которого будет отрисовываться диаграммы
-        int M_plot_index;
-
         // ФЛАГ ОСНОВНОГО ИНДИЦИРУЕМОГО КАНАЛА
         int ChanalFlag;
 
@@ -134,6 +125,9 @@ namespace MNS
 
         // МАССИВ ЗНАЧЕНИЙ (СОВОКУПНОСТЬ) ПО КОТОРОМУ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО 
         double[] Population;
+
+        // МАССИВ ЗНАЧЕНИЙ tg (СОВОКУПНОСТЬ) ПО КОТОРОМУ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО 
+        double[] tgPopulation;
 
         // КОЛЛИЧЕСТВО ИЗМЕРЕНИЙ (РАЗМЕР СОВОКУПНОСТИ) ПО КОТОРЫМ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО
         byte PopulationLength;
@@ -149,6 +143,18 @@ namespace MNS
 
         // Максимальное допустимое отклонение в массиве совокупности [доля единицы + 1]
         float MaxPopulationDeviation;
+
+        // СРЕДНЕЕ ЗНАЧЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
+        double AverageValue;
+
+        // СРЕДНЕЕ ЗНАЧЕНИЕ tg ОСНОВНОГО КАНАЛА ИЗМЕРЕНИЯ
+        double tgAverageValue;
+
+        // СТАНДАРТНОЕ ОТКЛОНЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
+        double ValueStDev;
+
+        // СТАНДАРТНОЕ ОТКЛОНЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
+        double tgValueStDev;
 
         public MainWindow()
         {
@@ -653,8 +659,6 @@ namespace MNS
             BuildGraphes();
         }
 
-
-
         private void Settings_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             VisualEffects.ApplyBlurEffect(this);
@@ -766,6 +770,7 @@ namespace MNS
 
         private void DisplayInactiveMesResults()
         {
+            // РЕЗУЛЬТАТЫ ИЗМЕРЕНИЙ
             ValueSymbol_textBlock.Text = "X:";
             Value_textBlock.Text = "---";
 
@@ -781,6 +786,17 @@ namespace MNS
             integrationValue_textBlock.Text = "---";
             averagingValue_textBlock.Text = "---";
             chanalNumber_textBlock.Text = "---";
+
+            // ОЦЕНКА СРЕДНЕГО
+            MeanValueSymbol_textBlock.Text = "X";
+            StDevValueSymbol_textBlock.Text = "X";
+
+            MeanValue_textBlock.Text = "---";
+            StDev_textBlock.Text = "---";
+            tgMeanValue_textBlock.Text = "---";
+            tgStDev_textBlock.Text = "---";
+
+            quantityOfMeasurements_textBlock.Text = "";
         }
 
 
@@ -789,6 +805,10 @@ namespace MNS
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
             CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "R:");
             CheckAccessAndDisplayOnTextBlock(Value_textBlock, Resistance.ToString() + " Ом");
+
+            // МЕНЯЕМ СИМВОЛЫ ОБОЗНАЧЕНИЯ ОЦЕНКИ СРЕДНЕГО
+            CheckAccessAndDisplayOnTextBlock(MeanValueSymbol_textBlock, "R");
+            CheckAccessAndDisplayOnTextBlock(StDevValueSymbol_textBlock, "R");
         }
 
         private void Display_tgR()
@@ -809,6 +829,10 @@ namespace MNS
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
             CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "L:");
             CheckAccessAndDisplayOnTextBlock(Value_textBlock, Inductance.ToString() + " Гн");
+
+            // МЕНЯЕМ СИМВОЛЫ ОБОЗНАЧЕНИЯ ОЦЕНКИ СРЕДНЕГО
+            CheckAccessAndDisplayOnTextBlock(MeanValueSymbol_textBlock, "L");
+            CheckAccessAndDisplayOnTextBlock(StDevValueSymbol_textBlock, "L");
         }
 
         private void Display_tgL()
@@ -823,6 +847,10 @@ namespace MNS
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
             CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "C:");
             CheckAccessAndDisplayOnTextBlock(Value_textBlock, Capacity.ToString() + " Ф");
+
+            // МЕНЯЕМ СИМВОЛЫ ОБОЗНАЧЕНИЯ ОЦЕНКИ СРЕДНЕГО
+            CheckAccessAndDisplayOnTextBlock(MeanValueSymbol_textBlock, "C");
+            CheckAccessAndDisplayOnTextBlock(StDevValueSymbol_textBlock, "C");
         }
 
         private void Display_tgC()
@@ -837,6 +865,10 @@ namespace MNS
             // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
             CheckAccessAndDisplayOnTextBlock(ValueSymbol_textBlock, "M:");
             CheckAccessAndDisplayOnTextBlock(Value_textBlock, MutualInductance.ToString());
+
+            // МЕНЯЕМ СИМВОЛЫ ОБОЗНАЧЕНИЯ ОЦЕНКИ СРЕДНЕГО
+            CheckAccessAndDisplayOnTextBlock(MeanValueSymbol_textBlock, "M");
+            CheckAccessAndDisplayOnTextBlock(StDevValueSymbol_textBlock, "M");
         }
 
         private void Display_tgM()
@@ -1048,22 +1080,12 @@ namespace MNS
         {
             // НАСТРОЙКИ ГРАФИКОВ ПРИ ИХ ПОСТРОЕНИИ (до рендеринга)
             // Scatter
-            value_plot.plt.Title("Диаграмма рассеяния"); // Заголовок
-            value_plot.plt.YLabel("Значение", bold: true); // Надпись у оси Y
-            value_plot.plt.XLabel("Время", bold: true); // Надпись у оси X
+            value_plot.plt.Title("Диаграмма рассеяния", fontSize: 20, bold: true); // Заголовок
+            value_plot.plt.YLabel("Значение", fontSize: 18, bold: true); // Надпись у оси Y
+            value_plot.plt.XLabel("Время", fontSize: 18, bold: true); // Надпись у оси X
             value_plot.plt.Ticks(dateTimeX: true); // Используем на оси X - формат времени
             value_plot.plt.Ticks(displayTickLabelsX: false); // Не показываем значения у делений на оси X
             value_plot.plt.Ticks(displayTickLabelsY: false); // Не показываем значения у делений на оси Y
-
-
-            // Population
-            probability_plot.plt.Title("Оценка среднего"); // Заголовок
-            probability_plot.plt.XLabel("Значение", bold: true); // Надпись у оси Y
-            probability_plot.plt.Ticks(displayTicksY: false); // Не показываем главные деления оси Y
-            probability_plot.plt.Ticks(displayTickLabelsY: false); // Не показываем значения у делений на оси Y
-            probability_plot.plt.Ticks(displayTicksYminor: false); // Не показываем дополнительные деления оси Y
-            probability_plot.plt.Ticks(displayTickLabelsX: false); // Не показываем значения у делений на оси X
-            probability_plot.plt.Grid(lineStyle: ScottPlot.LineStyle.Dot);
         }
 
         private void AddResultsToCollections()
@@ -1099,6 +1121,8 @@ namespace MNS
                         {
                             // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
                             this.Population[PopulationCounter] = this.Resistance;
+                            this.tgPopulation[PopulationCounter] = this.tg_R;
+
                             this.PopulationArrayFilled = false;
 
                             // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
@@ -1120,6 +1144,7 @@ namespace MNS
                         this.R_list = new List<double>();
                         this.R_OADate_list = new List<double>();
                         this.Population = new double[PopulationLength];
+                        this.tgPopulation = new double[PopulationLength];
 
                         // ОБНУЛЯЕМ СЧЕТЧИК
                         this.PopulationCounter = 0;
@@ -1128,187 +1153,20 @@ namespace MNS
                         this.R_list.Add(this.Resistance);
                         this.R_OADate_list.Add(DateTime.Now.ToOADate());
                         this.Population[PopulationCounter] = this.Resistance;
+                        this.tgPopulation[PopulationCounter] = this.tg_R;
+
+                        // УВЕЛИЧИВАЕМ ЗНАЧЕНИЕ СЧЕТЧИКА
+                        this.PopulationCounter++;
                     }
                     break;
                 case 1:
-                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
-                    if (this.R_list != null)
-                    {
-                        this.R_list = null;
-                        this.R_OADate_list = null;
-                    }
-                    if (this.C_list != null)
-                    {
-                        this.C_list = null;
-                        this.C_OADate_list = null;
-                    }
-                    if (this.M_list != null)
-                    {
-                        this.M_list = null;
-                        this.M_OADate_list = null;
-                    }
-                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
-                    if (this.L_list != null)
-                    {
-                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
-                        this.L_list.Add(this.Inductance);
-                        this.L_OADate_list.Add(DateTime.Now.ToOADate());
 
-                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
-                        if (PopulationCounter < PopulationLength)
-                        {
-                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
-                            this.Population[PopulationCounter] = this.Inductance;
-                            this.PopulationArrayFilled = false;
-
-                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
-                            if (Population.Length == (PopulationCounter + 1))
-                            {
-                                this.PopulationArrayFilled = true;
-                                this.PopulationCounter = 0;
-                            }
-                            else
-                            {
-                                this.PopulationCounter++;
-                            }
-                        }
-                    }
-                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
-                    else
-                    {
-                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
-                        this.L_list = new List<double>();
-                        this.L_OADate_list = new List<double>();
-                        this.Population = new double[PopulationLength];
-
-                        // ОБНУЛЯЕМ СЧЕТЧИК
-                        this.PopulationCounter = 0;
-
-                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
-                        this.L_list.Add(this.Inductance);
-                        this.L_OADate_list.Add(DateTime.Now.ToOADate());
-                        this.Population[PopulationCounter] = this.Inductance;
-                    }
                     break;
                 case 2:
-                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
-                    if (this.R_list != null)
-                    {
-                        this.R_list = null;
-                        this.R_OADate_list = null;
-                    }
-                    if (this.L_list != null)
-                    {
-                        this.L_list = null;
-                        this.L_OADate_list = null;
-                    }
-                    if (this.M_list != null)
-                    {
-                        this.M_list = null;
-                        this.M_OADate_list = null;
-                    }
-                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
-                    if (this.C_list != null)
-                    {
-                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
-                        this.C_list.Add(this.Capacity);
-                        this.C_OADate_list.Add(DateTime.Now.ToOADate());
 
-                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
-                        if (PopulationCounter < PopulationLength)
-                        {
-                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
-                            this.Population[PopulationCounter] = this.Capacity;
-                            this.PopulationArrayFilled = false;
-
-                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
-                            if (Population.Length == (PopulationCounter + 1))
-                            {
-                                this.PopulationArrayFilled = true;
-                                this.PopulationCounter = 0;
-                            }
-                            else
-                            {
-                                this.PopulationCounter++;
-                            }
-                        }
-                    }
-                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
-                    else
-                    {
-                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
-                        this.C_list = new List<double>();
-                        this.C_OADate_list = new List<double>();
-                        this.Population = new double[PopulationLength];
-
-                        // ОБНУЛЯЕМ СЧЕТЧИК
-                        this.PopulationCounter = 0;
-
-                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
-                        this.C_list.Add(this.Capacity);
-                        this.C_OADate_list.Add(DateTime.Now.ToOADate());
-                        this.Population[PopulationCounter] = this.Capacity;
-                    }
                     break;
                 case 3:
-                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
-                    if (this.R_list != null)
-                    {
-                        this.R_list = null;
-                        this.R_OADate_list = null;
-                    }
-                    if (this.L_list != null)
-                    {
-                        this.L_list = null;
-                        this.L_OADate_list = null;
-                    }
-                    if (this.C_list != null)
-                    {
-                        this.C_list = null;
-                        this.C_OADate_list = null;
-                    }
-                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
-                    if (this.M_list != null)
-                    {
-                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
-                        this.M_list.Add(this.MutualInductance);
-                        this.M_OADate_list.Add(DateTime.Now.ToOADate());
 
-                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
-                        if (PopulationCounter < PopulationLength)
-                        {
-                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
-                            this.Population[PopulationCounter] = this.MutualInductance;
-                            this.PopulationArrayFilled = false;
-
-                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
-                            if (Population.Length == (PopulationCounter + 1))
-                            {
-                                this.PopulationArrayFilled = true;
-                                this.PopulationCounter = 0;
-                            }
-                            else
-                            {
-                                this.PopulationCounter++;
-                            }
-                        }
-                    }
-                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
-                    else
-                    {
-                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
-                        this.M_list = new List<double>();
-                        this.M_OADate_list = new List<double>();
-                        this.Population = new double[PopulationLength];
-
-                        // ОБНУЛЯЕМ СЧЕТЧИК
-                        this.PopulationCounter = 0;
-
-                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
-                        this.M_list.Add(this.MutualInductance);
-                        this.M_OADate_list.Add(DateTime.Now.ToOADate());
-                        this.Population[PopulationCounter] = this.MutualInductance;
-                    }
                     break;
                 default:
                     break;
@@ -1326,13 +1184,13 @@ namespace MNS
 
                     R_values = R_list.ToArray();
                     R_dates = R_OADate_list.ToArray();
-                    
+
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
                     if (R_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(R_dates, R_values, label: "Сопротивление, Ом");
+                        value_plot.plt.PlotScatter(R_dates, R_values, label: "Сопротивление, Ом", color: System.Drawing.Color.Red);
                         value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
                         value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1340,7 +1198,7 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
-                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft, fontSize: 18, bold: true); // разрешаем отображение легенд
 
                         CheckAccessAndUpdate_value_plot(value_plot);
                     }
@@ -1349,31 +1207,11 @@ namespace MNS
                     {
                         if (CheckPopulationIfFits(this.Population))
                         {
-                            // Population
-                            var R_pop = new ScottPlot.Statistics.Population(Population);
-                            double[] R_curveXs = ScottPlot.DataGen.Range(R_pop.minus3stDev, R_pop.plus3stDev, .1); // Массив точек оси X графика плотности вероятности
-                            double[] R_curveYs = R_pop.GetDistribution(R_curveXs, false); // Массив точек оси Y графика плотности вероятности
+                            this.ValueStDev = Statistics.GetStDev(this.Population);
+                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
 
-
-                            // Creating an Ys scatter of values on a plot
-                            Random rand = new Random(0);
-                            double[] R_ys = ScottPlot.DataGen.RandomNormal(rand, R_pop.values.Length, stdDev: .15);
-
-                            probability_plot.plt.Clear();
-                            probability_plot.plt.PlotScatter(Population, R_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
-                            probability_plot.plt.PlotScatter(R_curveXs, R_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. R"); // График плотности вероятности
-                            probability_plot.plt.Axis(x1: R_pop.minus3stDev, x2: R_pop.plus3stDev, y1: -0.05, y2: 1.2);
-                            probability_plot.plt.Title($"Оценка ср. R: ({R_pop.mean:0.0000} " + "\u00B1" + $" {R_pop.stDev:0.0000}) Ом, n={R_pop.n}");
-                            probability_plot.plt.PlotVLine(R_pop.mean, label: "Ср. знач. R", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
-                            probability_plot.plt.PlotVLine(R_pop.mean - R_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
-                            probability_plot.plt.PlotVLine(R_pop.mean + R_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
-                            probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
-                            probability_plot.plt.XLabel("Значение R, Ом", bold: true);
-                            probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
-                            probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                            probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
-
-                            CheckAccessAndUpdate_probability_plot(probability_plot);
+                            DisplayEstimates();
                         }
                     }
                     break;
@@ -1382,16 +1220,8 @@ namespace MNS
                     double[] L_values;
                     double[] L_dates;
 
-                    if (L_plot_index == 0)
-                    {
-                        L_values = L_list.ToArray();
-                        L_dates = L_OADate_list.ToArray();
-                    }
-                    else
-                    {
-                        L_values = L_list.GetRange(L_plot_index, L_list.Count - L_plot_index).ToArray();
-                        L_dates = L_OADate_list.GetRange(L_plot_index, L_OADate_list.Count - L_plot_index).ToArray();
-                    }
+                    L_values = L_list.ToArray();
+                    L_dates = L_OADate_list.ToArray();
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
@@ -1407,51 +1237,29 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
                         value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+
+                        CheckAccessAndUpdate_value_plot(value_plot);
                     }
 
-                    // Population
-                    var L_pop = new ScottPlot.Statistics.Population(L_values);
-                    double[] L_curveXs = ScottPlot.DataGen.Range(L_pop.minus3stDev, L_pop.plus3stDev, .000000001); // Массив точек оси X графика плотности вероятности
-                    double[] L_curveYs = L_pop.GetDistribution(L_curveXs, false); // Массив точек оси Y графика плотности вероятности
-
-                    if (L_curveXs.Length > 1)
+                    if (PopulationArrayFilled)
                     {
-                        // Creating an Ys scatter of values on a plot
-                        Random rand = new Random(0);
-                        double[] L_ys = ScottPlot.DataGen.RandomNormal(rand, L_pop.values.Length, stdDev: .15);
+                        if (CheckPopulationIfFits(this.Population))
+                        {
+                            this.ValueStDev = Statistics.GetStDev(this.Population);
+                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
 
-                        probability_plot.plt.Clear();
-                        probability_plot.plt.PlotScatter(L_values, L_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
-                        probability_plot.plt.PlotScatter(L_curveXs, L_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. L"); // График плотности вероятности
-                        probability_plot.plt.Axis(x1: L_pop.minus3stDev, x2: L_pop.plus3stDev, y1: -0.05, y2: 1.2);
-                        probability_plot.plt.Title($"Оценка ср. L: ({L_pop.mean:0.0000} " + "\u00B1" + $" {L_pop.stDev:0.0000}) Гн, n={L_pop.n}");
-                        probability_plot.plt.PlotVLine(L_pop.mean, label: "Ср. знач. L", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
-                        probability_plot.plt.PlotVLine(L_pop.mean - L_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
-                        probability_plot.plt.PlotVLine(L_pop.mean + L_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
-                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
-                        probability_plot.plt.XLabel("Значение L, Гн", bold: true);
-                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
-                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                        probability_plot.plt.Ticks(numericFormatStringX: "E4"); // Используем форматирование чисел
+                            DisplayEstimates();
+                        }
                     }
-                    CheckAccessAndUpdate_value_plot(value_plot);
-                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 2:
                     // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
                     double[] C_values;
                     double[] C_dates;
 
-                    if (C_plot_index == 0)
-                    {
-                        C_values = C_list.ToArray();
-                        C_dates = C_OADate_list.ToArray();
-                    }
-                    else
-                    {
-                        C_values = C_list.GetRange(C_plot_index, C_list.Count - C_plot_index).ToArray();
-                        C_dates = C_OADate_list.GetRange(C_plot_index, C_OADate_list.Count - C_plot_index).ToArray();
-                    }
+                    C_values = C_list.ToArray();
+                    C_dates = C_OADate_list.ToArray();
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
@@ -1467,58 +1275,36 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
                         value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+
+                        CheckAccessAndUpdate_value_plot(value_plot);
                     }
 
-                    // Population
-                    var C_pop = new ScottPlot.Statistics.Population(C_values);
-                    double[] C_curveXs = ScottPlot.DataGen.Range(C_pop.minus3stDev, C_pop.plus3stDev, .00000000000001); // Массив точек оси X графика плотности вероятности
-                    double[] C_curveYs = C_pop.GetDistribution(C_curveXs, false); // Массив точек оси Y графика плотности вероятности
-
-                    if (C_curveXs.Length > 1)
+                    if (PopulationArrayFilled)
                     {
-                        // Creating an Ys scatter of values on a plot
-                        Random rand = new Random(0);
-                        double[] C_ys = ScottPlot.DataGen.RandomNormal(rand, C_pop.values.Length, stdDev: .15);
+                        if (CheckPopulationIfFits(this.Population))
+                        {
+                            this.ValueStDev = Statistics.GetStDev(this.Population);
+                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
 
-                        probability_plot.plt.Clear();
-                        probability_plot.plt.PlotScatter(C_values, C_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
-                        probability_plot.plt.PlotScatter(C_curveXs, C_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. C"); // График плотности вероятности
-                        probability_plot.plt.Axis(x1: C_pop.minus3stDev, x2: C_pop.plus3stDev, y1: -0.05, y2: 1.2);
-                        probability_plot.plt.Title($"Оценка ср. C: ({C_pop.mean:0.0000} " + "\u00B1" + $" {C_pop.stDev:0.0000}) Ф, n={C_pop.n}");
-                        probability_plot.plt.PlotVLine(C_pop.mean, label: "Ср. знач. C", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
-                        probability_plot.plt.PlotVLine(C_pop.mean - C_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
-                        probability_plot.plt.PlotVLine(C_pop.mean + C_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
-                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
-                        probability_plot.plt.XLabel("Значение C, Ф", bold: true);
-                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
-                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                        probability_plot.plt.Ticks(numericFormatStringX: "E5"); // Используем форматирование чисел
+                            DisplayEstimates();
+                        }
                     }
-                    CheckAccessAndUpdate_value_plot(value_plot);
-                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 case 3:
                     // СОЗДАНИЕ МАССИВОВ ДЛЯ ПОСТРОЕНИЯ ГРАФИКОВ
                     double[] M_values;
                     double[] M_dates;
 
-                    if (M_plot_index == 0)
-                    {
-                        M_values = M_list.ToArray();
-                        M_dates = M_OADate_list.ToArray();
-                    }
-                    else
-                    {
-                        M_values = M_list.GetRange(M_plot_index, M_list.Count - M_plot_index).ToArray();
-                        M_dates = M_OADate_list.GetRange(M_plot_index, M_OADate_list.Count - M_plot_index).ToArray();
-                    }
+                    M_values = M_list.ToArray();
+                    M_dates = M_OADate_list.ToArray();
 
                     // НАСТРОЙКИ ГРАФИКОВ ПРИ РЕНДЕРИНГЕ
                     // Scatter
                     if (M_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взаимоиндукция, Гн");
+                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взимоиндуктивность, Гн");
                         value_plot.plt.Title("Диаграмма рассеяния M"); // Надпись у оси Y
                         value_plot.plt.YLabel("Значение M, Гн", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1527,35 +1313,21 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
                         value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+
+                        CheckAccessAndUpdate_value_plot(value_plot);
                     }
 
-                    // Population
-                    var M_pop = new ScottPlot.Statistics.Population(M_values);
-                    double[] M_curveXs = ScottPlot.DataGen.Range(M_pop.minus3stDev, M_pop.plus3stDev, .0000001); // Массив точек оси X графика плотности вероятности
-                    double[] M_curveYs = M_pop.GetDistribution(M_curveXs, false); // Массив точек оси Y графика плотности вероятности
-
-                    if (M_curveXs.Length > 1)
+                    if (PopulationArrayFilled)
                     {
-                        // Creating an Ys scatter of values on a plot
-                        Random rand = new Random(0);
-                        double[] M_ys = ScottPlot.DataGen.RandomNormal(rand, M_pop.values.Length, stdDev: .15);
+                        if (CheckPopulationIfFits(this.Population))
+                        {
+                            this.ValueStDev = Statistics.GetStDev(this.Population);
+                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
 
-                        probability_plot.plt.Clear();
-                        probability_plot.plt.PlotScatter(M_values, M_ys, markerSize: 5, markerShape: MarkerShape.openCircle, lineWidth: 0); // Диаграмма рассеяния величины на графике плотности (с искусственным рандомным расбросом по оси Y)
-                        probability_plot.plt.PlotScatter(M_curveXs, M_curveYs, markerSize: 0, lineWidth: 4, color: System.Drawing.Color.Black, label: "Плотн. распр. M"); // График плотности вероятности
-                        probability_plot.plt.Axis(x1: M_pop.minus3stDev, x2: M_pop.plus3stDev, y1: -0.05, y2: 1.2);
-                        probability_plot.plt.Title($"Оценка ср. M: ({M_pop.mean:0.0000} " + "\u00B1" + $" {M_pop.stDev:0.0000}) Гн, n={M_pop.n}");
-                        probability_plot.plt.PlotVLine(M_pop.mean, label: "Ср. знач. M", lineStyle: LineStyle.Dash, lineWidth: 1, color: System.Drawing.Color.LimeGreen);
-                        probability_plot.plt.PlotVLine(M_pop.mean - M_pop.stDev, label: "-1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.Red);
-                        probability_plot.plt.PlotVLine(M_pop.mean + M_pop.stDev, label: "+1\u03C3", lineStyle: LineStyle.Dash, lineWidth: 2, color: System.Drawing.Color.DodgerBlue);
-                        probability_plot.plt.Legend(location: legendLocation.lowerRight, shadowDirection: shadowDirection.lowerLeft); // Разрешаем отображение легенд
-                        probability_plot.plt.XLabel("Значение M, Гн", bold: true);
-                        probability_plot.plt.Ticks(displayTicksXminor: true); // Используем дополнительные деления оси Х
-                        probability_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
-                        probability_plot.plt.Ticks(numericFormatStringX: "E5"); // Используем форматирование чисел
+                            DisplayEstimates();
+                        }
                     }
-                    CheckAccessAndUpdate_value_plot(value_plot);
-                    CheckAccessAndUpdate_probability_plot(probability_plot);
                     break;
                 default:
                     break;
@@ -1577,25 +1349,6 @@ namespace MNS
                 {
                     value_plot.plt.AxisAuto();
                     value_plot.Render(skipIfCurrentlyRendering: true);
-                });
-            }
-        }
-
-        private void CheckAccessAndUpdate_probability_plot(object wpfElement)
-        {
-            probability_plot = wpfElement as ScottPlot.WpfPlot;
-
-            if (probability_plot.CheckAccess())
-            {
-                probability_plot.plt.AxisAutoX();
-                probability_plot.Render();
-            }
-            else
-            {
-                probability_plot.Dispatcher.InvokeAsync(() =>
-                {
-                    probability_plot.plt.AxisAutoX();
-                    probability_plot.Render();
                 });
             }
         }
@@ -1642,12 +1395,13 @@ namespace MNS
             this.M_OADate_list = null;
 
             this.Population = null;
+            this.tgPopulation = null;
 
             value_plot.plt.Clear();
-            probability_plot.plt.Clear();
+
+            StylePlots();
 
             CheckAccessAndUpdate_value_plot(value_plot);
-            CheckAccessAndUpdate_probability_plot(probability_plot);
 
             Start_measurement();
         }
@@ -1657,9 +1411,11 @@ namespace MNS
             bool res = false;
             byte count = 0;
 
+            this.AverageValue = Statistics.GetMeanValue(population);
+
             for (int i = 0; i < population.Length; i++)
             {
-                if (Math.Abs(population[i]) > (Math.Abs(population[0]) * MaxPopulationDeviation))
+                if (Math.Abs(population[i]) > (AverageValue * MaxPopulationDeviation))
                 {
                     count++;
                 }
@@ -1669,7 +1425,38 @@ namespace MNS
             {
                 res = true;
             }
+
             return res;
         }
+
+        private void DisplayEstimates()
+        {
+
+            switch (ChanalFlag)
+            {
+                case 0:
+                    // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.AverageValue.ToString("E6") + " Ом");
+                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.ValueStDev.ToString("E6") + " Ом");
+                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgAverageValue.ToString("0.#######"));
+                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgValueStDev.ToString("0.#######"));
+
+                    CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, $"(n={this.PopulationLength.ToString()})");
+
+                    break;
+                case 1:
+
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
     }
 }

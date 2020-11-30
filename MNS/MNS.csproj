@@ -103,6 +103,7 @@
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Statistics.cs" />
     <Compile Include="TechnicalAssistanceWindow.xaml.cs">
       <DependentUpon>TechnicalAssistanceWindow.xaml</DependentUpon>
     </Compile>
