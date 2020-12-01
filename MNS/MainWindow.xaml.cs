@@ -145,16 +145,16 @@ namespace MNS
         float MaxPopulationDeviation;
 
         // СРЕДНЕЕ ЗНАЧЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
-        double AverageValue;
+        double MeanValue;
 
         // СРЕДНЕЕ ЗНАЧЕНИЕ tg ОСНОВНОГО КАНАЛА ИЗМЕРЕНИЯ
-        double tgAverageValue;
+        double tgMeanValue;
 
         // СТАНДАРТНОЕ ОТКЛОНЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
-        double ValueStDev;
+        double StDev;
 
         // СТАНДАРТНОЕ ОТКЛОНЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
-        double tgValueStDev;
+        double tgStDev;
 
         public MainWindow()
         {
@@ -612,7 +612,6 @@ namespace MNS
                     if (ChanalFlag == 0) this.RangeInterval = "от 10^5 до 10^6 Ом";
                     if (ChanalFlag == 1) this.RangeInterval = "от 16 до 160 Гн";
                     if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-12 до 16*10^-11 Ф";
-
                     break;
                 case 7:
                     this.RangeIntervalNumber = 8;
@@ -1207,9 +1206,9 @@ namespace MNS
                     {
                         if (CheckPopulationIfFits(this.Population))
                         {
-                            this.ValueStDev = Statistics.GetStDev(this.Population);
-                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
-                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.StDev = Statistics.GetStDev(this.Population);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1245,9 +1244,9 @@ namespace MNS
                     {
                         if (CheckPopulationIfFits(this.Population))
                         {
-                            this.ValueStDev = Statistics.GetStDev(this.Population);
-                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
-                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.StDev = Statistics.GetStDev(this.Population);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1283,9 +1282,9 @@ namespace MNS
                     {
                         if (CheckPopulationIfFits(this.Population))
                         {
-                            this.ValueStDev = Statistics.GetStDev(this.Population);
-                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
-                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.StDev = Statistics.GetStDev(this.Population);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1321,9 +1320,9 @@ namespace MNS
                     {
                         if (CheckPopulationIfFits(this.Population))
                         {
-                            this.ValueStDev = Statistics.GetStDev(this.Population);
-                            this.tgValueStDev = Statistics.GetStDev(this.tgPopulation);
-                            this.tgAverageValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.StDev = Statistics.GetStDev(this.Population);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
+                            this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1411,11 +1410,11 @@ namespace MNS
             bool res = false;
             byte count = 0;
 
-            this.AverageValue = Statistics.GetMeanValue(population);
+            this.MeanValue = Statistics.GetMeanValue(population);
 
             for (int i = 0; i < population.Length; i++)
             {
-                if (Math.Abs(population[i]) > (AverageValue * MaxPopulationDeviation))
+                if (Math.Abs(population[i]) > (MeanValue * MaxPopulationDeviation))
                 {
                     count++;
                 }
@@ -1436,11 +1435,10 @@ namespace MNS
             {
                 case 0:
                     // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
-                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.AverageValue.ToString("E6") + " Ом");
-                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.ValueStDev.ToString("E6") + " Ом");
-                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgAverageValue.ToString("0.#######"));
-                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgValueStDev.ToString("0.#######"));
-
+                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.MeanValue.ToString("E6") + " Ом");
+                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.StDev.ToString("E6") + " Ом");
+                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgMeanValue.ToString("0.#######"));
+                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgStDev.ToString("0.#######"));
                     CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, $"(n={this.PopulationLength.ToString()})");
 
                     break;

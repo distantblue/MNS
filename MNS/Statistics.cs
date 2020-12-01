@@ -10,34 +10,58 @@ namespace MNS
     {
         internal static double GetMeanValue(double[] array)
         {
-            double res;
             double sum = 0;
 
             foreach (var item in array)
             {
                 sum += item;
             }
-            res = sum / array.Length;
+            double result = sum / array.Length;
 
-            return res;
+            return result;
         }
 
         internal static double GetStDev(double[] array)
         {
-            double res;
-            double avg = GetMeanValue(array);
-            double sum = 0;
+            double sumOfSquares = 0;
+            double mean = GetMeanValue(array);
 
             foreach (var item in array)
             {
-                double subs = item - avg;
-                double pow = Math.Pow(subs, 2);
-                sum += pow;
+                sumOfSquares += Math.Pow((item - mean), 2);
             }
-            double expr = sum / (array.Length - 1);
-            res = Math.Sqrt(expr);
+            return Math.Sqrt(sumOfSquares / (array.Length - 1));
+        }
+                
+        private static double GetStError(double[] array)
+        {
+            return GetStDev(array) / Math.Sqrt(array.Length);
+        }
 
-            return res;
+        private static double GetMinValue(double[] array)
+        {
+            double min = array[0];
+            foreach (var item in array)
+            {
+                if (item < min)
+                {
+                    min = item;
+                }
+            }
+            return min;
+        }
+
+        private static double GetMaxValue(double[] array)
+        {
+            double max = array[0];
+            foreach (var item in array)
+            {
+                if (item > max)
+                {
+                    max = item;
+                }
+            }
+            return max;
         }
     }
 }
