@@ -32,7 +32,7 @@
                 <MenuItem Header="УПРАВЛЕНИЕ">
                     <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click" />
                     <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
-                    <MenuItem Header="Очистить диаграммы" Click="ClearPlots_MenuItem_Click"/>
+                    <MenuItem Header="Очистить диаграмму" Click="ClearPlots_MenuItem_Click"/>
                     <MenuItem Header="Сохранить данные" Click="SaveMeasurementData_MenuItem_Click"/>
                     <MenuItem Header="Выход" Click="Exit_MenuItem_Click"/>
                 </MenuItem>
@@ -148,7 +148,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <TextBlock VerticalAlignment="Center" x:Name="quantityOfMeasurements_textBlock" Margin="0,3,0,0" TextWrapping="Wrap" Width="120"  FontSize="30" FontWeight="DemiBold" Foreground="Red"/>
+                        <TextBlock VerticalAlignment="Center" x:Name="quantityOfMeasurements_textBlock" Margin="0,3,0,0" TextWrapping="Wrap" Width="110"  FontSize="30" FontWeight="DemiBold" Foreground="Red"/>
                     </StackPanel>
 
                 </StackPanel>

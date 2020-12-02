@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-         Title="Информация о файле данных" Width="760" Height="590" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
+         Title="Информация о файле данных и оценке среднего" Width="760" Height="650" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
             <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="8" Width="700">
@@ -27,7 +27,8 @@
                 <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"
                 </TextBlock>
-                
+                <Label Content="Оценка среднего" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
+                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">Оценка среднего определяется по последним 30 измерениям если разброс значений находтся в интервале +-1 % от среднего значения.</TextBlock>
             </StackPanel>
         </Border>
     </Grid>

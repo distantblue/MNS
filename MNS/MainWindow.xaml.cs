@@ -168,7 +168,7 @@ namespace MNS
 
             // ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ
             this.ConsoleText = new string[12];
-            this.PopulationLength = 12;
+            this.PopulationLength = 30;
             this.MaxPopulationDeviation = 1.01F;
 
             // ОТРИСОВЫВАЕМ ДИАГРАММЫ (ЧТО НЕ БУДЕТ МЕНЯТЬСЯ ПРИ РАБОТЕ ИЛИ БУДЕТ ИЗНАЧАЛЬНО)
@@ -1139,6 +1139,9 @@ namespace MNS
                     // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // ПОКАЗЫВАЕМ НЕАКТИВНЫЕ РЕЗУЛЬТАТЫ ОЦЕНКИ СРЕДНЕГО
+                        DisplayInactiveEstimates();
+
                         // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.R_list = new List<double>();
                         this.R_OADate_list = new List<double>();
@@ -1206,6 +1209,9 @@ namespace MNS
                     // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // ПОКАЗЫВАЕМ НЕАКТИВНЫЕ РЕЗУЛЬТАТЫ ОЦЕНКИ СРЕДНЕГО
+                        DisplayInactiveEstimates();
+
                         // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.L_list = new List<double>();
                         this.L_OADate_list = new List<double>();
@@ -1273,6 +1279,9 @@ namespace MNS
                     // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // ПОКАЗЫВАЕМ НЕАКТИВНЫЕ РЕЗУЛЬТАТЫ ОЦЕНКИ СРЕДНЕГО
+                        DisplayInactiveEstimates();
+
                         // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.C_list = new List<double>();
                         this.C_OADate_list = new List<double>();
@@ -1340,6 +1349,9 @@ namespace MNS
                     // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
                     else
                     {
+                        // ПОКАЗЫВАЕМ НЕАКТИВНЫЕ РЕЗУЛЬТАТЫ ОЦЕНКИ СРЕДНЕГО
+                        DisplayInactiveEstimates();
+
                         // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.M_list = new List<double>();
                         this.M_OADate_list = new List<double>();
@@ -1362,6 +1374,15 @@ namespace MNS
                 default:
                     break;
             }
+        }
+
+        private void DisplayInactiveEstimates()
+        {
+            CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, "---");
+            CheckAccessAndDisplayOnTextBlock(StDev_textBlock, "---");
+            CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, "---");
+            CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, "---");
+            CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, "");
         }
 
         private void BuildGraphes()
@@ -1595,7 +1616,6 @@ namespace MNS
             CheckAccessAndUpdate_value_plot(value_plot);
 
             DisplayInactiveMesResults();
-            //Start_measurement();
         }
 
         private bool CheckPopulationIfFits(float[] population)
