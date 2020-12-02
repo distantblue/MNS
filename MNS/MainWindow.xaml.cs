@@ -124,10 +124,10 @@ namespace MNS
         int DataRowNumber;
 
         // МАССИВ ЗНАЧЕНИЙ (СОВОКУПНОСТЬ) ПО КОТОРОМУ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО 
-        double[] Population;
+        float[] Population;
 
         // МАССИВ ЗНАЧЕНИЙ tg (СОВОКУПНОСТЬ) ПО КОТОРОМУ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО 
-        double[] tgPopulation;
+        float[] tgPopulation;
 
         // КОЛЛИЧЕСТВО ИЗМЕРЕНИЙ (РАЗМЕР СОВОКУПНОСТИ) ПО КОТОРЫМ БУДЕТ ПРОВОДИТЬСЯ ОЦЕНКА СРЕДНЕГО
         byte PopulationLength;
@@ -148,13 +148,13 @@ namespace MNS
         double MeanValue;
 
         // СРЕДНЕЕ ЗНАЧЕНИЕ tg ОСНОВНОГО КАНАЛА ИЗМЕРЕНИЯ
-        double tgMeanValue;
+        float tgMeanValue;
 
         // СТАНДАРТНОЕ ОТКЛОНЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
-        double StDev;
+        float StDev;
 
         // СТАНДАРТНОЕ ОТКЛОНЕНИЕ ГЛАВНОЙ ВЕЛИЧИНЫ КАНАЛА ИЗМЕРЕНИЯ
-        double tgStDev;
+        float tgStDev;
 
         public MainWindow()
         {
@@ -1142,8 +1142,8 @@ namespace MNS
                         // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
                         this.R_list = new List<double>();
                         this.R_OADate_list = new List<double>();
-                        this.Population = new double[PopulationLength];
-                        this.tgPopulation = new double[PopulationLength];
+                        this.Population = new float[PopulationLength];
+                        this.tgPopulation = new float[PopulationLength];
 
                         // ОБНУЛЯЕМ СЧЕТЧИК
                         this.PopulationCounter = 0;
@@ -1159,13 +1159,205 @@ namespace MNS
                     }
                     break;
                 case 1:
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.R_list != null)
+                    {
+                        this.R_list = null;
+                        this.R_OADate_list = null;
+                    }
+                    if (this.C_list != null)
+                    {
+                        this.C_list = null;
+                        this.C_OADate_list = null;
+                    }
+                    if (this.M_list != null)
+                    {
+                        this.M_list = null;
+                        this.M_OADate_list = null;
+                    }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
+                    if (this.L_list != null)
+                    {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
+                        this.L_list.Add(this.Inductance);
+                        this.L_OADate_list.Add(DateTime.Now.ToOADate());
 
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
+                        {
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.Inductance;
+                            this.tgPopulation[PopulationCounter] = this.tg_L;
+
+                            this.PopulationArrayFilled = false;
+
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
+                            {
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
+                            }
+                            else
+                            {
+                                this.PopulationCounter++;
+                            }
+                        }
+                    }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
+                    else
+                    {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
+                        this.L_list = new List<double>();
+                        this.L_OADate_list = new List<double>();
+                        this.Population = new float[PopulationLength];
+                        this.tgPopulation = new float[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
+                        this.L_list.Add(this.Inductance);
+                        this.L_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.Inductance;
+                        this.tgPopulation[PopulationCounter] = this.tg_L;
+
+                        // УВЕЛИЧИВАЕМ ЗНАЧЕНИЕ СЧЕТЧИКА
+                        this.PopulationCounter++;
+                    }
                     break;
                 case 2:
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.R_list != null)
+                    {
+                        this.R_list = null;
+                        this.R_OADate_list = null;
+                    }
+                    if (this.L_list != null)
+                    {
+                        this.L_list = null;
+                        this.L_OADate_list = null;
+                    }
+                    if (this.M_list != null)
+                    {
+                        this.M_list = null;
+                        this.M_OADate_list = null;
+                    }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
+                    if (this.C_list != null)
+                    {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
+                        this.C_list.Add(this.Capacity);
+                        this.C_OADate_list.Add(DateTime.Now.ToOADate());
 
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
+                        {
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.Capacity;
+                            this.tgPopulation[PopulationCounter] = this.tg_C;
+
+                            this.PopulationArrayFilled = false;
+
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
+                            {
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
+                            }
+                            else
+                            {
+                                this.PopulationCounter++;
+                            }
+                        }
+                    }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
+                    else
+                    {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
+                        this.C_list = new List<double>();
+                        this.C_OADate_list = new List<double>();
+                        this.Population = new float[PopulationLength];
+                        this.tgPopulation = new float[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
+                        this.C_list.Add(this.Capacity);
+                        this.C_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.Capacity;
+                        this.tgPopulation[PopulationCounter] = this.tg_C;
+
+                        // УВЕЛИЧИВАЕМ ЗНАЧЕНИЕ СЧЕТЧИКА
+                        this.PopulationCounter++;
+                    }
                     break;
                 case 3:
+                    // ССЫЛАЕМ ВСЕ ОСТАЛЬНЫЕ КОЛЛЕКЦИИ В NULL
+                    if (this.R_list != null)
+                    {
+                        this.R_list = null;
+                        this.R_OADate_list = null;
+                    }
+                    if (this.L_list != null)
+                    {
+                        this.L_list = null;
+                        this.L_OADate_list = null;
+                    }
+                    if (this.C_list != null)
+                    {
+                        this.C_list = null;
+                        this.C_OADate_list = null;
+                    }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА УЖЕ БЫЛИ СОЗДАННЫ
+                    if (this.M_list != null)
+                    {
+                        // ДОБАВЛЯЕМ НОВЫЕ ЗНАЧЕНИЯ В КОЛЛЕКЦИИ
+                        this.M_list.Add(this.MutualInductance);
+                        this.M_OADate_list.Add(DateTime.Now.ToOADate());
 
+                        // ЕСЛИ МАССИВ СОВОКУПНОСТИ НЕ ПЕРЕПОЛНЕН
+                        if (PopulationCounter < PopulationLength)
+                        {
+                            // ДОБАВЛЯЕМ ЗНАЧЕНИЕ В МАССИВ
+                            this.Population[PopulationCounter] = this.MutualInductance;
+                            this.tgPopulation[PopulationCounter] = this.tg_M;
+
+                            this.PopulationArrayFilled = false;
+
+                            // ЕСЛИ ЗАПОЛНИЛОСЬ ПОСЛЕДНЕЕ ЗНАЧЕНИЕ МАССИВА
+                            if (Population.Length == (PopulationCounter + 1))
+                            {
+                                this.PopulationArrayFilled = true;
+                                this.PopulationCounter = 0;
+                            }
+                            else
+                            {
+                                this.PopulationCounter++;
+                            }
+                        }
+                    }
+                    // ЕСЛИ КОЛЛЕКЦИИ ОСНОВНОГО КАНАЛА ССЫЛАЮТСЯ В NULL 
+                    else
+                    {
+                        // СОЗДАЕМ НОВЫЕ КОЛЛЕКЦИИ И МАССИВ СОВОКУПНОСТИ
+                        this.M_list = new List<double>();
+                        this.M_OADate_list = new List<double>();
+                        this.Population = new float[PopulationLength];
+                        this.tgPopulation = new float[PopulationLength];
+
+                        // ОБНУЛЯЕМ СЧЕТЧИК
+                        this.PopulationCounter = 0;
+
+                        // ДОБАВЛЯЕМ ЗНАЧЕНИЯ
+                        this.M_list.Add(this.MutualInductance);
+                        this.M_OADate_list.Add(DateTime.Now.ToOADate());
+                        this.Population[PopulationCounter] = this.MutualInductance;
+                        this.tgPopulation[PopulationCounter] = this.tg_M;
+
+                        // УВЕЛИЧИВАЕМ ЗНАЧЕНИЕ СЧЕТЧИКА
+                        this.PopulationCounter++;
+                    }
                     break;
                 default:
                     break;
@@ -1207,8 +1399,8 @@ namespace MNS
                         if (CheckPopulationIfFits(this.Population))
                         {
                             this.StDev = Statistics.GetStDev(this.Population);
-                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
                             this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1227,7 +1419,7 @@ namespace MNS
                     if (L_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(L_dates, L_values, label: "Индуктивность, Гн");
+                        value_plot.plt.PlotScatter(L_dates, L_values, label: "Индуктивность, Гн", color: System.Drawing.Color.Red);
                         value_plot.plt.Title("Диаграмма рассеяния L"); // Надпись у оси Y
                         value_plot.plt.YLabel("Значение L, Гн", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1235,7 +1427,7 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
-                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft, fontSize: 18, bold: true); // разрешаем отображение легенд
 
                         CheckAccessAndUpdate_value_plot(value_plot);
                     }
@@ -1245,8 +1437,8 @@ namespace MNS
                         if (CheckPopulationIfFits(this.Population))
                         {
                             this.StDev = Statistics.GetStDev(this.Population);
-                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
                             this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1265,7 +1457,7 @@ namespace MNS
                     if (C_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(C_dates, C_values, label: "Емкость, Ф");
+                        value_plot.plt.PlotScatter(C_dates, C_values, label: "Емкость, Ф", color: System.Drawing.Color.Red);
                         value_plot.plt.Title("Диаграмма рассеяния C"); // Надпись у оси Y
                         value_plot.plt.YLabel("Значение C, Ф", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1273,7 +1465,7 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
-                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft, fontSize: 18, bold: true); // разрешаем отображение легенд
 
                         CheckAccessAndUpdate_value_plot(value_plot);
                     }
@@ -1283,8 +1475,8 @@ namespace MNS
                         if (CheckPopulationIfFits(this.Population))
                         {
                             this.StDev = Statistics.GetStDev(this.Population);
-                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
                             this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1303,7 +1495,7 @@ namespace MNS
                     if (M_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взимоиндуктивность, Гн");
+                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взимоиндуктивность, Гн", color: System.Drawing.Color.Red);
                         value_plot.plt.Title("Диаграмма рассеяния M"); // Надпись у оси Y
                         value_plot.plt.YLabel("Значение M, Гн", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
@@ -1311,7 +1503,7 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
-                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft); // разрешаем отображение легенд
+                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft, fontSize: 18, bold: true); // разрешаем отображение легенд
 
                         CheckAccessAndUpdate_value_plot(value_plot);
                     }
@@ -1321,8 +1513,8 @@ namespace MNS
                         if (CheckPopulationIfFits(this.Population))
                         {
                             this.StDev = Statistics.GetStDev(this.Population);
-                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
                             this.tgMeanValue = Statistics.GetMeanValue(this.tgPopulation);
+                            this.tgStDev = Statistics.GetStDev(this.tgPopulation);
 
                             DisplayEstimates();
                         }
@@ -1381,7 +1573,7 @@ namespace MNS
 
         private void ClearPlots()
         {
-            Stop_measurement();
+            //Stop_measurement();
 
             this.R_list = null;
             this.L_list = null;
@@ -1402,19 +1594,20 @@ namespace MNS
 
             CheckAccessAndUpdate_value_plot(value_plot);
 
-            Start_measurement();
+            DisplayInactiveMesResults();
+            //Start_measurement();
         }
 
-        private bool CheckPopulationIfFits(double[] population)
+        private bool CheckPopulationIfFits(float[] population)
         {
             bool res = false;
             byte count = 0;
 
             this.MeanValue = Statistics.GetMeanValue(population);
 
-            for (int i = 0; i < population.Length; i++)
+            foreach (var item in population)
             {
-                if (Math.Abs(population[i]) > (MeanValue * MaxPopulationDeviation))
+                if (Math.Abs(item) > (MeanValue * MaxPopulationDeviation))
                 {
                     count++;
                 }
@@ -1435,21 +1628,35 @@ namespace MNS
             {
                 case 0:
                     // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
-                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.MeanValue.ToString("E6") + " Ом");
-                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.StDev.ToString("E6") + " Ом");
-                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgMeanValue.ToString("0.#######"));
-                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgStDev.ToString("0.#######"));
+                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.MeanValue.ToString("E5") + " Ом");
+                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.StDev.ToString("E5") + " Ом");
+                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgMeanValue.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgStDev.ToString("E6"));
                     CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, $"(n={this.PopulationLength.ToString()})");
-
                     break;
                 case 1:
-
+                    // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.MeanValue.ToString("E5") + " Гн");
+                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.StDev.ToString("E5") + " Гн");
+                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgMeanValue.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgStDev.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, $"(n={this.PopulationLength.ToString()})");
                     break;
                 case 2:
-
+                    // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.MeanValue.ToString("E5") + " Ф");
+                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.StDev.ToString("E5") + " Ф");
+                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgMeanValue.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgStDev.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, $"(n={this.PopulationLength.ToString()})");
                     break;
                 case 3:
-
+                    // ОТОБРАЖАЕМ РЕЗУЛЬТАТЫ
+                    CheckAccessAndDisplayOnTextBlock(MeanValue_textBlock, this.MeanValue.ToString("E5") + " Гн");
+                    CheckAccessAndDisplayOnTextBlock(StDev_textBlock, this.StDev.ToString("E5") + " Гн");
+                    CheckAccessAndDisplayOnTextBlock(tgMeanValue_textBlock, this.tgMeanValue.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(tgStDev_textBlock, this.tgStDev.ToString("E6"));
+                    CheckAccessAndDisplayOnTextBlock(quantityOfMeasurements_textBlock, $"(n={this.PopulationLength.ToString()})");
                     break;
                 default:
                     break;

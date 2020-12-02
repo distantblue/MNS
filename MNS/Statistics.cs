@@ -8,39 +8,45 @@ namespace MNS
 {
     public static class Statistics
     {
-        internal static double GetMeanValue(double[] array)
+        internal static float GetMeanValue(float[] array)
         {
-            double sum = 0;
+            float sum = 0;
 
             foreach (var item in array)
             {
                 sum += item;
             }
-            double result = sum / array.Length;
+            float result = sum / array.Length;
 
             return result;
         }
-
-        internal static double GetStDev(double[] array)
+        
+        internal static float GetStDev(float[] array)
         {
-            double sumOfSquares = 0;
-            double mean = GetMeanValue(array);
+           
+            return (float)Math.Sqrt(GetDispSquare(array));
+        }
+
+        internal static float GetStError(float[] array)
+        {
+            return GetStDev(array) / (float)Math.Sqrt(array.Length);
+        }
+
+        internal static float GetDispSquare(float[] array)
+        {
+            float sumOfSquares = 0;
+            float mean = GetMeanValue(array);
 
             foreach (var item in array)
             {
-                sumOfSquares += Math.Pow((item - mean), 2);
+                sumOfSquares += (item - mean) * (item - mean);
             }
-            return Math.Sqrt(sumOfSquares / (array.Length - 1));
-        }
-                
-        private static double GetStError(double[] array)
-        {
-            return GetStDev(array) / Math.Sqrt(array.Length);
+            return sumOfSquares / (array.Length - 1);
         }
 
-        private static double GetMinValue(double[] array)
+        internal static float GetMinValue(float[] array)
         {
-            double min = array[0];
+            float min = array[0];
             foreach (var item in array)
             {
                 if (item < min)
@@ -51,9 +57,9 @@ namespace MNS
             return min;
         }
 
-        private static double GetMaxValue(double[] array)
+        internal static float GetMaxValue(float[] array)
         {
-            double max = array[0];
+            float max = array[0];
             foreach (var item in array)
             {
                 if (item > max)
