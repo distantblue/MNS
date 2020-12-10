@@ -122,22 +122,22 @@
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <TextBlock VerticalAlignment="Center" Text="X" Margin="20,0,0,0" TextWrapping="Wrap" Width="30" x:Name="MeanValueSymbol_textBlock" Foreground="Blue" FontSize="36" FontWeight="ExtraBlack" />
                         <TextBlock VerticalAlignment="Center" Text="AVG" Margin="0,24,0,0" TextWrapping="Wrap" Width="36" FontSize="14" FontWeight="Bold" />
-                        <TextBlock VerticalAlignment="Center" Text=":" Margin="0,0,0,0" TextWrapping="Wrap" Width="15" Foreground="Blue" FontSize="36" FontWeight="Bold" />
-                        <TextBlock VerticalAlignment="Center" Margin="35,0,0,0" TextWrapping="Wrap" Width="290" x:Name="MeanValue_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
+                        <TextBlock VerticalAlignment="Center" Text=":" Margin="29,0,0,0" TextWrapping="Wrap" Width="15" Foreground="Blue" FontSize="36" FontWeight="Bold" />
+                        <TextBlock VerticalAlignment="Center" Margin="6,0,0,0" TextWrapping="Wrap" Width="290" x:Name="MeanValue_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock VerticalAlignment="Center" Text="X" Margin="20,0,0,0" TextWrapping="Wrap" Width="30" x:Name="StDevValueSymbol_textBlock" Foreground="Blue" FontSize="36" FontWeight="ExtraBlack" />
                         <TextBlock VerticalAlignment="Center" Text="ST DEV" Margin="0,24,0,0" TextWrapping="Wrap" Width="55" FontSize="14" FontWeight="Bold" />
-                        <TextBlock VerticalAlignment="Center" Text=":" Margin="0,0,0,0" TextWrapping="Wrap" Width="15" Foreground="Blue" FontSize="36" FontWeight="Bold" />
-                        <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" TextWrapping="Wrap" Width="290" x:Name="StDev_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
+                        <TextBlock VerticalAlignment="Center" Text=":" Margin="10,0,0,0" TextWrapping="Wrap" Width="15" Foreground="Blue" FontSize="36" FontWeight="Bold" />
+                        <TextBlock VerticalAlignment="Center" Margin="6,0,0,0" TextWrapping="Wrap" Width="290" x:Name="StDev_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center" Text="tg" Margin="20,0,0,0" TextWrapping="Wrap" Width="40" Foreground="Blue" FontSize="36" FontWeight="ExtraBlack" />
                         <TextBlock VerticalAlignment="Center" Text="AVG" Margin="0,24,0,0" TextWrapping="Wrap" Width="36" FontSize="14" FontWeight="Bold" />
-                        <TextBlock VerticalAlignment="Center" Text=":" Margin="0,0,0,0" TextWrapping="Wrap" Width="15" Foreground="Blue" FontSize="36" FontWeight="Bold" />
-                        <TextBlock VerticalAlignment="Center" Margin="25,0,0,0" TextWrapping="Wrap" Width="290" x:Name="tgMeanValue_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
+                        <TextBlock VerticalAlignment="Center" Text=":" Margin="19,0,0,0" TextWrapping="Wrap" Width="15" Foreground="Blue" FontSize="36" FontWeight="Bold" />
+                        <TextBlock VerticalAlignment="Center" Margin="6,0,0,0" TextWrapping="Wrap" Width="290" x:Name="tgMeanValue_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal">
