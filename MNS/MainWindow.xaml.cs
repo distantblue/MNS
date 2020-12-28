@@ -1410,7 +1410,7 @@ namespace MNS
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
                         value_plot.plt.Ticks(displayTickLabelsY: true); // Показываем значения у делений на оси Y
                         value_plot.plt.Ticks(numericFormatStringY: "E5"); // Используем форматирование чисел
-                        value_plot.plt.Legend(location: legendLocation.upperRight, shadowDirection: shadowDirection.lowerLeft, fontSize: 18, bold: true); // разрешаем отображение легенд
+                        value_plot.plt.Legend(location: legendLocation.upperLeft, shadowDirection: shadowDirection.lowerLeft, fontSize: 18, bold: true); // разрешаем отображение легенд
 
                         CheckAccessAndUpdate_value_plot(value_plot);
                     }
