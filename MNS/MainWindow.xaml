@@ -11,20 +11,18 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="53"/>
             <RowDefinition Height="120"/>
-            <RowDefinition Height="240"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="100"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="120"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="240"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="440"/>
             <ColumnDefinition Width="440"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="440"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="440"/>
-            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Border Grid.Row="0" Grid.ColumnSpan="7" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
@@ -47,34 +45,32 @@
             </Menu>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="1" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" Text="X:" Margin="16,0,0,0" TextWrapping="Wrap" Width="55" x:Name="ValueSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
-                <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="Value_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
+        <Border Grid.Row="8" Grid.Column="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="X:" Margin="16,0,0,0" TextWrapping="Wrap" Width="90" x:Name="ValueSymbol_textBlock" Foreground="Blue" FontSize="36" FontWeight="ExtraBlack" />
+                    <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="300" x:Name="Value_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="F:" Margin="16,0,0,0" TextWrapping="Wrap" Width="90" x:Name="FSymbol_textBlock" Foreground="Blue" FontSize="36" FontWeight="ExtraBlack" />
+                    <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="300" x:Name="F_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="tg:" Margin="16,0,0,0" TextWrapping="Wrap" Width="90" x:Name="tgSymbol_textBlock" Foreground="Blue" FontSize="36" FontWeight="ExtraBlack" />
+                    <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="300" x:Name="tg_textBlock" Foreground="Black" FontSize="30" FontWeight="Bold"/>
+                </StackPanel>
             </StackPanel>
+
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" Text="tg:" Margin="16,0,0,0" TextWrapping="Wrap" Width="100" x:Name="tgSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
-                <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="tg_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Row="1" Grid.Column="5" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" Text="F:" Margin="16,0,0,0" TextWrapping="Wrap" Width="80" x:Name="FSymbol_textBlock" Foreground="Blue" FontSize="40" FontWeight="ExtraBlack" />
-                <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="420" x:Name="F_textBlock" Foreground="Black" FontSize="40" FontWeight="Bold"/>
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="3" Grid.RowSpan="4" BorderThickness="2" BorderBrush="Transparent" Margin="8" CornerRadius="16" Background="Transparent">
+        <Border Grid.Row="5" Grid.Column="3"  BorderThickness="2" BorderBrush="Transparent" Margin="8" CornerRadius="16" Background="Transparent">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                 <Button x:Name="ClearPlots_button" Click="ClearPlots_button_Click" Width="300" Height="90" Foreground="Black" FontSize="16" FontWeight="Bold" >ОЧИСТИТЬ ДИАГРАММУ</Button>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="6" Grid.Column="2"  Grid.RowSpan="4" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="Aqua">
+        <Border Grid.Row="8" Grid.Column="1"  Grid.RowSpan="4" Grid.ColumnSpan="1" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="LightSteelBlue">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 
                 <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
@@ -113,7 +109,7 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="5" Grid.RowSpan="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
+        <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock FontSize="22" FontWeight="Bold" Margin="3">Оценка среднего:</TextBlock>
@@ -156,11 +152,11 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="4" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
+        <Border Grid.Row="1" Grid.Column="0" Grid.RowSpan="6" Grid.ColumnSpan="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
             <WpfPlot Name="value_plot" Margin="16"/>
         </Border>
 
-        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
+        <Border Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" BorderThickness="2" BorderBrush="Aqua" Margin="8" CornerRadius="16" Background="Black">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Width="380" Height="200" Margin="24,0,5,0"  x:Name="statusTextBlock" Foreground="LightGray" FontSize="11" FontStyle="Normal" />
             </StackPanel>
