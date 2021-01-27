@@ -84,7 +84,7 @@ namespace MNS
             //СОХРАНЕНИЕ НАСТРОЕК
             if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "")
             {
-                ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text));
+                ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text),0x09);
                 newSettings.SaveSettings(newSettings, newSettings.ModbusRTUSettingsFilePath);
 
                 SavingSuccess?.Invoke();

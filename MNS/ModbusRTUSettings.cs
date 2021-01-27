@@ -18,6 +18,9 @@ namespace MNS
         // ИНТЕРВАЛ ОПРОСА
         public int PollingInterval { get; set; }
 
+        //[NonSerialized]
+        public byte ModbusRTUSlaveAddress { get; set; }
+
         // ИМЯ ФАЙЛА НАСТРОЕК
         [NonSerialized]
         public readonly string ModbusRTUSettingsFileName = @"ModbusRTUSettings.dat";
@@ -26,9 +29,7 @@ namespace MNS
         [NonSerialized]
         public readonly string ModbusRTUSettingsFilePath;
 
-        // НАСТРОЙКИ Modbus
-        [NonSerialized]
-        public readonly byte ModbusRTUSlaveAddress = 0x9;
+        // НАСТРОЙКИ COM-порта
         [NonSerialized]
         public readonly int BaudRate = 19200;
         [NonSerialized]
@@ -71,6 +72,7 @@ namespace MNS
             this.SilentInterval = GetSilentInterval();
             this.PortName = "COM1";
             this.PollingInterval = 1;
+            this.ModbusRTUSlaveAddress = 0x09;
 
             // Формирование пути к файлу настроек
             StringBuilder stringBuilder = new StringBuilder();
@@ -79,11 +81,12 @@ namespace MNS
             stringBuilder.Append($"{ModbusRTUSettingsFileName}");
             ModbusRTUSettingsFilePath = stringBuilder.ToString();
         }
-        
-        public ModbusRTUSettings(string portName, int pollingInterval)
+
+        public ModbusRTUSettings(string portName, int pollingInterval, byte slaveAddress)
         {
             this.PortName = portName;
             this.PollingInterval = pollingInterval;
+            this.ModbusRTUSlaveAddress = slaveAddress;
             this.SilentInterval = GetSilentInterval();
 
             // Формирование пути к файлу настроек
@@ -93,7 +96,7 @@ namespace MNS
             stringBuilder.Append($"{ModbusRTUSettingsFileName}");
             ModbusRTUSettingsFilePath = stringBuilder.ToString();
         }
-        
+
         public void GetCurrentSettings()
         {
             ModbusRTUSettings currentSettings = GetCurrentSettings(this.ModbusRTUSettingsFilePath);

@@ -186,7 +186,7 @@ namespace MNS
 
             /*
             // ВРЕМЕННОЕ СЕРИАЛИЗАЦИЯ ФАЙЛА НАСТРОЕК
-            CurrentModbusRTUSettings = new ModbusRTUSettings("COM1",1);
+            CurrentModbusRTUSettings = new ModbusRTUSettings("COM1",1,9);
             CurrentModbusRTUSettings.SaveSettings(CurrentModbusRTUSettings, CurrentModbusRTUSettings.ModbusRTUSettingsFilePath);
             */
 
