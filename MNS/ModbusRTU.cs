@@ -106,27 +106,33 @@ namespace MNS
             return ModbusMessage;
         }
 
+        /// <summary>
+        /// CRC-16/MODBUS algorithm
+        /// </summary>
+        /// <param name="data">Data bytes</param>
+        /// <returns>16-bit CRC16_MODBUS value</returns>
         private ushort GenerateCRC(byte[] data)
         {
-            ushort CRC = 0xFFFF; // 11111111 11111111
-            for (int i = 0; i < data.Length; i++) // для каждого байта в Modbus сообщении
+            ushort poly = 0xA001;
+            ushort crc = 0xFFFF;
+            foreach (var item in data) // For each byte in buffer
             {
-                CRC ^= data[i]; // исключающее ИЛИ (XOR) с каждым байтом данных в сообщении
-                for (int j = 0; j < 8; j++) // для каждого бита в байте
+                crc ^= item; // Carry out XOR with CRC 
+
+                for (int i = 0; i < 8; i++) // For each bit in byte
                 {
-                    bool LSB_flag = false;
-                    if ((CRC & 0x0001) == 0x0001) // если младший бит 1
+                    if ((crc & 0x0001) != 0) // If LSB of CRC == 1
                     {
-                        LSB_flag = true;
+                        crc >>= 1;
+                        crc ^= poly;
                     }
-                    CRC >>= 1; // сдвиг регистра вправо на 1
-                    if (LSB_flag) // если младший бит был равен 1
+                    else
                     {
-                        CRC ^= 0xA001; // еще исключающее ИЛИ (XOR) с полиномом 0xA001
+                        crc >>= 1;
                     }
                 }
             }
-            return CRC;
+            return crc;
         }
 
         public void SendCommandToReadRegisters(byte SlaveAddress, byte ModbusFunctionCode, ushort StartingAddressOfRegisterToRead, ushort QuantityOfRegistersToRead, int QuantityOfBytesInReg)

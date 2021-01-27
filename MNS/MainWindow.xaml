@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
         Icon="Icon_favicon.ico"
-        Title="МНС 1100 - Измерительная система для ПК. Версия v1.0" MinWidth="1360" MinHeight="800"  Width="1360" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
+        Title="МНС 1100 - Измерительная система для ПК" MinWidth="1360" MinHeight="800"  Width="1360" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
     <Grid ShowGridLines="False" Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="53"/>
@@ -45,7 +45,7 @@
             </Menu>
         </Border>
 
-        <Border Grid.Row="8" Grid.Column="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
+        <Border Grid.Row="8" Grid.Column="1" Grid.RowSpan="4"  BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White">
 
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
@@ -70,7 +70,7 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="8" Grid.Column="1"  Grid.RowSpan="4" Grid.ColumnSpan="1" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="LightSteelBlue">
+        <Border Grid.Row="8" Grid.Column="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="LightSteelBlue">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 
                 <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
