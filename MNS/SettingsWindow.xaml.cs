@@ -61,8 +61,14 @@ namespace MNS
             {
                 pollingIntervalRange[i] = i + 1;
             }
+            int[] addressIntervalRange = new int[253]; // получаем максимальный интервал адресов slave-устройства
+            for (int i = 0; i < 253; i++)
+            {
+                addressIntervalRange[i] = i + 1;
+            }
             portName_ComboBox.ItemsSource = serialPortNames; // заполняем ComboBox доступными COM портами 
             pollingInterval_ComboBox.ItemsSource = pollingIntervalRange; // заполняем ComboBox от 1 до 180
+            slaveAddress_ComboBox.ItemsSource = addressIntervalRange; // заполняем ComboBox от 1 до 253 (адреса 0xFE и 0xFF запрещены)
         }
 
         private void SettingsButtonSave_Click(object sender, RoutedEventArgs e)
@@ -82,9 +88,9 @@ namespace MNS
             }
 
             //СОХРАНЕНИЕ НАСТРОЕК
-            if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "")
+            if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "" && slaveAddress_ComboBox.Text != "")
             {
-                ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text),0x09);
+                ModbusRTUSettings newSettings = new ModbusRTUSettings(portName_ComboBox.Text, int.Parse(pollingInterval_ComboBox.Text), (byte)int.Parse(slaveAddress_ComboBox.Text));
                 newSettings.SaveSettings(newSettings, newSettings.ModbusRTUSettingsFilePath);
 
                 SavingSuccess?.Invoke();

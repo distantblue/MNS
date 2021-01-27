@@ -22,7 +22,7 @@
                         <Label x:Name="currentPollingInterval_label" HorizontalAlignment="Center" FontWeight="DemiBold"></Label>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label>Адресное поле MODBUS RTU:</Label>
+                        <Label>Адресное поле MODBUS RTU, [HEX]:</Label>
                         <Label x:Name="currentDeviceAddress_label" FontWeight="DemiBold"></Label>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -59,6 +59,10 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,1">
                         <Label>Интервал опроса прибора, [c]:</Label>
                         <ComboBox x:Name="pollingInterval_ComboBox"  Width="100"  Margin="172,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,1">
+                        <Label>Адресное поле MODBUS RTU, [DEC]:</Label>
+                        <ComboBox x:Name="slaveAddress_ComboBox"  Width="100"  Margin="142,0,0,0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button x:Name="SettingsButtonSave" Margin="5,40,100,5" Padding="4" Click="SettingsButtonSave_Click">Сохранить</Button>
