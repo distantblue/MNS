@@ -74,19 +74,11 @@ namespace MNS
         private void SettingsButtonSave_Click(object sender, RoutedEventArgs e)
         {
             //ПРОВЕРКА НА ПУСТЫЕ ПОЛЯ НАСТРОЕК
-            if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text == "")
+            if (portName_ComboBox.Text == "" || pollingInterval_ComboBox.Text == "" || slaveAddress_ComboBox.Text == "")
             {
-                MessageBox.Show("Вы не выбрали COM-порт и интервал опроса устройства","Ошибка!");
+                MessageBox.Show("Заполните все поля настроек","Ошибка!");
             }
-            if (portName_ComboBox.Text == "" && pollingInterval_ComboBox.Text != "")
-            {
-                MessageBox.Show("Вы не выбрали COM-порт", "Ошибка!");
-            }
-            if (pollingInterval_ComboBox.Text == "" && portName_ComboBox.Text != "")
-            {
-                MessageBox.Show("Вы не выбрали интервал опроса устройства", "Ошибка!");
-            }
-
+            
             //СОХРАНЕНИЕ НАСТРОЕК
             if (portName_ComboBox.Text != "" && pollingInterval_ComboBox.Text != "" && slaveAddress_ComboBox.Text != "")
             {

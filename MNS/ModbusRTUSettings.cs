@@ -102,6 +102,7 @@ namespace MNS
             ModbusRTUSettings currentSettings = GetCurrentSettings(this.ModbusRTUSettingsFilePath);
             this.PortName = currentSettings.PortName;
             this.PollingInterval = currentSettings.PollingInterval;
+            this.ModbusRTUSlaveAddress = currentSettings.ModbusRTUSlaveAddress;
         }
 
         public ModbusRTUSettings GetCurrentSettings(string settingsFilePath)

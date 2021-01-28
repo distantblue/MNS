@@ -184,11 +184,11 @@ namespace MNS
             DataManager.ClearTempDirectory();
             DataManager.CreateNewDataFile();
 
-            /*
+            ///*
             // ВРЕМЕННОЕ СЕРИАЛИЗАЦИЯ ФАЙЛА НАСТРОЕК
-            CurrentModbusRTUSettings = new ModbusRTUSettings("COM1",1,9);
+            CurrentModbusRTUSettings = new ModbusRTUSettings("COM1", 1, 9);
             CurrentModbusRTUSettings.SaveSettings(CurrentModbusRTUSettings, CurrentModbusRTUSettings.ModbusRTUSettingsFilePath);
-            */
+            //*/
 
             // ВРЕМЕННАЯ СИМУЛЯЦИЯ НАЛИЧИЯ ДАННЫХ ДЛЯ СОХРАНЕНИЯ
             //DataToSaveExists = true;
@@ -566,7 +566,7 @@ namespace MNS
 
             // ПОЛУЧАЕМ 16 БИТНОЕ ЗНАЧЕНИЕ ПОДДИАПАЗОНА ИЗМЕРЕНИЯ
             this.RangeIntervalRegister = BitConverter.ToUInt16(new byte[2] { buffer[4], buffer[3] }, 0);
-            ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0xF); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4-ох последних битов 
+            ushort rangeIntervalValue = (ushort)(RangeIntervalRegister & 0x000F); // Накладываем битовую маску 00000000 00001111 чтобы получить значение 4-ох последних битов 
 
             // УЗНАЕМ НОМЕР ПОДДИАПАЗОНА ИЗМЕРЕНИЯ И ИНТЕРВАЛ
             switch (rangeIntervalValue)
