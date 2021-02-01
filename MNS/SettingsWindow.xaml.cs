@@ -47,7 +47,7 @@ namespace MNS
             //ТЕКУЩИЕ НАСТРОЙКИ
             currentSerialPort_label.Content = CurrentModbusRTUSettings.PortName; // отображаем текущий порт в окне настроек
             currentPollingInterval_label.Content = CurrentModbusRTUSettings.PollingInterval; // отображаем текущий интервал опроса
-            currentDeviceAddress_label.Content = "0x"+ CurrentModbusRTUSettings.ModbusRTUSlaveAddress.ToString("x"); // отображаем текущий адрес устройства
+            currentDeviceAddress_label.Content = "0x"+ CurrentModbusRTUSettings.ModbusRTUSlaveAddress.ToString("X"); // отображаем текущий адрес устройства
             currentBaudRate_label.Content = CurrentModbusRTUSettings.BaudRate;
             currentDataBits_label.Content = CurrentModbusRTUSettings.DataBits;
             currentStopBits_label.Content = "Один";
