@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-         Title="Информация о файле данных и оценке среднего" Width="760" Height="650" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
+         Title="Информация о файле данных и оценке среднего" Width="760" Height="720" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
             <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="8" Width="700">
-                
+
                 <Label Content="Файл данных" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                     <Image Source="Icon_csv_file.png" Height="100" Margin="32,8,8,8"/>
@@ -17,13 +17,15 @@
                     где в качестве разделителя полей использует символ &quot;;&quot;. Каждое единичное измерение представлено строкой данных разделенных &quot;;&quot;. 
                     При открытии файла данных с помощью Microsoft Excel, если в региональных настройках системы Windows в качестве разделителя указан &quot;;&quot; - 
                     данные в файле будут отображены в виде таблицы.
-                </TextBlock>
+                    </TextBlock>
                 </StackPanel>
-                
+
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="8">
-                    <Image Source="Icon_bad_data.png" Width="662" Margin="0,0,0,8"/>
+                    <Image Source="Icon_bad_data.png" Width="662" Margin="0,0,0,4"/>
                     <Image Source="Icon_good_data.png" Width="662" Margin="0,8,0,8"/>
                 </StackPanel>
+                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0" >В случае аварийного завершения программы или в случае отключения ПК, после загрузки ОС и до повторного запуска программы, по адресу расположения исполняемого файла программы в директории "Temp" располагается файл "Data.csv", который хранит все измеренные ранее данные до аварийного завершения программы. В случае запуска программы, данный резервный файл данных будет автоматически очищен.
+                </TextBlock>
                 <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"
                 </TextBlock>
