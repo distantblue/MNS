@@ -186,8 +186,8 @@ namespace MNS
 
             ///*
             // ВРЕМЕННОЕ СЕРИАЛИЗАЦИЯ ФАЙЛА НАСТРОЕК
-            CurrentModbusRTUSettings = new ModbusRTUSettings("COM1", 1, 9);
-            CurrentModbusRTUSettings.SaveSettings(CurrentModbusRTUSettings, CurrentModbusRTUSettings.ModbusRTUSettingsFilePath);
+            //CurrentModbusRTUSettings = new ModbusRTUSettings("COM1", 5, 9);
+            //CurrentModbusRTUSettings.SaveSettings(CurrentModbusRTUSettings, CurrentModbusRTUSettings.ModbusRTUSettingsFilePath);
             //*/
 
             // ВРЕМЕННАЯ СИМУЛЯЦИЯ НАЛИЧИЯ ДАННЫХ ДЛЯ СОХРАНЕНИЯ
@@ -274,10 +274,10 @@ namespace MNS
             switch (integrationValue)
             {
                 case 16:
-                    this.Integration = "Вкл.";
+                    this.Integration = "Увімк.";
                     break;
                 case 0:
-                    this.Integration = "Выкл.";
+                    this.Integration = "Вимк.";
                     break;
             }
             // Отображаем результат
@@ -288,10 +288,10 @@ namespace MNS
             switch (averagingValue)
             {
                 case 512:
-                    this.Averaging = "Вкл.";
+                    this.Averaging = "Увімк.";
                     break;
                 case 0:
-                    this.Averaging = "Выкл.";
+                    this.Averaging = "Вимк.";
                     break;
             }
             // Отображаем результат
@@ -302,10 +302,10 @@ namespace MNS
             switch (fixedMeasIntervalValue)
             {
                 case 256:
-                    this.FixedMeasInterval = "Да";
+                    this.FixedMeasInterval = "Так";
                     break;
                 case 0:
-                    this.FixedMeasInterval = "Нет";
+                    this.FixedMeasInterval = "Ні";
                     break;
             }
             // Отображаем результат
@@ -573,63 +573,63 @@ namespace MNS
             {
                 case 0:
                     this.RangeIntervalNumber = 1;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10^-5 до 1 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 10^-10 до 16*10^-5 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-5 до 10 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10^-5 до 1 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 10^-10 до 16*10^-5 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-5 до 10 Ф";
                     break;
                 case 1:
                     this.RangeIntervalNumber = 2;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 1 до 10 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-5 до 16*10^-4 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-5 до 16*10^-4 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 1 до 10 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16*10^-5 до 16*10^-4 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-5 до 16*10^-4 Ф";
                     break;
                 case 2:
                     this.RangeIntervalNumber = 3;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10 до 100 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-4 до 16*10^-3 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-9 до 16*10^-4 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10 до 100 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16*10^-4 до 16*10^-3 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-9 до 16*10^-4 Ф";
                     break;
                 case 3:
                     this.RangeIntervalNumber = 4;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 100 до 1000 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-3 до 16*10^-2 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-9 до 16*10^-8 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 100 до 1000 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16*10^-3 до 16*10^-2 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-9 до 16*10^-8 Ф";
                     break;
                 case 4:
                     this.RangeIntervalNumber = 5;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 1000 до 10^4 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^-2 до 1,6 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-8 до 16*10^-7 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 1000 до 10^4 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16*10^-2 до 1,6 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-8 до 16*10^-7 Ф";
                     break;
                 case 5:
                     this.RangeIntervalNumber = 6;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10^4 до 10^5 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 1,6 до 16 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-12 до 16*10^-7 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10^4 до 10^5 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 1,6 до 16 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-12 до 16*10^-7 Ф";
                     break;
                 case 6:
                     this.RangeIntervalNumber = 7;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10^5 до 10^6 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16 до 160 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-12 до 16*10^-11 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10^5 до 10^6 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16 до 160 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-12 до 16*10^-11 Ф";
                     break;
                 case 7:
                     this.RangeIntervalNumber = 8;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10^6 до 10^7 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 160 до 16*10^2 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-11 до 16*10^-10 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10^6 до 10^7 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 160 до 16*10^2 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-11 до 16*10^-10 Ф";
                     break;
                 case 8:
                     this.RangeIntervalNumber = 9;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10^7 до 10^8 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^2 до 16*10^3 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 16*10^-15 до 16*10^-10 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10^7 до 10^8 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16*10^2 до 16*10^3 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 16*10^-15 до 16*10^-10 Ф";
                     break;
                 case 9:
                     this.RangeIntervalNumber = 10;
-                    if (ChanalFlag == 0) this.RangeInterval = "от 10^8 до 10^11 Ом";
-                    if (ChanalFlag == 1) this.RangeInterval = "от 16*10^3 до 1*10^8 Гн";
-                    if (ChanalFlag == 2) this.RangeInterval = "от 1*10^-16 до 16*10^-15 Ф";
+                    if (ChanalFlag == 0) this.RangeInterval = "від 10^8 до 10^11 Ом";
+                    if (ChanalFlag == 1) this.RangeInterval = "від 16*10^3 до 1*10^8 Гн";
+                    if (ChanalFlag == 2) this.RangeInterval = "від 1*10^-16 до 16*10^-15 Ф";
                     break;
             }
 
@@ -700,7 +700,7 @@ namespace MNS
                 Modbus.Close(); // Закрываем COM порт
             }
 
-            MessageBox.Show(errorMessage, "Ошибка!");
+            MessageBox.Show(errorMessage, "Помилка!");
         }
 
         private void DisplayRequestMessageInConsole(byte[] message)
@@ -709,7 +709,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    ЗАПРОС    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    ЗАПИТ    --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -730,7 +730,7 @@ namespace MNS
             {
                 ConsoleText[i] = ConsoleText[i + 1];
             }
-            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    ОТВЕТ       --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
+            ConsoleText[ConsoleText.Length - 1] = $"    {DateTime.UtcNow}    ВІДПОВ.  --->    " + $"{BitConverter.ToString(message)}"; // Запись в последний элемент массива
 
             string displStr = "";
             foreach (var item in ConsoleText)
@@ -1026,7 +1026,7 @@ namespace MNS
 
                 // КОНФИГУРИРОВАНИЕ SaveFileDialog
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Title = "Сохранение массива измерянных данных";
+                saveFileDialog.Title = "Збереження масиву виміряних даних";
                 saveFileDialog.FileName = $"{filePath}";
                 saveFileDialog.InitialDirectory = $"{filePath}";
                 saveFileDialog.OverwritePrompt = true;
@@ -1079,9 +1079,9 @@ namespace MNS
         {
             // НАСТРОЙКИ ГРАФИКОВ ПРИ ИХ ПОСТРОЕНИИ (до рендеринга)
             // Scatter
-            value_plot.plt.Title("Диаграмма рассеяния", fontSize: 20, bold: true); // Заголовок
-            value_plot.plt.YLabel("Значение", fontSize: 18, bold: true); // Надпись у оси Y
-            value_plot.plt.XLabel("Время", fontSize: 18, bold: true); // Надпись у оси X
+            value_plot.plt.Title("Діаграма", fontSize: 20, bold: true); // Заголовок
+            value_plot.plt.YLabel("Значення", fontSize: 18, bold: true); // Надпись у оси Y
+            value_plot.plt.XLabel("Час", fontSize: 18, bold: true); // Надпись у оси X
             value_plot.plt.Ticks(dateTimeX: true); // Используем на оси X - формат времени
             value_plot.plt.Ticks(displayTickLabelsX: false); // Не показываем значения у делений на оси X
             value_plot.plt.Ticks(displayTickLabelsY: false); // Не показываем значения у делений на оси Y
@@ -1402,9 +1402,9 @@ namespace MNS
                     if (R_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(R_dates, R_values, label: "Сопротивление, Ом", color: System.Drawing.Color.Red);
-                        value_plot.plt.Title("Диаграмма рассеяния R"); // Надпись у оси Y
-                        value_plot.plt.YLabel("Значение R, Ом", bold: true); // Надпись у оси X
+                        value_plot.plt.PlotScatter(R_dates, R_values, label: "Електричний опір, Ом", color: System.Drawing.Color.Red);
+                        value_plot.plt.Title("Діаграма R"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значення R, Ом", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
@@ -1440,9 +1440,9 @@ namespace MNS
                     if (L_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(L_dates, L_values, label: "Индуктивность, Гн", color: System.Drawing.Color.Red);
-                        value_plot.plt.Title("Диаграмма рассеяния L"); // Надпись у оси Y
-                        value_plot.plt.YLabel("Значение L, Гн", bold: true); // Надпись у оси X
+                        value_plot.plt.PlotScatter(L_dates, L_values, label: "Індуктивність, Гн", color: System.Drawing.Color.Red);
+                        value_plot.plt.Title("Діаграма L"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значення L, Гн", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
@@ -1478,9 +1478,9 @@ namespace MNS
                     if (C_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(C_dates, C_values, label: "Емкость, Ф", color: System.Drawing.Color.Red);
-                        value_plot.plt.Title("Диаграмма рассеяния C"); // Надпись у оси Y
-                        value_plot.plt.YLabel("Значение C, Ф", bold: true); // Надпись у оси X
+                        value_plot.plt.PlotScatter(C_dates, C_values, label: "Ємність, Ф", color: System.Drawing.Color.Red);
+                        value_plot.plt.Title("Діаграма C"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значення C, Ф", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X
@@ -1516,9 +1516,9 @@ namespace MNS
                     if (M_values.Length > 1) // Если есть уже более 2ух точек - строим и отрисовываем графики
                     {
                         value_plot.plt.Clear();
-                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взимоиндуктивность, Гн", color: System.Drawing.Color.Red);
-                        value_plot.plt.Title("Диаграмма рассеяния M"); // Надпись у оси Y
-                        value_plot.plt.YLabel("Значение M, Гн", bold: true); // Надпись у оси X
+                        value_plot.plt.PlotScatter(M_dates, M_values, label: "Взаємоіндуктивність, Гн", color: System.Drawing.Color.Red);
+                        value_plot.plt.Title("Діаграма M"); // Надпись у оси Y
+                        value_plot.plt.YLabel("Значення M, Гн", bold: true); // Надпись у оси X
                         value_plot.plt.Ticks(displayTicksY: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTicksYminor: true); // Используем дополнительные деления оси Y
                         value_plot.plt.Ticks(displayTickLabelsX: true); // Показываем значения у делений на оси X

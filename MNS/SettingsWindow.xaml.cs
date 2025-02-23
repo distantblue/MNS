@@ -51,8 +51,8 @@ namespace MNS
             currentBaudRate_label.Content = CurrentModbusRTUSettings.BaudRate;
             currentDataBits_label.Content = CurrentModbusRTUSettings.DataBits;
             currentStopBits_label.Content = "Один";
-            currentParity_label.Content = "Нет";
-            currentHandShake_label.Content = "Нет";
+            currentParity_label.Content = "Ні";
+            currentHandShake_label.Content = "Ні";
 
             //ЗАПОЛНЕНИЕ НАСТРОЕК ДЛЯ ВОЗМОЖНОСТИ ИЗМЕНЕНИЯ
             string[] serialPortNames = SerialPort.GetPortNames(); // получаем массив доступных COM-портов на ПК
@@ -76,7 +76,7 @@ namespace MNS
             //ПРОВЕРКА НА ПУСТЫЕ ПОЛЯ НАСТРОЕК
             if (portName_ComboBox.Text == "" || pollingInterval_ComboBox.Text == "" || slaveAddress_ComboBox.Text == "")
             {
-                MessageBox.Show("Заполните все поля настроек","Ошибка!");
+                MessageBox.Show("Заповніть усі поля налаштувань", "Помилка!");
             }
             
             //СОХРАНЕНИЕ НАСТРОЕК
@@ -97,12 +97,12 @@ namespace MNS
 
         public void ShowSettingsError(string errorMessage)
         {
-            MessageBox.Show(errorMessage, "Ошибка!");
+            MessageBox.Show(errorMessage, "Помилка!");
         }
 
         public void ShowSettingsSavingSuccess()
         {
-            MessageBox.Show("Настройки успешно сохранены. \n\nДля вступления с силу новых настроек необходимо заново начать измерение или перезапустить программу.", "Успех!");
+            MessageBox.Show("Налаштування успішно збережено. \n\nДля набуття чинності нових налаштувань необхідно заново розпочати вимірювання або перезапустити програму.", "Успіх!");
         }
     }
 }

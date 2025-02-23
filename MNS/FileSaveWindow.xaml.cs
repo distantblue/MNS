@@ -61,7 +61,7 @@ namespace MNS
 
             // КОНФИГУРИРОВАНИЕ SaveFileDialog
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Сохранение массива измерянных данных";
+            saveFileDialog.Title = "Збереження масиву виміряних даних";
             saveFileDialog.FileName = $"{filePath}";
             saveFileDialog.InitialDirectory = $"{filePath}";
             saveFileDialog.OverwritePrompt = true;

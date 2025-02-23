@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
         Icon="Icon_favicon.ico"
-        Title="МНС 1100 - Измерительная система для ПК" MinWidth="1360" MinHeight="800"  Width="1360" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
+        Title="МНС 1100 - Інформаційно-вимірювальна система для ПК" MinWidth="1360" MinHeight="800"  Width="1360" Height="800"  Background="Gray" WindowStartupLocation="CenterScreen">
     <Grid ShowGridLines="False" Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="53"/>
@@ -27,20 +27,20 @@
 
         <Border Grid.Row="0" Grid.ColumnSpan="7" BorderThickness="2" BorderBrush="Black"  Margin="8" CornerRadius="16" Background="White">
             <Menu HorizontalAlignment="Stretch" Margin="12,6,12,6" Background="White" FontSize="16" FontWeight="Bold" FontFamily="Arial">
-                <MenuItem Header="УПРАВЛЕНИЕ">
-                    <MenuItem Header="Начать измерение" Click="StartMeasurement_MenuItem_Click" />
+                <MenuItem Header="КЕРУВАННЯ">
+                    <MenuItem Header="Почати вимірювання" Click="StartMeasurement_MenuItem_Click" />
                     <MenuItem Header="Стоп" Click="StopMeasurement_MenuItem_Click"/>
-                    <MenuItem Header="Очистить диаграмму" Click="ClearPlots_MenuItem_Click"/>
-                    <MenuItem Header="Сохранить данные" Click="SaveMeasurementData_MenuItem_Click"/>
-                    <MenuItem Header="Выход" Click="Exit_MenuItem_Click"/>
+                    <MenuItem Header="Очистити діаграму" Click="ClearPlots_MenuItem_Click"/>
+                    <MenuItem Header="Зберегти дані" Click="SaveMeasurementData_MenuItem_Click"/>
+                    <MenuItem Header="Вихід" Click="Exit_MenuItem_Click"/>
                 </MenuItem>
-                <MenuItem Header="НАСТРОЙКИ">
-                    <MenuItem Header="Настройки связи с прибором" Click="Settings_MenuItem_Click"/>
+                <MenuItem Header="НАЛАШТУВАННЯ">
+                    <MenuItem Header="Налаштування зв'язку з приладом" Click="Settings_MenuItem_Click"/>
                 </MenuItem>
-                <MenuItem Header="СПРАВКА">
-                    <MenuItem Header="О программе" Click="AboutApp_MenuItem_Click"/>
-                    <MenuItem Header="О файле данных и оценке среднего" Click="AboutDataFile_MenuItem_Click"/>
-                    <MenuItem Header="Техподдержка" Click="TechnicalAssistance_MenuItem_Click"/>
+                <MenuItem Header="ДОВІДКА">
+                    <MenuItem Header="Про програму" Click="AboutApp_MenuItem_Click"/>
+                    <MenuItem Header="Про файл даних та оцінку середнього" Click="AboutDataFile_MenuItem_Click"/>
+                    <MenuItem Header="Технічна підтримка" Click="TechnicalAssistance_MenuItem_Click"/>
                 </MenuItem>
             </Menu>
         </Border>
@@ -66,7 +66,7 @@
 
         <Border Grid.Row="5" Grid.Column="3"  BorderThickness="2" BorderBrush="Transparent" Margin="8" CornerRadius="16" Background="Transparent">
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                <Button x:Name="ClearPlots_button" Click="ClearPlots_button_Click" Width="300" Height="90" Foreground="Black" FontSize="16" FontWeight="Bold" >ОЧИСТИТЬ ДИАГРАММУ</Button>
+                <Button x:Name="ClearPlots_button" Click="ClearPlots_button_Click" Width="300" Height="90" Foreground="Black" FontSize="16" FontWeight="Bold" >ОЧИСТИТИ ДІАГРАМУ</Button>
             </StackPanel>
         </Border>
 
@@ -74,7 +74,7 @@
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 
                 <StackPanel Orientation="Horizontal" Margin="32,16,0,2">
-                    <TextBlock VerticalAlignment="Center"  Text="Номер поддиапазона измерения:" TextWrapping="Wrap" Width="320" x:Name="rangeIntervalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Номер піддіапазону вимірювання:" TextWrapping="Wrap" Width="320" x:Name="rangeIntervalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="rangeIntervalNumber_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
@@ -83,27 +83,27 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,0,0,2">
-                    <TextBlock VerticalAlignment="Center"  Text="Эквивалентная схема замещения:" TextWrapping="Wrap" Width="320" x:Name="equivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Еквівалентна схема заміщення:" TextWrapping="Wrap" Width="320" x:Name="equivalentCircuitSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="equivalentCircuit_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
-                    <TextBlock VerticalAlignment="Center"  Text="Фиксированный интервал диапазона:" TextWrapping="Wrap" Width="320" x:Name="fixedMeasIntervalValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Фіксований інтервал діапазону:" TextWrapping="Wrap" Width="320" x:Name="fixedMeasIntervalValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center"  Margin="0" TextWrapping="Wrap" Width="55" x:Name="fixedMeasIntervalValue_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
-                    <TextBlock VerticalAlignment="Center"  Text="Интегрирование:" TextWrapping="Wrap" Width="320" x:Name="integrationValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Інтегрування:" TextWrapping="Wrap" Width="320" x:Name="integrationValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="55" x:Name="integrationValue_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,2" >
-                    <TextBlock VerticalAlignment="Center"  Text="Усреднение измерений:" TextWrapping="Wrap" Width="320" x:Name="averagingValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Усереднення вимірювань:" TextWrapping="Wrap" Width="320" x:Name="averagingValueSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="55" x:Name="averagingValue_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="32,2,0,16" >
-                    <TextBlock VerticalAlignment="Center"  Text="Номер канала измерения:" TextWrapping="Wrap" Width="320" x:Name="chanalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
+                    <TextBlock VerticalAlignment="Center"  Text="Номер каналу вимірювання:" TextWrapping="Wrap" Width="320" x:Name="chanalNumberSymbol_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold" />
                     <TextBlock VerticalAlignment="Center" Margin="0" TextWrapping="Wrap" Width="55" x:Name="chanalNumber_textBlock" Foreground="Black" FontSize="16" FontWeight="Bold"/>
                 </StackPanel>
             </StackPanel>
@@ -112,7 +112,7 @@
         <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="3" BorderThickness="2" BorderBrush="Black" Margin="8" CornerRadius="16" Background="White" >
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock FontSize="22" FontWeight="Bold" Margin="3">Оценка среднего:</TextBlock>
+                    <TextBlock FontSize="22" FontWeight="Bold" Margin="3">Оцінка середнього:</TextBlock>
                 </StackPanel>
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">

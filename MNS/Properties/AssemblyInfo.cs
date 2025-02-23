@@ -9,10 +9,10 @@ using System.Windows;
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
 [assembly: AssemblyTitle("MNS-1100 application")]
-[assembly: AssemblyDescription("Целевая платформа Windows версия .NET Framework 4.6.1")]
+[assembly: AssemblyDescription("Цільова платформа - ОС Windows, версія .NET Framework 4.6.1")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ГП УКРМЕТРТЕСТСТАНДАРТ, г. Киев")]
-[assembly: AssemblyProduct("Программное обеспечение для сопряжения импедансметра МНС-1100 с ПК")]
+[assembly: AssemblyCompany("ДП \"УКРМЕТРТЕСТСТАНДАРТ\", м. Киев")]
+[assembly: AssemblyProduct("Програмне забезпечення для сполучення імпедансметра МНС-1100 з ПК")]
 [assembly: AssemblyCopyright("Copyright © 2020  Oleksii Stennik, Scott Harden ")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

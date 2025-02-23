@@ -5,32 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-         Title="Информация о файле данных и оценке среднего" Width="760" Height="720" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
+         Title="Інформація про файл даних та оцінку середнього" Width="760" Height="720" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="NavajoWhite">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
             <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="8" Width="700">
 
-                <Label Content="Файл данных" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
+                <Label Content="Файл даних" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                     <Image Source="Icon_csv_file.png" Height="100" Margin="32,8,8,8"/>
-                    <TextBlock TextWrapping="WrapWithOverflow" Margin="32,16,0,0" Width="530">В качестве формата файла данных программа использует текстовый формат &quot;Comma-separated values&quot; (*.CSV), 
-                    где в качестве разделителя полей использует символ &quot;;&quot;. Каждое единичное измерение представлено строкой данных разделенных &quot;;&quot;. 
-                    При открытии файла данных с помощью Microsoft Excel, если в региональных настройках системы Windows в качестве разделителя указан &quot;;&quot; - 
-                    данные в файле будут отображены в виде таблицы.
-                    </TextBlock>
+                    <TextBlock TextWrapping="WrapWithOverflow" Margin="32,16,0,0" Width="530"><Run Text="Як формат файлу даних програма використовує текстовий формат &quot;Comma-separated values&quot; (*.CSV), де як роздільник полів використовується символ &quot;;&quot;. Кожен одиничний вимір представлений рядком даних розділених &quot;;&quot;. При відкритті файлу даних за допомогою Microsoft Excel, якщо в регіональних налаштуваннях Windows як роздільник вказано &quot;;&quot; - дані "/><LineBreak/><Run Text="у файлі будуть відображені у вигляді таблиці."/></TextBlock>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="8">
                     <Image Source="Icon_bad_data.png" Width="662" Margin="0,0,0,4"/>
                     <Image Source="Icon_good_data.png" Width="662" Margin="0,8,0,8"/>
                 </StackPanel>
-                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0" >В случае аварийного завершения программы или в случае отключения ПК, после загрузки ОС и до повторного запуска программы, по адресу расположения исполняемого файла программы в директории "Temp" располагается файл "Data.csv", который хранит все измеренные ранее данные до аварийного завершения программы. В случае запуска программы, данный резервный файл данных будет автоматически очищен.
+                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0" ><Run Text="У разі аварійного завершення програми або у разі відключення ПК, після завантаження ОС і до повторного запуску програми, за адресою розташування виконуваного файлу програми в директорії &quot;Temp&quot; розташовується файл &quot;Data.csv&quot;, який зберігає всі виміряні раніше дані до аварійного завершення програми. У разі запуску програми, цей резервний "/><Run Text=" "/><Run Text="файл даних буде автоматично очищено."/></TextBlock>
+                <Label Content="Зміна налаштувань" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
+                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель керування" ---> "Регіональні стандарти" ---> "Додаткові параметри" ---> "Розділювач елементів списку" ---> ";"
                 </TextBlock>
-                <Label Content="Изменение настроек" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
-                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">"Панель управления" ---> "Региональные стандарты" ---> "Дополнительные параметры" ---> "Разделитель элементов списка" ---> ";"
-                </TextBlock>
-                <Label Content="Оценка среднего" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
-                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">Оценка среднего определяется по последним 30 измерениям если разброс значений находтся в интервале +-1 % от среднего значения.</TextBlock>
+                <Label Content="Оцінка середнього" FontWeight="Bold" HorizontalAlignment="Center" FontSize="15"/>
+                <TextBlock TextWrapping="WrapWithOverflow" Margin="20,0,0,0">Оцінка середнього визначається за останніми 30 вимірами, якщо розкид значень знаходиться в інтервалі +-1 % від середнього значення.</TextBlock>
             </StackPanel>
         </Border>
     </Grid>

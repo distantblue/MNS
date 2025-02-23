@@ -162,7 +162,7 @@ namespace MNS
                 }
                 catch (InvalidOperationException ex)
                 {
-                    SerialPortOpeningError?.Invoke($"Возникла ошибка при попытке открыть порт {SerialPort.PortName}. Подробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                    SerialPortOpeningError?.Invoke($"Виникла помилка при спробі відкрити порт {SerialPort.PortName}. Детальніше про виняткову ситуацію: \n\n {ex.Message}");
                 }
             }
 
@@ -177,7 +177,7 @@ namespace MNS
             }
             catch (TimeoutException ex) // По истечении WriteTimeout [мс]
             {
-                SerialPortWritingError?.Invoke($"Произошла ошибка при записи данных порт. \n\nПодробнее о возникшей исключительной ситуации: \n\n {ex.Message}");
+                SerialPortWritingError?.Invoke($"Виникла помилка при записі даних порт. \n\nДетальніше про виняткову ситуацію: \n\n {ex.Message}");
             }
             RequestSent?.Invoke(modbusMessage); // Вызов события "отправлена команда"
 
@@ -195,7 +195,7 @@ namespace MNS
             // ЕСЛИ ВХОДЯЩИЙ БУФФЕР ПУСТОЙ
             if (SerialPort.BytesToRead == 0)
             {
-                DeviceNotRespondingError?.Invoke("Ошибка! Устройство не ответило на запрос.");
+                DeviceNotRespondingError?.Invoke("Помилка! Пристрій не відповів на запит.");
             }
 
             // ЕСЛИ ВО ВХОДЯЩЕМ БУФФЕРЕ ПОРТА БОЛЕЕ 5 байтов
@@ -229,36 +229,36 @@ namespace MNS
                             }
                             else
                             {
-                                SlaveError?.Invoke("Ошибка! В сообщении ответа устройства не совпадает функция команды или количество запрошенных байтов данных.");
+                                SlaveError?.Invoke("Помилка! У відповіді пристрою не збігається функція команди або кількість байтів даних на які був запит.");
                             }
                         }
                         else
                         {
                             if (buffer[1] == 81 || buffer[1] == 82)
                             {
-                                SlaveError?.Invoke("Ошибка! Запрашиваемая функция или адресное поле не поддерживается устройством.");
+                                SlaveError?.Invoke("Помилка! Функція що запитується або адресне поле не підтримується пристроєм.");
                             }
                             else
                             {
-                                SlaveError?.Invoke("Неустановленная ошибка.");
+                                SlaveError?.Invoke("Невстановлена ​​помилка.");
                             }
                         }
                     }
                     else
                     {
-                        SlaveError?.Invoke("Ошибка! В сообщении ответа неверный адрес устройства.");
+                        SlaveError?.Invoke("Помилка! У відповіді пристрою неправильна адреса пристрою.");
                     }
                 }
                 // ЕСЛИ КОНТРОЛЬНАЯ СУММА НЕ СОШЛАСЬ
                 else
                 {
-                    CRC_Error?.Invoke("Ошибка! В сообщении ответа устройства неверная контрольная сумма.");
+                    CRC_Error?.Invoke("Помилка! У відповіді пристрою неправильна контрольна сума.");
                 }
             }
             // ЕСЛИ ВО ВХОДЯЩЕМ БУФФЕРЕ ПОРТА МЕНЕЕ 5 байтов
             else
             {
-                SlaveError?.Invoke("Ошибка! В сообщении ответа устройства менее 5 байтов.");
+                SlaveError?.Invoke("Помилка! У відповіді пристрою менше 5 байтів.");
             }
         }
 

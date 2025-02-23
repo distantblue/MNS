@@ -71,7 +71,7 @@ namespace MNS
             // Инициализируем переменные значениями по умолчанию, чтоб не ссылались в null
             this.SilentInterval = GetSilentInterval();
             this.PortName = "COM1";
-            this.PollingInterval = 1;
+            this.PollingInterval = 5;
             this.ModbusRTUSlaveAddress = 0x09;
 
             // Формирование пути к файлу настроек
@@ -118,15 +118,15 @@ namespace MNS
             }
             catch (FileNotFoundException exception)
             {
-                SettingsFileNotFoundError?.Invoke($"В директории \"Settings\" отсутствует файл настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                SettingsFileNotFoundError?.Invoke($"В директорії \"Settings\" відсутній файл налаштувань {ModbusRTUSettingsFileName} \n\n Детальніше про виняткову ситуацію: \n\n {exception.Message}");
             }
             catch (System.Runtime.Serialization.SerializationException exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при десериализации объекта настроек программы из файла настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                SettingsFileReadingError?.Invoke($"Виникла помилка при десеріалізації об'єкта налаштувань програми з файлу налаштувань {ModbusRTUSettingsFileName} \n\n Детальніше про виняткову ситуацію: \n\n {exception.Message}");
             }
             catch (Exception exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при считывании настроек программы из файла настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                SettingsFileReadingError?.Invoke($"Виникла помилка при зчитуванні налаштувань програми з файлу налаштувань {ModbusRTUSettingsFileName} \n\n Детальніше про виняткову ситуацію: \n\n {exception.Message}");
             }
 
             return currentSettings;
@@ -144,11 +144,11 @@ namespace MNS
             }
             catch (System.Runtime.Serialization.SerializationException exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при сериализации объекта настроек программы в файл настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                SettingsFileReadingError?.Invoke($"Виникла помилка при серіалізації об'єкта налаштувань програми у файл налаштувань {ModbusRTUSettingsFileName} \n\n Детальніше про виняткову ситуацію: \n\n {exception.Message}");
             }
             catch (Exception exception)
             {
-                SettingsFileReadingError?.Invoke($"Возникла ошибка при сериализации объекта настроек программы в файл настроек {ModbusRTUSettingsFileName} \n\n Подробнее о возникшей исключительной ситуации: \n\n {exception.Message}");
+                SettingsFileReadingError?.Invoke($"Виникла помилка при серіалізації об'єкта налаштувань програми у файл налаштувань {ModbusRTUSettingsFileName} \n\n Детальніше про виняткову ситуацію: \n\n {exception.Message}");
             }
         }
 

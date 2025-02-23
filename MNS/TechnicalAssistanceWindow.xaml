@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-       Title="Техподдержка" Width="640" Height="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="White">
+       Title="Технічна підтримка" Width="640" Height="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="White">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="2" Margin="8" CornerRadius="12">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left"  >

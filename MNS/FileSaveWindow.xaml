@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MNS"
         mc:Ignorable="d"
-        Title="Сохранить?" Height="240" Width="640" Background="CornflowerBlue"  WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="Зберегти?" Height="240" Width="640" Background="CornflowerBlue"  WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid>
         <DockPanel>
             <Border BorderBrush="Black" BorderThickness="2" Margin="8,8,4,8" CornerRadius="12">
                 <StackPanel DockPanel.Dock="Left" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel HorizontalAlignment="Center">
-                        <Label Content="СОХРАНИТЬ РЕЗУЛЬТАТЫ ИЗМЕРЕНИЙ ПЕРЕД ВЫХОДОМ?" Margin="0,0,0,15" FontSize="16" FontWeight="Bold" Foreground="Black" FontFamily="Arial"/>
+                        <Label Content="ЗБЕРЕГТИ РЕЗУЛЬТАТИ ВИМІРЮВАНЬ ПЕРЕД ВИХОДОМ?" Margin="0,0,0,15" FontSize="16" FontWeight="Bold" Foreground="Black" FontFamily="Arial"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="Да" x:Name="SaveDataFile_button" Width="100" Height="30" Margin="16,16,48,16" Click="SaveDataFile_button_Click" FontWeight="Bold"/>
-                        <Button Content="Нет" x:Name="CancelSavingDataFile_button" Width="100" Height="30" Margin="48,16,16,16" Background="Red" Foreground="White" FontWeight="Bold" BorderBrush="Black" Click="CancelSavingDataFile_button_Click"/>
+                        <Button Content="Так" x:Name="SaveDataFile_button" Width="100" Height="30" Margin="16,16,48,16" Click="SaveDataFile_button_Click" FontWeight="Bold"/>
+                        <Button Content="Ні" x:Name="CancelSavingDataFile_button" Width="100" Height="30" Margin="48,16,16,16" Background="Red" Foreground="White" FontWeight="Bold" BorderBrush="Black" Click="CancelSavingDataFile_button_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
